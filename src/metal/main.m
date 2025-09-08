@@ -1,4 +1,5 @@
 #include <err.h>
+#include <pthread.h>
 
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
@@ -15,6 +16,8 @@
 #define HEIGHT 480
 
 static char done = 0;
+
+static void *MTL_render(void *c);
 
 void MTL_main(void) {
 	SDL_Window *window = SDL_CreateWindow("unbloCked", WIDTH, HEIGHT,
@@ -49,10 +52,8 @@ void MTL_main(void) {
 	[devices release];
 	ARP_POP();
 
-#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101500
 	if (device == nil)
 		device = layer.preferredDevice;
-#endif
 
 	if (device == nil)
 		device = MTLCreateSystemDefaultDevice();
@@ -63,6 +64,17 @@ void MTL_main(void) {
 	layer.device = device;
 	layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 
+	/* just to make sure Cocoa is in multithreaded mode */
+	if (__builtin_expect(![NSThread isMultiThreaded], false)) {
+		NSThread *dummy = [NSThread new];
+		[dummy start];
+		[dummy cancel];
+		[dummy release];
+	}
+
+	pthread_t rthread;
+	pthread_create(&rthread, NULL, MTL_render, layer);
+
 	SDL_Event ev;
 	while (!done && SDL_WaitEvent(&ev)) {
 		switch (ev.type) {
@@ -72,11 +84,49 @@ void MTL_main(void) {
 		}
 	}
 
+	pthread_join(rthread, NULL);
+
 	[device release];
 	SDL_Metal_DestroyView(view);
 	SDL_DestroyWindow(window);
 }
 
-static void *MTL_render(void *c) {
+static void *MTL_render(void *l) {
+	CAMetalLayer *layer = (__bridge CAMetalLayer *)l;
+	id<MTLDevice> device = layer.device;
+
+	ARP_PUSH();
+
+	MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor
+		renderPassDescriptor];
+	MTLRenderPassColorAttachmentDescriptor *color = rpd.colorAttachments[0];
+	color.loadAction = MTLLoadActionClear;
+	color.storeAction = MTLStoreActionDontCare;
+	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
+
+	id<MTLCommandQueue> cmdq = [device newCommandQueue];
+	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+
+	while (__builtin_expect(!done, 1)) {
+		ARP_PUSH();
+
+		id<CAMetalDrawable> drawable = [layer nextDrawable];
+		color.texture = drawable.texture;
+
+		id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
+
+		id<MTLRenderCommandEncoder> enc = [cmdb
+			renderCommandEncoderWithDescriptor:rpd];
+		[enc endEncoding];
+
+		[cmdb presentDrawable:drawable];
+		[cmdb commit];
+
+		ARP_POP();
+	}
+
+	[cmdq release];
+	ARP_POP();
+
 	return NULL;
 }
