@@ -4,7 +4,7 @@
 #include <objc/objc.h>
 
 struct shdrstore {
-	struct objc_object *buttons;
+	struct objc_object *button;
 };
 
 struct shdrstore *shdr_generate(struct shdrstore *, struct objc_object *device);

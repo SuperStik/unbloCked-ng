@@ -11,6 +11,7 @@
 
 #include "main.h"
 #include "objc_macros.h"
+#include "shaderstorage.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -104,6 +105,9 @@ static void *MTL_render(void *l) {
 	color.storeAction = MTLStoreActionDontCare;
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
+	struct shdrstore store;
+	shdr_generate(&store, (struct objc_object *)device);
+
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
@@ -124,6 +128,8 @@ static void *MTL_render(void *l) {
 
 		ARP_POP();
 	}
+
+	shdr_release(&store);
 
 	[cmdq release];
 	ARP_POP();
