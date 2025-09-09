@@ -39,7 +39,7 @@ OUT := ${OUT_DIR}/${EXE}
 
 O ?= 2
 
-override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno
+override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibility=hidden
 
 all: ${OBJ_DIRS} ${OUT} ${SHDR_DIR}/default.metallib ${RES_OUT}
 
