@@ -9,12 +9,18 @@
 #include <SDL3/SDL_metal.h>
 #include <SDL3/SDL_video.h>
 
+#include "../math/vector.h"
 #include "main.h"
 #include "objc_macros.h"
 #include "shaderstorage.h"
 
 #define WIDTH 640
 #define HEIGHT 480
+
+struct buttonvert {
+	gvec(float,2) pos;
+	gvec(_Float16,2) texcoords;
+};
 
 static char done = 0;
 
@@ -105,6 +111,18 @@ static void *MTL_render(void *l) {
 	color.storeAction = MTLStoreActionDontCare;
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
+	struct buttonvert verts[4] = {
+		{{-1.0f, -1.0f}, {0.0f, 1.0f}},
+		{{-1.0f, 1.0f}, {0.0f, 0.0f}},
+		{{1.0f, -1.0f}, {1.0f, 1.0f}},
+		{{1.0f, 1.0f}, {1.0f, 0.0f}}
+	};
+
+	id<MTLBuffer> rect = [device
+		newBufferWithBytes:verts
+			    length:sizeof(verts)
+			   options:MTLResourceCPUCacheModeWriteCombined];
+
 	struct shdrstore store;
 	shdr_generate(&store, (struct objc_object *)device);
 
@@ -121,6 +139,14 @@ static void *MTL_render(void *l) {
 
 		id<MTLRenderCommandEncoder> enc = [cmdb
 			renderCommandEncoderWithDescriptor:rpd];
+		id<MTLRenderPipelineState> button = (__bridge
+				id<MTLRenderPipelineState>)store.button;
+		[enc setRenderPipelineState:button];
+		[enc setVertexBuffer:rect offset:0 atIndex:1];
+		[enc setCullMode:MTLCullModeBack];
+		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
+			vertexStart:0
+			vertexCount:4];
 		[enc endEncoding];
 
 		[cmdb presentDrawable:drawable];
@@ -129,6 +155,7 @@ static void *MTL_render(void *l) {
 		ARP_POP();
 	}
 
+	[rect release];
 	shdr_release(&store);
 
 	[cmdq release];
