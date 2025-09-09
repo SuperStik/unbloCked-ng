@@ -9,7 +9,7 @@ struct outdata {
 };
 
 vertex
-outdata vertButtons(uint vertexID [[vertex_id]], constant guivert *verts
+outdata vertButton(uint vertexID [[vertex_id]], constant guivert *verts
 		[[buffer(1)]]) {
 	guivert vert = verts[vertexID];
 	outdata data = {float4(vert.position, 0.0f, 1.0f), vert.texcoords};
@@ -19,6 +19,6 @@ outdata vertButtons(uint vertexID [[vertex_id]], constant guivert *verts
 
 [[early_fragment_tests]]
 fragment
-half4 fragButtons(struct outdata in[[stage_in]]) {
+half4 fragButton(struct outdata in[[stage_in]]) {
 	return half4(in.texcoords, 0.0h, 1.0h);
 }
