@@ -111,7 +111,7 @@ static void *MTL_render(void *l) {
 	color.storeAction = MTLStoreActionDontCare;
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
-	struct buttonvert verts[4] = {
+	const struct buttonvert verts[4] = {
 		{{-1.0f, -1.0f}, {0.0f, 1.0f}},
 		{{-1.0f, 1.0f}, {0.0f, 0.0f}},
 		{{1.0f, -1.0f}, {1.0f, 1.0f}},
