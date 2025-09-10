@@ -60,11 +60,15 @@ void MTL_main(void) {
 	[devices release];
 	ARP_POP();
 
+	ARP_PUSH();
 	if (device == nil)
 		device = layer.preferredDevice;
 
-	if (device == nil)
+	bool deviceowned = false;
+	if (device == nil) {
 		device = MTLCreateSystemDefaultDevice();
+		deviceowned = true;
+	}
 
 	if (__builtin_expect(device == nil, 0))
 		err(1, "Failed to get device!");
@@ -112,7 +116,11 @@ void MTL_main(void) {
 
 	pthread_join(rthread, NULL);
 
-	[device release];
+	if (deviceowned)
+		[device release];
+
+	ARP_POP();
+
 	SDL_Metal_DestroyView(view);
 	SDL_DestroyWindow(window);
 }
