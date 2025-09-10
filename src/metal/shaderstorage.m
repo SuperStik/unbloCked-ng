@@ -7,6 +7,7 @@
 struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 {
 	id<MTLDevice> device = (__bridge id<MTLDevice>)d;
+	[device retain];
 
 	ARP_PUSH();
 
@@ -32,6 +33,9 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 	id<MTLRenderPipelineState> rpsButton;
 	rpsButton = [device newRenderPipelineStateWithDescriptor:desc
 							   error:nil];
+
+	[device release];
+
 	store->button = (struct objc_object *)rpsButton;
 
 	[desc release];
