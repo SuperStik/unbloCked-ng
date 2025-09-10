@@ -60,7 +60,6 @@ void MTL_main(void) {
 	[devices release];
 	ARP_POP();
 
-	ARP_PUSH();
 	if (device == nil)
 		device = layer.preferredDevice;
 
@@ -119,8 +118,6 @@ void MTL_main(void) {
 	if (deviceowned)
 		[device release];
 
-	ARP_POP();
-
 	SDL_Metal_DestroyView(view);
 	SDL_DestroyWindow(window);
 }
@@ -128,8 +125,6 @@ void MTL_main(void) {
 static void *MTL_render(void *l) {
 	CAMetalLayer *layer = (__bridge CAMetalLayer *)l;
 	id<MTLDevice> device = layer.device;
-
-	ARP_PUSH();
 
 	MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor
 		renderPassDescriptor];
@@ -191,7 +186,6 @@ static void *MTL_render(void *l) {
 	shdr_release(&store);
 
 	[cmdq release];
-	ARP_POP();
 
 	return NULL;
 }
