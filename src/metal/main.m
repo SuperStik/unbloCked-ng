@@ -22,6 +22,7 @@ struct buttonvert {
 	gvec(_Float16,2) texcoords;
 };
 
+static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static char done = 0;
 
 static void *MTL_render(void *c);
@@ -82,14 +83,32 @@ void MTL_main(void) {
 	pthread_t rthread;
 	pthread_create(&rthread, NULL, MTL_render, layer);
 
+	char occluded = 0;
 	SDL_Event ev;
 	while (!done && SDL_WaitEvent(&ev)) {
 		switch (ev.type) {
 			case SDL_EVENT_QUIT:
 				done = 1;
 				break;
+			case SDL_EVENT_WINDOW_EXPOSED:
+				if (occluded) {
+					occluded = 0;
+					pthread_mutex_unlock(&occllock);
+				}
+
+				break;
+			case SDL_EVENT_WINDOW_OCCLUDED:
+				if (!occluded) {
+					occluded = 1;
+					pthread_mutex_lock(&occllock);
+				}
+
+				break;
 		}
 	}
+
+	if (occluded)
+		pthread_mutex_unlock(&occllock);
 
 	pthread_join(rthread, NULL);
 
@@ -130,6 +149,11 @@ static void *MTL_render(void *l) {
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
 	while (__builtin_expect(!done, 1)) {
+		/* freeze render thread when not visible */
+
+		pthread_mutex_lock(&occllock);
+		pthread_mutex_unlock(&occllock);
+
 		ARP_PUSH();
 
 		id<CAMetalDrawable> drawable = [layer nextDrawable];
