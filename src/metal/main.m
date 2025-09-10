@@ -53,6 +53,7 @@ void MTL_main(void) {
 	while(curdevice = [devenum nextObject]) {
 		if (curdevice.lowPower == lowpower) {
 			device = curdevice;
+			[device retain];
 			break;
 		}
 	}
@@ -60,14 +61,13 @@ void MTL_main(void) {
 	[devices release];
 	ARP_POP();
 
-	if (device == nil)
-		device = layer.preferredDevice;
-
-	bool deviceowned = false;
 	if (device == nil) {
-		device = MTLCreateSystemDefaultDevice();
-		deviceowned = true;
+		device = layer.preferredDevice;
+		[device retain];
 	}
+
+	if (device == nil)
+		device = MTLCreateSystemDefaultDevice();
 
 	if (__builtin_expect(device == nil, 0))
 		err(1, "Failed to get device!");
@@ -115,8 +115,7 @@ void MTL_main(void) {
 
 	pthread_join(rthread, NULL);
 
-	if (deviceowned)
-		[device release];
+	[device release];
 
 	SDL_Metal_DestroyView(view);
 	SDL_DestroyWindow(window);
