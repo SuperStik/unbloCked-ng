@@ -7,7 +7,8 @@
 struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 {
 	id<MTLDevice> device = (__bridge id<MTLDevice>)d;
-	[device retain];
+
+	id<MTLLibrary> lib;
 
 	ARP_PUSH();
 
@@ -15,7 +16,11 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 	NSURL *liburl = [bundle URLForResource:@"resources/shaders/default"
 				 withExtension:@".metallib"];
 
-	id<MTLLibrary> lib = [device newLibraryWithURL:liburl error:nil];
+	[device retain];
+
+	lib = [device newLibraryWithURL:liburl error:nil];
+
+	ARP_POP();
 
 	id<MTLFunction> vertButton = [lib newFunctionWithName:@"vertButton"];
 	id<MTLFunction> fragButton = [lib newFunctionWithName:@"fragButton"];
@@ -30,17 +35,13 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 	[fragButton release];
 	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
-	id<MTLRenderPipelineState> rpsButton;
-	rpsButton = [device newRenderPipelineStateWithDescriptor:desc
-							   error:nil];
+	id<MTLRenderPipelineState> rpsButton = [device
+		newRenderPipelineStateWithDescriptor:desc error:nil];
 
+	[desc release];
 	[device release];
 
 	store->button = (struct objc_object *)rpsButton;
-
-	[desc release];
-
-	ARP_POP();
 
 	return store;
 }
