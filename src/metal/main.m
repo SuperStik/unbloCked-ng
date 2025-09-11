@@ -95,7 +95,9 @@ void MTL_main(void) {
 
 	/* not sure if I should make this centered or not...
 	 * hell I just might make 9 of 'em */
-	GUTL_orthof(matrices, 0.0f, (float)WIDTH, 0.0f, (float)HEIGHT, 0.0f,
+	const float widthd2 = ((float)WIDTH) * 0.5f;
+	const float heightd2 = ((float)HEIGHT) * 0.5f;
+	GUTL_orthof(matrices, -widthd2, widthd2, -heightd2, heightd2, 0.0f,
 			256.0f);
 	const NSRange matrange = NSMakeRange(0, sizeof(float) * 16);
 	if (!unified)
@@ -129,10 +131,11 @@ void MTL_main(void) {
 
 				break;
 			case SDL_EVENT_WINDOW_RESIZED:
-				GUTL_orthof(matrices, 0.0f,
-						(float)ev.window.data1, 0.0f,
-						(float)ev.window.data2, 0.0f,
-						256.0f);
+				;
+				float wd2 = ((float)ev.window.data1) * 0.5f;
+				float hd2 = ((float)ev.window.data2) * 0.5f;
+				GUTL_orthof(matrices, -wd2, wd2, -hd2, hd2,
+						0.0f, 256.0f);
 				if (!unified)
 					[matbuf didModifyRange:matrange];
 				break;
@@ -163,10 +166,10 @@ static void *MTL_render(void *l) {
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
 	const struct buttonvert verts[4] = {
-		{{45.0f, 30.0f}, {0.0f, 1.0f}},
-		{{45.0f, 240.0f}, {0.0f, 0.0f}},
-		{{360.0f, 30.0f}, {1.0f, 1.0f}},
-		{{360.0f, 240.0f}, {1.0f, 0.0f}}
+		{{-300.0f, -30.0f}, {0.0f, 1.0f}},
+		{{-300.0f, 30.0f}, {0.0f, 0.0f}},
+		{{300.0f, -30.0f}, {1.0f, 1.0f}},
+		{{300.0f, 30.0f}, {1.0f, 0.0f}}
 	};
 
 	id<MTLBuffer> rect = [device
