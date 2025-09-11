@@ -16,8 +16,6 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 	NSURL *liburl = [bundle URLForResource:@"resources/shaders/default"
 				 withExtension:@".metallib"];
 
-	[device retain];
-
 	lib = [device newLibraryWithURL:liburl error:nil];
 
 	ARP_POP();
@@ -39,7 +37,6 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 		newRenderPipelineStateWithDescriptor:desc error:nil];
 
 	[desc release];
-	[device release];
 
 	store->button = (struct objc_object *)rpsButton;
 
