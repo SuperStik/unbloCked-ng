@@ -169,11 +169,23 @@ static void *MTL_render(void *l) {
 	color.storeAction = MTLStoreActionDontCare;
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
-	const struct buttonvert verts[4] = {
+	const struct buttonvert verts[] = {
 		{{2.0f, 2.0f}, {0.0f, 1.0f}},
 		{{2.0f, 66.0f}, {0.0f, 0.0f}},
 		{{66.0f, 2.0f}, {1.0f, 1.0f}},
-		{{66.0f, 66.0f}, {1.0f, 0.0f}}
+		{{66.0f, 66.0f}, {1.0f, 0.0f}},
+		{{2.0f, -66.0f}, {0.0f, 1.0f}},
+		{{2.0f, -2.0f}, {0.0f, 0.0f}},
+		{{66.0f, -66.0f}, {1.0f, 1.0f}},
+		{{66.0f, -2.0f}, {1.0f, 0.0f}},
+		{{-66.0f, -66.0f}, {0.0f, 1.0f}},
+		{{-66.0f, -2.0f}, {0.0f, 0.0f}},
+		{{-2.0f, -66.0f}, {1.0f, 1.0f}},
+		{{-2.0f, -2.0f}, {1.0f, 0.0f}},
+		{{-66.0f, 2.0f}, {0.0f, 1.0f}},
+		{{-66.0f, 66.0f}, {0.0f, 0.0f}},
+		{{-2.0f, 2.0f}, {1.0f, 1.0f}},
+		{{-2.0f, 66.0f}, {1.0f, 0.0f}}
 	};
 
 	id<MTLBuffer> rect = [device
@@ -187,9 +199,9 @@ static void *MTL_render(void *l) {
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
-	const uint8_t anchors[] = {ANC_TOPLEFT, ANC_TOPMIDDLE, ANC_TOPRIGHT,
-		ANC_MIDDLELEFT, ANC_MIDDLE, ANC_MIDDLERIGHT, ANC_BOTTOMLEFT,
-		ANC_BOTTOMMIDDLE, ANC_BOTTOMRIGHT};
+	const uint8_t anchors[] = {ANC_TOPRIGHT, ANC_TOPLEFT, ANC_TOPMIDDLE,
+		ANC_MIDDLELEFT, ANC_MIDDLE, ANC_BOTTOMMIDDLE, ANC_BOTTOMLEFT,
+		ANC_MIDDLERIGHT, ANC_BOTTOMRIGHT};
 
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
@@ -210,16 +222,30 @@ static void *MTL_render(void *l) {
 				id<MTLRenderPipelineState>)store.button;
 		[enc setRenderPipelineState:button];
 
+		[enc setCullMode:MTLCullModeBack];
+
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
 		[enc setVertexBytes:anchors length:sizeof(anchors) atIndex:1];
 		[enc setVertexBuffer:rect offset:0 atIndex:2];
 
-		//[enc setCullMode:MTLCullModeBack];
-
 		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 			vertexStart:0
 			vertexCount:4
-		      instanceCount:9];
+		      instanceCount:4
+		       baseInstance:3];
+		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
+			vertexStart:8
+			vertexCount:4];
+		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
+			vertexStart:4
+			vertexCount:4
+		      instanceCount:2
+		       baseInstance:1];
+		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
+			vertexStart:12
+			vertexCount:4
+		      instanceCount:4
+		       baseInstance:7];
 
 		[enc endEncoding];
 
@@ -237,29 +263,28 @@ static void *MTL_render(void *l) {
 	return NULL;
 }
 
-/* TODO: fix orientation */
 static void updatemats(float *matrices, float width, float height) {
 	float wd2 = width * 0.5f;
 	float hd2 = height * 0.5f;
 
-	GUTL_orthof(&matrices[(ANC_TOPLEFT * 16) + 16], 0.0f, width, height,
+	GUTL_orthof(&matrices[(ANC_TOPLEFT * 16) + 16], 0.0f, width, -height,
 			0.0f, 0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_TOPMIDDLE * 16) + 16], -wd2, wd2, height,
+	GUTL_orthof(&matrices[(ANC_TOPMIDDLE * 16) + 16], -wd2, wd2, -height,
 			0.0f, 0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_TOPRIGHT * 16) + 16], width, 0.0f, height,
+	GUTL_orthof(&matrices[(ANC_TOPRIGHT * 16) + 16], -width, 0.0f, -height,
 			0.0f, 0.0f, 256.0f);
 
 	GUTL_orthof(&matrices[(ANC_MIDDLELEFT * 16) + 16], 0.0f, width, -hd2,
 			hd2, 0.0f, 256.0f);
 	GUTL_orthof(&matrices[(ANC_MIDDLE * 16) + 16], -wd2, wd2, -hd2, hd2,
 			0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_MIDDLERIGHT * 16) + 16], width, 0.0f, -hd2,
+	GUTL_orthof(&matrices[(ANC_MIDDLERIGHT * 16) + 16], -width, 0.0f, -hd2,
 			hd2, 0.0f, 256.0f);
 
 	GUTL_orthof(&matrices[(ANC_BOTTOMLEFT * 16) + 16], 0.0f, width, 0.0f,
 			height, 0.0f, 256.0f);
 	GUTL_orthof(&matrices[(ANC_BOTTOMMIDDLE * 16) + 16], -wd2, wd2, 0.0f,
 			height, 0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_BOTTOMRIGHT * 16) + 16], width, 0.0f, 0.0f,
+	GUTL_orthof(&matrices[(ANC_BOTTOMRIGHT * 16) + 16], -width, 0.0f, 0.0f,
 			height, 0.0f, 256.0f); 
 }
