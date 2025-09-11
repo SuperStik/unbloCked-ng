@@ -219,7 +219,7 @@ static void *MTL_render(void *l) {
 		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 			vertexStart:0
 			vertexCount:4
-		      instanceCount:1];
+		      instanceCount:9];
 
 		[enc endEncoding];
 
