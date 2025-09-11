@@ -144,6 +144,7 @@ void MTL_main(void) {
 
 	pthread_join(rthread, NULL);
 
+	[matbuf release];
 	[device release];
 
 	SDL_Metal_DestroyView(view);
