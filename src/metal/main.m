@@ -23,11 +23,25 @@ struct buttonvert {
 	gvec(_Float16,2) texcoords;
 };
 
+enum anchor {
+	ANC_TOPLEFT,
+	ANC_TOPMIDDLE,
+	ANC_TOPRIGHT,
+	ANC_MIDDLELEFT,
+	ANC_MIDDLE,
+	ANC_MIDDLERIGHT,
+	ANC_BOTTOMLEFT,
+	ANC_BOTTOMMIDDLE,
+	ANC_BOTTOMRIGHT
+};
+
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static id<MTLBuffer> matbuf;
 static char done = 0;
 
 static void *MTL_render(void *c);
+
+static void updatemats(float *matrices, float width, float height);
 
 void MTL_main(void) {
 	SDL_Window *window = SDL_CreateWindow("unbloCked", WIDTH, HEIGHT,
@@ -89,22 +103,14 @@ void MTL_main(void) {
 
 	const MTLResourceOptions matbufops =
 		MTLResourceCPUCacheModeWriteCombined;
-	matbuf = [device newBufferWithLength:(sizeof(float) * 32)
+	matbuf = [device newBufferWithLength:(sizeof(float) * (16 * 10))
 				     options:matbufops];
 	float *matrices = (float *)[matbuf contents];
 
-	/* not sure if I should make this centered or not...
-	 * hell I just might make 9 of 'em */
-	const float widthd2 = ((float)WIDTH) * 0.5f;
-	const float heightd2 = ((float)HEIGHT) * 0.5f;
-	GUTL_orthof(matrices, -widthd2, widthd2, -heightd2, heightd2, 0.0f,
-			256.0f);
-	const NSRange matrange = NSMakeRange(0, sizeof(float) * 16);
+	updatemats(matrices, (float)WIDTH, (float)HEIGHT);
+	const NSRange matrange = NSMakeRange(0, sizeof(float) * (16 * 10));
 	if (!unified)
 		[matbuf didModifyRange:matrange];
-
-	for (int i = 0; i < 16; ++i)
-		warnx("%g", matrices[i]);
 
 	pthread_t rthread;
 	pthread_create(&rthread, NULL, MTL_render, layer);
@@ -131,11 +137,9 @@ void MTL_main(void) {
 
 				break;
 			case SDL_EVENT_WINDOW_RESIZED:
-				;
-				float wd2 = ((float)ev.window.data1) * 0.5f;
-				float hd2 = ((float)ev.window.data2) * 0.5f;
-				GUTL_orthof(matrices, -wd2, wd2, -hd2, hd2,
-						0.0f, 256.0f);
+				updatemats(matrices, (float)ev.window.data1,
+						(float)ev.window.data2);
+
 				if (!unified)
 					[matbuf didModifyRange:matrange];
 				break;
@@ -166,10 +170,10 @@ static void *MTL_render(void *l) {
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
 	const struct buttonvert verts[4] = {
-		{{-300.0f, -30.0f}, {0.0f, 1.0f}},
-		{{-300.0f, 30.0f}, {0.0f, 0.0f}},
-		{{300.0f, -30.0f}, {1.0f, 1.0f}},
-		{{300.0f, 30.0f}, {1.0f, 0.0f}}
+		{{2.0f, 2.0f}, {0.0f, 1.0f}},
+		{{2.0f, 66.0f}, {0.0f, 0.0f}},
+		{{66.0f, 2.0f}, {1.0f, 1.0f}},
+		{{66.0f, 66.0f}, {1.0f, 0.0f}}
 	};
 
 	id<MTLBuffer> rect = [device
@@ -182,6 +186,10 @@ static void *MTL_render(void *l) {
 
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+
+	const uint8_t anchors[] = {ANC_TOPLEFT, ANC_TOPMIDDLE, ANC_TOPRIGHT,
+		ANC_MIDDLELEFT, ANC_MIDDLE, ANC_MIDDLERIGHT, ANC_BOTTOMLEFT,
+		ANC_BOTTOMMIDDLE, ANC_BOTTOMRIGHT};
 
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
@@ -203,13 +211,15 @@ static void *MTL_render(void *l) {
 		[enc setRenderPipelineState:button];
 
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
-		[enc setVertexBuffer:rect offset:0 atIndex:1];
+		[enc setVertexBytes:anchors length:sizeof(anchors) atIndex:1];
+		[enc setVertexBuffer:rect offset:0 atIndex:2];
 
-		[enc setCullMode:MTLCullModeBack];
+		//[enc setCullMode:MTLCullModeBack];
 
 		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 			vertexStart:0
-			vertexCount:4];
+			vertexCount:4
+		      instanceCount:1];
 
 		[enc endEncoding];
 
@@ -225,4 +235,31 @@ static void *MTL_render(void *l) {
 	[cmdq release];
 
 	return NULL;
+}
+
+/* TODO: fix orientation */
+static void updatemats(float *matrices, float width, float height) {
+	float wd2 = width * 0.5f;
+	float hd2 = height * 0.5f;
+
+	GUTL_orthof(&matrices[(ANC_TOPLEFT * 16) + 16], 0.0f, width, height,
+			0.0f, 0.0f, 256.0f);
+	GUTL_orthof(&matrices[(ANC_TOPMIDDLE * 16) + 16], -wd2, wd2, height,
+			0.0f, 0.0f, 256.0f);
+	GUTL_orthof(&matrices[(ANC_TOPRIGHT * 16) + 16], width, 0.0f, height,
+			0.0f, 0.0f, 256.0f);
+
+	GUTL_orthof(&matrices[(ANC_MIDDLELEFT * 16) + 16], 0.0f, width, -hd2,
+			hd2, 0.0f, 256.0f);
+	GUTL_orthof(&matrices[(ANC_MIDDLE * 16) + 16], -wd2, wd2, -hd2, hd2,
+			0.0f, 256.0f);
+	GUTL_orthof(&matrices[(ANC_MIDDLERIGHT * 16) + 16], width, 0.0f, -hd2,
+			hd2, 0.0f, 256.0f);
+
+	GUTL_orthof(&matrices[(ANC_BOTTOMLEFT * 16) + 16], 0.0f, width, 0.0f,
+			height, 0.0f, 256.0f);
+	GUTL_orthof(&matrices[(ANC_BOTTOMMIDDLE * 16) + 16], -wd2, wd2, 0.0f,
+			height, 0.0f, 256.0f);
+	GUTL_orthof(&matrices[(ANC_BOTTOMRIGHT * 16) + 16], width, 0.0f, 0.0f,
+			height, 0.0f, 256.0f); 
 }
