@@ -1,3 +1,6 @@
+#include <metal_matrix>
+using namespace metal;
+
 struct guivert {
 	float2 position;
 	half2 texcoords;
@@ -8,11 +11,17 @@ struct outdata {
 	half2 texcoords;
 };
 
+struct matrices {
+	float4x4 ortho;
+	float4x4 persp;
+};
+
 vertex
-outdata vertButton(uint vertexID [[vertex_id]], constant guivert *verts
-		[[buffer(1)]]) {
+outdata vertButton(uint vertexID [[vertex_id]], constant matrices *mats
+		[[buffer(0)]], constant guivert *verts [[buffer(1)]]) {
 	guivert vert = verts[vertexID];
-	outdata data = {float4(vert.position, 0.0f, 1.0f), vert.texcoords};
+	float4 pos = mats->ortho * float4(vert.position, 0.0f, 1.0f);
+	outdata data = {pos, vert.texcoords};
 
 	return data;
 }

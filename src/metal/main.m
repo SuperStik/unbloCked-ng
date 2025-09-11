@@ -9,6 +9,7 @@
 #include <SDL3/SDL_metal.h>
 #include <SDL3/SDL_video.h>
 
+#include "../gutl.h"
 #include "../math/vector.h"
 #include "main.h"
 #include "objc_macros.h"
@@ -23,6 +24,7 @@ struct buttonvert {
 };
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
+static id<MTLBuffer> matbuf;
 static char done = 0;
 
 static void *MTL_render(void *c);
@@ -83,6 +85,25 @@ void MTL_main(void) {
 		[dummy release];
 	}
 
+	bool unified = [device hasUnifiedMemory];
+
+	const MTLResourceOptions matbufops =
+		MTLResourceCPUCacheModeWriteCombined;
+	matbuf = [device newBufferWithLength:(sizeof(float) * 32)
+				     options:matbufops];
+	float *matrices = (float *)[matbuf contents];
+
+	/* not sure if I should make this centered or not...
+	 * hell I just might make 9 of 'em */
+	GUTL_orthof(matrices, 0.0f, (float)WIDTH, 0.0f, (float)HEIGHT, 0.0f,
+			256.0f);
+	const NSRange matrange = NSMakeRange(0, sizeof(float) * 16);
+	if (!unified)
+		[matbuf didModifyRange:matrange];
+
+	for (int i = 0; i < 16; ++i)
+		warnx("%g", matrices[i]);
+
 	pthread_t rthread;
 	pthread_create(&rthread, NULL, MTL_render, layer);
 
@@ -106,6 +127,14 @@ void MTL_main(void) {
 					pthread_mutex_lock(&occllock);
 				}
 
+				break;
+			case SDL_EVENT_WINDOW_RESIZED:
+				GUTL_orthof(matrices, 0.0f,
+						(float)ev.window.data1, 0.0f,
+						(float)ev.window.data2, 0.0f,
+						256.0f);
+				if (!unified)
+					[matbuf didModifyRange:matrange];
 				break;
 		}
 	}
@@ -133,10 +162,10 @@ static void *MTL_render(void *l) {
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
 	const struct buttonvert verts[4] = {
-		{{-0.75f, -0.5f}, {0.0f, 1.0f}},
-		{{-0.75f, 0.5f}, {0.0f, 0.0f}},
-		{{0.75f, -0.5f}, {1.0f, 1.0f}},
-		{{0.75f, 0.5f}, {1.0f, 0.0f}}
+		{{45.0f, 30.0f}, {0.0f, 1.0f}},
+		{{45.0f, 240.0f}, {0.0f, 0.0f}},
+		{{360.0f, 30.0f}, {1.0f, 1.0f}},
+		{{360.0f, 240.0f}, {1.0f, 0.0f}}
 	};
 
 	id<MTLBuffer> rect = [device
@@ -152,7 +181,6 @@ static void *MTL_render(void *l) {
 
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
-
 		pthread_mutex_lock(&occllock);
 		pthread_mutex_unlock(&occllock);
 
@@ -165,14 +193,20 @@ static void *MTL_render(void *l) {
 
 		id<MTLRenderCommandEncoder> enc = [cmdb
 			renderCommandEncoderWithDescriptor:rpd];
+
 		id<MTLRenderPipelineState> button = (__bridge
 				id<MTLRenderPipelineState>)store.button;
 		[enc setRenderPipelineState:button];
+
+		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
 		[enc setVertexBuffer:rect offset:0 atIndex:1];
+
 		[enc setCullMode:MTLCullModeBack];
+
 		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 			vertexStart:0
 			vertexCount:4];
+
 		[enc endEncoding];
 
 		[cmdb presentDrawable:drawable];
