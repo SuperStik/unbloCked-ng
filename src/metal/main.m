@@ -234,13 +234,13 @@ static void *MTL_render(void *l) {
 		      instanceCount:4
 		       baseInstance:3];
 		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
-			vertexStart:8
-			vertexCount:4];
-		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 			vertexStart:4
 			vertexCount:4
 		      instanceCount:2
 		       baseInstance:1];
+		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
+			vertexStart:8
+			vertexCount:4];
 		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 			vertexStart:12
 			vertexCount:4
