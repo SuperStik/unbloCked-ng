@@ -10,6 +10,7 @@
 #include <SDL3/SDL_video.h>
 
 #include "../gutl.h"
+#include "../image/png.h"
 #include "../math/vector.h"
 #include "gui/drawbutton.h"
 #include "main.h"
@@ -179,7 +180,36 @@ static void *MTL_render(void *l) {
 
 	id<MTLBuffer> buttonverts;
 	id<MTLBuffer> buttoninds;
-	gui_drawbutton_initbufs(device, &buttonverts, &buttoninds, -100.0f, 0.0f, 200.0f, 16.0f);
+	gui_drawbutton_initbufs((struct objc_object *)device, (struct
+				objc_object **)&buttonverts, (struct
+					objc_object **)&buttoninds, -100.0f,
+				0.0f, 200.0f, 16.0f);
+
+	id<MTLTexture> texgui;
+
+	ARP_PUSH();
+
+	size_t width, height;
+	int channels;
+	unsigned char *texguidata = img_readpngpath("textures/gui/gui.png",
+			&width, &height, &channels);
+
+	MTLTextureDescriptor *desc = [MTLTextureDescriptor
+		texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm
+					     width:width
+					    height:height
+					 mipmapped:false];
+	texgui = [device newTextureWithDescriptor:desc];
+
+	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
+	[texgui replaceRegion:replace
+		  mipmapLevel:0
+		    withBytes:texguidata
+		  bytesPerRow:(width * channels)];
+
+	free(texguidata);
+
+	ARP_POP();
 
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
@@ -207,6 +237,8 @@ static void *MTL_render(void *l) {
 		[enc setVertexBytes:&anchor length:sizeof(anchor) atIndex:1];
 		[enc setVertexBuffer:buttonverts offset:0 atIndex:2];
 
+		[enc setFragmentTexture:texgui atIndex:0];
+
 		[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 				indexCount:12
 				 indexType:MTLIndexTypeUInt16
@@ -221,6 +253,7 @@ static void *MTL_render(void *l) {
 		ARP_POP();
 	}
 
+	[texgui release];
 	[buttonverts release];
 	[buttoninds release];
 
@@ -231,6 +264,7 @@ static void *MTL_render(void *l) {
 	return NULL;
 }
 
+__attribute__((visibility("internal")))
 static void updatemats(float *matrices, float width, float height) {
 	float wd2 = width * 0.5f;
 	float hd2 = height * 0.5f;

@@ -1,4 +1,6 @@
 #include <metal_matrix>
+#include <metal_texture>
+
 using namespace metal;
 
 struct guivert {
@@ -45,6 +47,8 @@ outdata vertButton(uint vertexID [[vertex_id]], uint instanceID [[instance_id]],
 
 [[early_fragment_tests]]
 fragment
-float4 fragButton(struct outdata in[[stage_in]]) {
-	return float4(in.texcoords, 0.0f, 1.0f);
+half4 fragButton(struct outdata in[[stage_in]], texture2d<half> tex
+		[[texture(0)]]) {
+	constexpr sampler samp(filter::nearest, address::repeat);
+	return tex.sample(samp, in.texcoords);
 }

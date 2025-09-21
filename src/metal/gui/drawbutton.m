@@ -19,11 +19,11 @@ void gui_drawbutton_initbufs(struct objc_object *d, struct objc_object **v,
 		{{xpos + wd2, ypos + height}, {wd2 / 256.0f, 66.0f / 256.0f}},
 		{{xpos, ypos + height}, {0.0f, 66.0 / 256.0f}},
 
-		{{xpos + wd2, ypos}, {ustart, 46.0f / 256.0f}},
+		{{xpos + wd2, ypos}, {ustart / 256.0f, 46.0f / 256.0f}},
 		{{xpos + width, ypos}, {200.0f / 256.0f, 46.0f / 256.0f}},
 		{{xpos + width, ypos + height}, {200.0f / 256.0f, 66.0f /
 							256.0f}},
-		{{xpos + wd2, ypos + height}, {ustart, 66.0f / 256.0f}}
+		{{xpos + wd2, ypos + height}, {ustart / 256.0f, 66.0f / 256.0f}}
 	};
 
 	uint16_t indices[] = {
