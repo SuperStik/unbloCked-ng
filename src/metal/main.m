@@ -11,17 +11,13 @@
 
 #include "../gutl.h"
 #include "../math/vector.h"
+#include "gui/drawbutton.h"
 #include "main.h"
 #include "objc_macros.h"
 #include "shaderstorage.h"
 
 #define WIDTH 640
 #define HEIGHT 480
-
-struct buttonvert {
-	gvec(float,2) pos;
-	gvec(_Float16,2) texcoords;
-};
 
 enum anchor {
 	ANC_TOPLEFT,
@@ -175,39 +171,15 @@ static void *MTL_render(void *l) {
 	color.storeAction = MTLStoreActionDontCare;
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
-	const struct buttonvert verts[] = {
-		{{2.0f, 2.0f}, {0.0f, 1.0f}},
-		{{2.0f, 66.0f}, {0.0f, 0.0f}},
-		{{66.0f, 2.0f}, {1.0f, 1.0f}},
-		{{66.0f, 66.0f}, {1.0f, 0.0f}},
-		{{2.0f, -66.0f}, {0.0f, 1.0f}},
-		{{2.0f, -2.0f}, {0.0f, 0.0f}},
-		{{66.0f, -66.0f}, {1.0f, 1.0f}},
-		{{66.0f, -2.0f}, {1.0f, 0.0f}},
-		{{-66.0f, -66.0f}, {0.0f, 1.0f}},
-		{{-66.0f, -2.0f}, {0.0f, 0.0f}},
-		{{-2.0f, -66.0f}, {1.0f, 1.0f}},
-		{{-2.0f, -2.0f}, {1.0f, 0.0f}},
-		{{-66.0f, 2.0f}, {0.0f, 1.0f}},
-		{{-66.0f, 66.0f}, {0.0f, 0.0f}},
-		{{-2.0f, 2.0f}, {1.0f, 1.0f}},
-		{{-2.0f, 66.0f}, {1.0f, 0.0f}}
-	};
-
-	id<MTLBuffer> rect = [device
-		newBufferWithBytes:verts
-			    length:sizeof(verts)
-			   options:MTLResourceCPUCacheModeWriteCombined];
-
 	struct shdrstore store;
 	shdr_generate(&store, (struct objc_object *)device);
 
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
-	const uint8_t anchors[] = {ANC_TOPRIGHT, ANC_TOPLEFT, ANC_TOPMIDDLE,
-		ANC_MIDDLELEFT, ANC_MIDDLE, ANC_BOTTOMMIDDLE, ANC_BOTTOMLEFT,
-		ANC_MIDDLERIGHT, ANC_BOTTOMRIGHT};
+	id<MTLBuffer> buttonverts;
+	id<MTLBuffer> buttoninds;
+	gui_drawbutton_initbufs(device, &buttonverts, &buttoninds, -100.0f, 0.0f, 200.0f, 16.0f);
 
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
@@ -231,27 +203,15 @@ static void *MTL_render(void *l) {
 		[enc setCullMode:MTLCullModeBack];
 
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
-		[enc setVertexBytes:anchors length:sizeof(anchors) atIndex:1];
-		[enc setVertexBuffer:rect offset:0 atIndex:2];
+		uint8_t anchor = ANC_MIDDLE;
+		[enc setVertexBytes:&anchor length:sizeof(anchor) atIndex:1];
+		[enc setVertexBuffer:buttonverts offset:0 atIndex:2];
 
-		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
-			vertexStart:0
-			vertexCount:4
-		      instanceCount:4
-		       baseInstance:3];
-		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
-			vertexStart:4
-			vertexCount:4
-		      instanceCount:2
-		       baseInstance:1];
-		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
-			vertexStart:8
-			vertexCount:4];
-		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
-			vertexStart:12
-			vertexCount:4
-		      instanceCount:4
-		       baseInstance:7];
+		[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+				indexCount:12
+				 indexType:MTLIndexTypeUInt16
+			       indexBuffer:buttoninds
+			 indexBufferOffset:0];
 
 		[enc endEncoding];
 
@@ -261,7 +221,9 @@ static void *MTL_render(void *l) {
 		ARP_POP();
 	}
 
-	[rect release];
+	[buttonverts release];
+	[buttoninds release];
+
 	shdr_release(&store);
 
 	[cmdq release];

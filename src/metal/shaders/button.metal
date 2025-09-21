@@ -3,12 +3,12 @@ using namespace metal;
 
 struct guivert {
 	float2 position;
-	half2 texcoords;
+	float2 texcoords;
 };
 
 struct outdata {
 	float4 position [[position]];
-	half2 texcoords;
+	float2 texcoords;
 };
 
 struct matrices {
@@ -45,6 +45,6 @@ outdata vertButton(uint vertexID [[vertex_id]], uint instanceID [[instance_id]],
 
 [[early_fragment_tests]]
 fragment
-half4 fragButton(struct outdata in[[stage_in]]) {
-	return half4(in.texcoords, 0.0h, 1.0h);
+float4 fragButton(struct outdata in[[stage_in]]) {
+	return float4(in.texcoords, 0.0f, 1.0f);
 }
