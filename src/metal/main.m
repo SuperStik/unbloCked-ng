@@ -122,6 +122,12 @@ void MTL_main(void) {
 			case SDL_EVENT_QUIT:
 				done = 1;
 				break;
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+				if (ev.button.button == 1) {
+					warnx("click: (%g,%g)", ev.button.x,
+							ev.button.y);
+				}
+				break;
 			case SDL_EVENT_WINDOW_EXPOSED:
 				if (occluded) {
 					occluded = 0;
