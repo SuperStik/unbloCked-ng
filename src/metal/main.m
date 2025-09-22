@@ -199,6 +199,7 @@ static void *MTL_render(void *l) {
 					     width:width
 					    height:height
 					 mipmapped:false];
+	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
 	texgui = [device newTextureWithDescriptor:desc];
 
 	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
