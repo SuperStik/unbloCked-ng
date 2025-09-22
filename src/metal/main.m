@@ -20,6 +20,11 @@
 #define WIDTH 640
 #define HEIGHT 480
 
+struct resizedata {
+	float *matrices;
+	bool unified;
+};
+
 enum anchor {
 	ANC_TOPLEFT,
 	ANC_TOPMIDDLE,
@@ -111,7 +116,8 @@ void MTL_main(void) {
 	if (!unified)
 		[matbuf didModifyRange:matrange];
 
-	SDL_AddEventWatch(onwindowresize, NULL);
+	struct resizedata resizedata = {matrices, unified};
+	SDL_AddEventWatch(onwindowresize, &resizedata);
 
 	pthread_t rthread;
 	pthread_create(&rthread, NULL, MTL_render, layer);
@@ -142,13 +148,6 @@ void MTL_main(void) {
 					pthread_mutex_lock(&occllock);
 				}
 
-				break;
-			case SDL_EVENT_WINDOW_RESIZED:
-				updatemats(matrices, (float)ev.window.data1,
-						(float)ev.window.data2);
-
-				if (!unified)
-					[matbuf didModifyRange:matrange];
 				break;
 		}
 	}
@@ -270,8 +269,17 @@ static void *MTL_render(void *l) {
 }
 
 static bool onwindowresize(void *userdata, SDL_Event *event) {
-	if (event->type == SDL_EVENT_WINDOW_RESIZED)
-		warnx("%ux%u", event->window.data1, event->window.data2);
+	if (__builtin_expect(event->type == SDL_EVENT_WINDOW_RESIZED, 0)) {
+		struct resizedata *resizedata = userdata;
+		updatemats(resizedata->matrices, (float)event->window.data1,
+					(float)event->window.data2);
+
+		if (!resizedata->unified) {
+			const NSRange matrange = NSMakeRange(0, sizeof(float) *
+					(16 * 10));
+			[matbuf didModifyRange:matrange];
+		}
+	}
 
 	return true;
 }
