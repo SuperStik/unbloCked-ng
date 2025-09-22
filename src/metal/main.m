@@ -38,6 +38,8 @@ static char done = 0;
 
 static void *MTL_render(void *c);
 
+static bool onwindowresize(void *userdata, SDL_Event *);
+
 static void updatemats(float *matrices, float width, float height);
 
 void MTL_main(void) {
@@ -108,6 +110,8 @@ void MTL_main(void) {
 	const NSRange matrange = NSMakeRange(0, sizeof(float) * (16 * 10));
 	if (!unified)
 		[matbuf didModifyRange:matrange];
+
+	SDL_AddEventWatch(onwindowresize, NULL);
 
 	pthread_t rthread;
 	pthread_create(&rthread, NULL, MTL_render, layer);
@@ -263,6 +267,13 @@ static void *MTL_render(void *l) {
 	[cmdq release];
 
 	return NULL;
+}
+
+static bool onwindowresize(void *userdata, SDL_Event *event) {
+	if (event->type == SDL_EVENT_WINDOW_RESIZED)
+		warnx("%ux%u", event->window.data1, event->window.data2);
+
+	return true;
 }
 
 __attribute__((visibility("internal")))
