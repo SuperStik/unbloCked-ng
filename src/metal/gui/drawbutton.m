@@ -3,17 +3,14 @@
 
 #include "drawbutton.h"
 
-void gui_drawbutton_initbufs(struct objc_object *d, struct objc_object **v,
-		struct objc_object **i, float xpos, float ypos, float width,
-		float height) {
+struct objc_object *gui_drawbutton_getverts(struct objc_object *d, float xpos,
+		float ypos, float width, float height) {
 	id<MTLDevice> device = (__bridge id<MTLDevice>)d;
-	id<MTLBuffer> *vertbuf = (__bridge id<MTLBuffer> *)v;
-	id<MTLBuffer> *indbuf = (__bridge id<MTLBuffer> *)i;
 
 	float wd2 = width * 0.5f;
 	float ustart = 200.0f - wd2;
 
-	struct gui_buttonverts verts[] = {
+	const struct gui_buttonverts verts[] = {
 		{{xpos, ypos}, {0.0f, 46.0f / 256.0f}},
 		{{xpos + wd2, ypos}, {wd2 / 256.0f, 46.0f / 256.0f}},
 		{{xpos + wd2, ypos + height}, {wd2 / 256.0f, 66.0f / 256.0f}},
@@ -26,7 +23,16 @@ void gui_drawbutton_initbufs(struct objc_object *d, struct objc_object **v,
 		{{xpos + wd2, ypos + height}, {ustart / 256.0f, 66.0f / 256.0f}}
 	};
 
-	uint16_t indices[] = {
+	return (struct objc_object *)[device
+		newBufferWithBytes:verts
+			    length:sizeof(verts)
+			   options:MTLResourceCPUCacheModeWriteCombined];
+}
+
+struct objc_object *gui_drawbutton_getinds(struct objc_object *d) {
+	id<MTLDevice> device = (__bridge id<MTLDevice>)d;
+
+	const uint16_t indices[] = {
 		3, 1, 0,
 		2, 1, 3,
 
@@ -34,11 +40,7 @@ void gui_drawbutton_initbufs(struct objc_object *d, struct objc_object **v,
 		6, 5, 7
 	};
 
-	*vertbuf = [device
-		newBufferWithBytes:verts
-			    length:sizeof(verts)
-			   options:MTLResourceCPUCacheModeWriteCombined];
-	*indbuf = [device
+	return (struct objc_object *)[device
 		newBufferWithBytes:indices
 			    length:sizeof(indices)
 			   options:MTLResourceCPUCacheModeWriteCombined];

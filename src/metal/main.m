@@ -181,12 +181,11 @@ static void *MTL_render(void *l) {
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
-	id<MTLBuffer> buttonverts;
-	id<MTLBuffer> buttoninds;
-	gui_drawbutton_initbufs((struct objc_object *)device, (struct
-				objc_object **)&buttonverts, (struct
-					objc_object **)&buttoninds, -100.0f,
+	id<MTLBuffer> buttonverts = (__bridge id<MTLBuffer>)
+		gui_drawbutton_getverts((struct objc_object *)device, -100.0f,
 				0.0f, 200.0f, 16.0f);
+	id<MTLBuffer> buttoninds = (__bridge id<MTLBuffer>)
+		gui_drawbutton_getinds((struct objc_object *)device);
 
 	id<MTLTexture> texgui;
 
