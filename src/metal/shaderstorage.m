@@ -23,6 +23,10 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 	[fragButton release];
 	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
+	MTLPipelineBufferDescriptorArray *bufs = desc.vertexBuffers;
+	for (int i = 0; i < 3; ++i)
+		bufs[i].mutability = MTLMutabilityImmutable;
+
 	id<MTLRenderPipelineState> rpsButton = [device
 		newRenderPipelineStateWithDescriptor:desc error:nil];
 
