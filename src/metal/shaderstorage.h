@@ -4,10 +4,10 @@
 #include <objc/objc.h>
 
 struct shdrstore {
-	struct objc_object *button;
+	id button;
 };
 
-struct shdrstore *shdr_generate(struct shdrstore *, struct objc_object *device);
+struct shdrstore *shdr_generate(struct shdrstore *, id device);
 
 void shdr_release(struct shdrstore *);
 

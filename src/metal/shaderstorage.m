@@ -4,9 +4,8 @@
 #include "objc_macros.h"
 #include "shaderstorage.h"
 
-struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
-{
-	id<MTLDevice> device = (__bridge id<MTLDevice>)d;
+struct shdrstore *shdr_generate(struct shdrstore *store, id d) {
+	id<MTLDevice> device = d;
 
 	id<MTLLibrary> lib = [device newDefaultLibrary];
 
@@ -32,14 +31,12 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 
 	[desc release];
 
-	store->button = (struct objc_object *)rpsButton;
+	store->button = rpsButton;
 
 	return store;
 }
 
 void shdr_release(struct shdrstore *store) {
-	id<MTLRenderPipelineState> button = (__bridge
-			id<MTLRenderPipelineState>)store->button;
-	[button release];
+	[store->button release];
 }
 
