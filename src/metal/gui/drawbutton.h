@@ -16,10 +16,10 @@ struct gui_buttonverts {
 	gvec(float,2) uv;
 };
 
-struct objc_object *gui_drawbutton_getverts(struct objc_object *device,
-		float xpos, float ypos, float width, float height);
-struct objc_object *gui_drawbutton_getinds(struct objc_object *device);
+id gui_drawbutton_getverts(id device, float xpos, float ypos, float width,
+		float height);
+id gui_drawbutton_getinds(id device);
 
-void gui_drawbutton_draw(struct gui_drawbutton *, struct objc_object *encoder);
+void gui_drawbutton_draw(struct gui_drawbutton *, id encoder);
 
 #endif /* GUI_DRAWBUTTON */

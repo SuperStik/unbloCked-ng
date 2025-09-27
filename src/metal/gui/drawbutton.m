@@ -3,9 +3,9 @@
 
 #include "drawbutton.h"
 
-struct objc_object *gui_drawbutton_getverts(struct objc_object *d, float xpos,
+id gui_drawbutton_getverts(id d, float xpos,
 		float ypos, float width, float height) {
-	id<MTLDevice> device = (__bridge id<MTLDevice>)d;
+	id<MTLDevice> device = d;
 
 	float wd2 = width * 0.5f;
 	float ustart = 200.0f - wd2;
@@ -23,14 +23,14 @@ struct objc_object *gui_drawbutton_getverts(struct objc_object *d, float xpos,
 		{{xpos + wd2, ypos + height}, {ustart / 256.0f, 66.0f / 256.0f}}
 	};
 
-	return (struct objc_object *)[device
+	return [device
 		newBufferWithBytes:verts
 			    length:sizeof(verts)
 			   options:MTLResourceCPUCacheModeWriteCombined];
 }
 
-struct objc_object *gui_drawbutton_getinds(struct objc_object *d) {
-	id<MTLDevice> device = (__bridge id<MTLDevice>)d;
+id gui_drawbutton_getinds(id d) {
+	id<MTLDevice> device = d;
 
 	const uint16_t indices[] = {
 		3, 1, 0,
@@ -40,14 +40,13 @@ struct objc_object *gui_drawbutton_getinds(struct objc_object *d) {
 		6, 5, 7
 	};
 
-	return (struct objc_object *)[device
+	return [device
 		newBufferWithBytes:indices
 			    length:sizeof(indices)
 			   options:MTLResourceCPUCacheModeWriteCombined];
 }
 
-void gui_drawbutton_draw(struct gui_drawbutton *button, struct objc_object *e) {
-	id<MTLRenderCommandEncoder> enc = (__bridge id<MTLRenderCommandEncoder>)
-			e;
+void gui_drawbutton_draw(struct gui_drawbutton *button, id e) {
+	id<MTLRenderCommandEncoder> enc = e;
 	NSLog(@"%@", enc);
 }
