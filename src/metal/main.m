@@ -216,9 +216,7 @@ static void *MTL_render(void *l) {
 		id<MTLRenderCommandEncoder> enc = [cmdb
 			renderCommandEncoderWithDescriptor:rpd];
 
-		id<MTLRenderPipelineState> button = (__bridge
-				id<MTLRenderPipelineState>)store.button;
-		[enc setRenderPipelineState:button];
+		[enc setRenderPipelineState:store.button];
 
 		[enc setCullMode:MTLCullModeBack];
 
