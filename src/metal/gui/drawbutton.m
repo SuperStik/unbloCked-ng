@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
+#include "anchor.h"
 #include "drawbutton.h"
 
 id gui_drawbutton_getverts(id d, float xpos,
@@ -46,7 +47,17 @@ id gui_drawbutton_getinds(id d) {
 			   options:MTLResourceCPUCacheModeWriteCombined];
 }
 
-void gui_drawbutton_draw(struct gui_drawbutton *button, id e) {
+void gui_drawbutton_draw(id vertbuf, id indbuf, id e) {
 	id<MTLRenderCommandEncoder> enc = e;
-	NSLog(@"%@", enc);
+
+
+	uint8_t anchor = ANC_MIDDLE;
+	[enc setVertexBytes:&anchor length:sizeof(anchor) atIndex:1];
+	[enc setVertexBuffer:vertbuf offset:0 atIndex:2];
+
+	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+			indexCount:12
+			 indexType:MTLIndexTypeUInt16
+		       indexBuffer:indbuf
+		 indexBufferOffset:0];
 }

@@ -12,6 +12,7 @@
 #include "../gutl.h"
 #include "../image/png.h"
 #include "../math/vector.h"
+#include "gui/anchor.h"
 #include "gui/drawbutton.h"
 #include "main.h"
 #include "objc_macros.h"
@@ -23,18 +24,6 @@
 struct resizedata {
 	float *matrices;
 	bool unified;
-};
-
-enum anchor {
-	ANC_TOPLEFT,
-	ANC_TOPMIDDLE,
-	ANC_TOPRIGHT,
-	ANC_MIDDLELEFT,
-	ANC_MIDDLE,
-	ANC_MIDDLERIGHT,
-	ANC_BOTTOMLEFT,
-	ANC_BOTTOMMIDDLE,
-	ANC_BOTTOMRIGHT
 };
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
@@ -234,17 +223,9 @@ static void *MTL_render(void *l) {
 		[enc setCullMode:MTLCullModeBack];
 
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
-		uint8_t anchor = ANC_MIDDLE;
-		[enc setVertexBytes:&anchor length:sizeof(anchor) atIndex:1];
-		[enc setVertexBuffer:buttonverts offset:0 atIndex:2];
-
 		[enc setFragmentTexture:texgui atIndex:0];
 
-		[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-				indexCount:12
-				 indexType:MTLIndexTypeUInt16
-			       indexBuffer:buttoninds
-			 indexBufferOffset:0];
+		gui_drawbutton_draw(buttonverts, buttoninds, enc);
 
 		[enc endEncoding];
 
