@@ -17,10 +17,10 @@ OBJ_C = $(patsubst src/%.c,${OBJ_DIR}/%.o,${SRC})
 OBJ = $(patsubst src/%.m,${OBJ_DIR}/%.o,${OBJ_C})
 OBJ_DIRS = $(patsubst ${SRC_DIR}/%,${OBJ_DIR}/%,${SRC_DIRS})
 RES_DIR = ${OUT_DIR}/resources
-SHDR_DIR = ${RES_DIR}/shaders
 RES_OUT = $(patsubst ${RES}/%,${RES_DIR}/%,${RES_SRC})
 
 SHDR_AIR_OUT = $(patsubst ${SHDR_SRC}/%.metal,${OBJ_DIR}/%.air,${SHDR_METAL})
+SHDR_OUT = ${OUT_DIR}/default.metallib
 
 override LIB += m png pthread sdl3
 override FRAMEWORK += Foundation Metal
@@ -41,7 +41,7 @@ O ?= 2
 
 override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibility=hidden
 
-all: ${OBJ_DIRS} ${OUT} ${SHDR_DIR}/default.metallib ${RES_OUT}
+all: ${OBJ_DIRS} ${OUT} ${SHDR_OUT} ${RES_OUT}
 
 ${OUT}: ${OBJ}
 	${CC} $^ -O$O -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS}
@@ -55,7 +55,7 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.m ${OBJ_DIRS}
 ${OBJ_DIR}/%.air: ${SHDR_SRC}/%.metal ${OBJ_DIR}
 	xcrun metal -O$O -c -o $@ $<
 
-${SHDR_DIR}/default.metallib: ${SHDR_AIR_OUT} ${SHDR_DIR}
+${SHDR_OUT}: ${SHDR_AIR_OUT} ${SHDR_DIR}
 	xcrun metal -o $@ ${SHDR_AIR_OUT}
 
 ${RES_DIR}/%: ${RES}/% ${RES_DIR}

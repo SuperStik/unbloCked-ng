@@ -8,17 +8,7 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 {
 	id<MTLDevice> device = (__bridge id<MTLDevice>)d;
 
-	id<MTLLibrary> lib;
-
-	ARP_PUSH();
-
-	NSBundle *bundle = [NSBundle mainBundle];
-	NSURL *liburl = [bundle URLForResource:@"resources/shaders/default"
-				 withExtension:@".metallib"];
-
-	lib = [device newLibraryWithURL:liburl error:nil];
-
-	ARP_POP();
+	id<MTLLibrary> lib = [device newDefaultLibrary];
 
 	id<MTLFunction> vertButton = [lib newFunctionWithName:@"vertButton"];
 	id<MTLFunction> fragButton = [lib newFunctionWithName:@"fragButton"];
