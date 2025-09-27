@@ -16,7 +16,7 @@ struct shdrstore *shdr_generate(struct shdrstore *store, struct objc_object *d)
 	[lib release];
 
 	MTLRenderPipelineDescriptor *desc = [MTLRenderPipelineDescriptor new];
-	desc.label = @"Button Render Pipeline";
+	desc.label = @"pipeline.gui.button";
 	desc.vertexFunction = vertButton;
 	[vertButton release];
 	desc.fragmentFunction = fragButton;
