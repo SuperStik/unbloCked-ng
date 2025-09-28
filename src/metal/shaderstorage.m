@@ -6,37 +6,55 @@
 
 struct shdrstore *shdr_generate(struct shdrstore *store, id d) {
 	id<MTLDevice> device = d;
+	MTLPipelineBufferDescriptorArray *bufs;
 
 	id<MTLLibrary> lib = [device newDefaultLibrary];
 
 	id<MTLFunction> vertButton = [lib newFunctionWithName:@"vertButton"];
-	id<MTLFunction> fragButton = [lib newFunctionWithName:@"fragButton"];
+	id<MTLFunction> vertBackground = [lib
+		newFunctionWithName:@"vertBackground"];
+	id<MTLFunction> fragGeneric = [lib newFunctionWithName:@"fragGeneric"];
 
 	[lib release];
 
+	/* Button Pipeline */
 	MTLRenderPipelineDescriptor *desc = [MTLRenderPipelineDescriptor new];
 	desc.label = @"pipeline.gui.button";
 	desc.vertexFunction = vertButton;
 	[vertButton release];
-	desc.fragmentFunction = fragButton;
-	[fragButton release];
+	desc.fragmentFunction = fragGeneric;
 	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
-	MTLPipelineBufferDescriptorArray *bufs = desc.vertexBuffers;
+	bufs = desc.vertexBuffers;
 	for (int i = 0; i < 3; ++i)
 		bufs[i].mutability = MTLMutabilityImmutable;
 
-	id<MTLRenderPipelineState> rpsButton = [device
-		newRenderPipelineStateWithDescriptor:desc error:nil];
+	store->button = [device newRenderPipelineStateWithDescriptor:desc
+							       error:nil];
+
+	/* Background Pipeline */
+	[desc reset];
+	desc.label = @"pipeline.gui.background";
+	desc.vertexFunction = vertBackground;
+	[vertBackground release];
+	desc.fragmentFunction = fragGeneric;
+	[fragGeneric release];
+	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+
+	bufs = desc.vertexBuffers;
+	for (int i = 0; i < 2; ++i)
+		bufs[i].mutability = MTLMutabilityImmutable;
+
+	store->background = [device newRenderPipelineStateWithDescriptor:desc
+								   error:nil];
 
 	[desc release];
-
-	store->button = rpsButton;
 
 	return store;
 }
 
 void shdr_release(struct shdrstore *store) {
 	[store->button release];
+	[store->background release];
 }
 

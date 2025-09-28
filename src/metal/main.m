@@ -245,16 +245,23 @@ static void *MTL_render(void *l) {
 }
 
 static bool onwindowresize(void *userdata, SDL_Event *event) {
-	if (__builtin_expect(event->type == SDL_EVENT_WINDOW_RESIZED, 0)) {
-		struct resizedata *resizedata = userdata;
-		updatemats(resizedata->matrices, (float)event->window.data1,
+	struct resizedata *resizedata = userdata;
+	switch(event->type) {
+		case SDL_EVENT_WINDOW_RESIZED:
+			updatemats(resizedata->matrices,
+					(float)event->window.data1,
 					(float)event->window.data2);
 
-		if (!resizedata->unified) {
-			const NSRange matrange = NSMakeRange(0, sizeof(float) *
-					(16 * 10));
-			[matbuf didModifyRange:matrange];
-		}
+			if (!resizedata->unified) {
+				const NSRange matrange = NSMakeRange(0,
+						sizeof(float) * (16 * 10));
+				[matbuf didModifyRange:matrange];
+			}
+
+			break;
+		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+			/* TODO: depth buffer */
+			break;
 	}
 
 	return true;

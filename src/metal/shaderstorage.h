@@ -5,6 +5,7 @@
 
 struct shdrstore {
 	id button;
+	id background;
 };
 
 struct shdrstore *shdr_generate(struct shdrstore *, id device);
