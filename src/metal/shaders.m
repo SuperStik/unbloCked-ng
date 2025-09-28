@@ -2,9 +2,9 @@
 #import <Metal/Metal.h>
 
 #include "objc_macros.h"
-#include "shaderstorage.h"
+#include "shaders.h"
 
-struct shdrstore *shdr_generate(struct shdrstore *store, id d) {
+struct shaders *shdr_generate(struct shaders *store, id d) {
 	id<MTLDevice> device = d;
 	MTLPipelineBufferDescriptorArray *bufs;
 
@@ -53,7 +53,7 @@ struct shdrstore *shdr_generate(struct shdrstore *store, id d) {
 	return store;
 }
 
-void shdr_release(struct shdrstore *store) {
+void shdr_release(struct shaders *store) {
 	[store->button release];
 	[store->background release];
 }

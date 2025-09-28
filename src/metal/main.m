@@ -16,7 +16,7 @@
 #include "gui/drawbutton.h"
 #include "main.h"
 #include "objc_macros.h"
-#include "shaderstorage.h"
+#include "shaders.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -164,7 +164,7 @@ static void *MTL_render(void *l) {
 	color.storeAction = MTLStoreActionDontCare;
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
-	struct shdrstore store;
+	struct shaders store;
 	shdr_generate(&store, device);
 
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];

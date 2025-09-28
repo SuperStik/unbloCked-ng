@@ -3,13 +3,13 @@
 
 #include <objc/objc.h>
 
-struct shdrstore {
+struct shaders {
 	id button;
 	id background;
 };
 
-struct shdrstore *shdr_generate(struct shdrstore *, id device);
+struct shaders *shdr_generate(struct shaders *, id device);
 
-void shdr_release(struct shdrstore *);
+void shdr_release(struct shaders *);
 
 #endif /* METAL_SHADERSTORAGE_H */

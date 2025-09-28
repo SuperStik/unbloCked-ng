@@ -28,10 +28,10 @@ vertex
 outdata vertBackground(uint vertexID [[vertex_id]], constant matrices *mats
 		[[buffer(0)]], constant float2 *verts [[buffer(1)]]) {
 	struct outdata data;
-	
+
 	float2 pos = verts[vertexID];
 	data.position = float4(pos, 0.0f, 1.0f);
-	
+
 	pos *= 0.5f / mats->ortho[ANC_BOTTOMLEFT][0].xy;
 	data.texcoords = pos;
 
