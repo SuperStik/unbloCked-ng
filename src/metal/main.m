@@ -10,13 +10,13 @@
 #include <SDL3/SDL_video.h>
 
 #include "../gutl.h"
-#include "../image/png.h"
 #include "../math/vector.h"
 #include "gui/anchor.h"
 #include "gui/drawbutton.h"
 #include "main.h"
 #include "objc_macros.h"
 #include "shaders.h"
+#include "textures.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -174,33 +174,9 @@ static void *MTL_render(void *l) {
 			0.0f, 200.0f, 16.0f);
 	id<MTLBuffer> buttoninds = gui_drawbutton_getinds(device);
 
-	id<MTLTexture> texgui;
-
-	ARP_PUSH();
-
-	size_t width, height;
-	int channels;
-	unsigned char *texguidata = img_readpngpath("textures/gui/gui.png",
-			&width, &height, &channels);
-
-	MTLTextureDescriptor *desc = [MTLTextureDescriptor
-		texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm
-					     width:width
-					    height:height
-					 mipmapped:false];
-	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-	texgui = [device newTextureWithDescriptor:desc];
-
-	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
-	[texgui replaceRegion:replace
-		  mipmapLevel:0
-		    withBytes:texguidata
-		  bytesPerRow:(width * channels)];
-
-	free(texguidata);
-
-	ARP_POP();
-
+	struct textures tex;
+	tex_generate(&tex, device);
+	
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
 		pthread_mutex_lock(&occllock);
@@ -221,7 +197,7 @@ static void *MTL_render(void *l) {
 		[enc setCullMode:MTLCullModeBack];
 
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
-		[enc setFragmentTexture:texgui atIndex:0];
+		[enc setFragmentTexture:tex.gui atIndex:0];
 
 		gui_drawbutton_draw(buttonverts, buttoninds, enc);
 
@@ -233,11 +209,11 @@ static void *MTL_render(void *l) {
 		ARP_POP();
 	}
 
-	[texgui release];
 	[buttonverts release];
 	[buttoninds release];
 
 	shdr_release(&store);
+	tex_release(&tex);
 
 	[cmdq release];
 
