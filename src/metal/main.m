@@ -164,9 +164,6 @@ static void *MTL_render(void *l) {
 	color.storeAction = MTLStoreActionDontCare;
 	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
 
-	struct shaders store;
-	shdr_generate(&store, device);
-
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
@@ -174,8 +171,11 @@ static void *MTL_render(void *l) {
 			0.0f, 200.0f, 16.0f);
 	id<MTLBuffer> buttoninds = gui_drawbutton_getinds(device);
 
+	struct shaders store;
+	shdr_generate(&store, device);
+
 	struct textures tex;
-	tex_generate(&tex, device);
+	tex_generate(&tex, device, cmdq);
 	
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */

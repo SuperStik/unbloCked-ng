@@ -13,12 +13,23 @@ static void expandalpha(unsigned char **data, int *channels, size_t width,
 
 static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels *);
 
-static id<MTLTexture> tex2d(const char *path, id<MTLDevice>);
+static id<MTLTexture> tex2d(const char *path, id<MTLDevice>,
+		id<MTLBlitCommandEncoder>);
 
-struct textures *tex_generate(struct textures *tex, id device) {
+struct textures *tex_generate(struct textures *tex, id device, id cmdq) {
 	ARP_PUSH();
-	tex->gui = tex2d("textures/gui/gui.png", device);
-	tex->background = tex2d("textures/gui/background.png", device);
+
+	id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
+	id<MTLBlitCommandEncoder> enc = [cmdb blitCommandEncoder];
+
+	tex->gui = tex2d("textures/gui/gui.png", device, enc);
+	tex->background = tex2d("textures/gui/background.png", device, enc);
+
+	[enc endEncoding];
+
+	[cmdb commit];
+	[cmdb waitUntilCompleted];
+
 	ARP_POP();
 
 	return tex;
@@ -82,7 +93,8 @@ static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels
 	}
 }
 
-static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
+static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> enc) {
 	size_t width, height;
 	int channels;
 	unsigned char *data;
@@ -109,6 +121,8 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 	       mipmapLevel:0
 		 withBytes:data
 	       bytesPerRow:(width * channels)];
+
+	[enc optimizeContentsForGPUAccess:tex];
 
 	return tex;
 }

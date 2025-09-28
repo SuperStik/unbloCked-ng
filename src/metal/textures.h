@@ -8,7 +8,7 @@ struct textures {
 	id gui;
 };
 
-struct textures *tex_generate(struct textures *, id device);
+struct textures *tex_generate(struct textures *, id device, id commandqueue);
 
 void tex_release(struct textures *);
 
