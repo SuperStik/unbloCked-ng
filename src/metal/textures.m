@@ -47,7 +47,7 @@ static void expandalpha(unsigned char **data, int *channels, size_t width,
 
 	size_t pixels = width * height;
 	size_t size = pixels * 3ul;
-	size_t newsize = (size * 4) / 3;
+	size_t newsize = pixels * 4ul;
 
 	unsigned char *newdata = realloc(*data, newsize);
 	if (newdata == NULL)
