@@ -14,6 +14,8 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	id<MTLFunction> vertBackground = [lib
 		newFunctionWithName:@"vertBackground"];
 	id<MTLFunction> fragGeneric = [lib newFunctionWithName:@"fragGeneric"];
+	id<MTLFunction> fragBackground = [lib
+		newFunctionWithName:@"fragBackground"];
 
 	[lib release];
 
@@ -23,6 +25,7 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	desc.vertexFunction = vertButton;
 	[vertButton release];
 	desc.fragmentFunction = fragGeneric;
+	[fragGeneric release];
 	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
 	bufs = desc.vertexBuffers;
@@ -37,8 +40,8 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	desc.label = @"pipeline.gui.background";
 	desc.vertexFunction = vertBackground;
 	[vertBackground release];
-	desc.fragmentFunction = fragGeneric;
-	[fragGeneric release];
+	desc.fragmentFunction = fragBackground;
+	[fragBackground release];
 	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
 	bufs = desc.vertexBuffers;

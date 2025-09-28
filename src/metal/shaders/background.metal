@@ -1,4 +1,5 @@
 #include <metal_matrix>
+#include <metal_texture>
 
 using namespace metal;
 
@@ -38,4 +39,14 @@ outdata vertBackground(uint vertexID [[vertex_id]], constant matrices *mats
 	data.texcoords = pos;
 
 	return data;
+}
+
+[[early_fragment_tests]]
+fragment
+half4 fragBackground(struct outdata in[[stage_in]], texture2d<half> tex
+		[[texture(0)]]) {
+	constexpr sampler samp(filter::nearest, address::repeat);
+	half4 texcolor = tex.sample(samp, in.texcoords);
+	texcolor.rgb *= 0.25h;
+	return texcolor;
 }
