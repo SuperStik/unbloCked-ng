@@ -160,9 +160,10 @@ static void *MTL_render(void *l) {
 	MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor
 		renderPassDescriptor];
 	MTLRenderPassColorAttachmentDescriptor *color = rpd.colorAttachments[0];
-	color.loadAction = MTLLoadActionClear;
+	color.loadAction = MTLLoadActionDontCare;
 	color.storeAction = MTLStoreActionDontCare;
-	color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);
+	/* we don't need this for drawing UI */
+	/*color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);*/
 
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
@@ -171,11 +172,18 @@ static void *MTL_render(void *l) {
 			0.0f, 200.0f, 16.0f);
 	id<MTLBuffer> buttoninds = gui_drawbutton_getinds(device);
 
-	struct shaders store;
-	shdr_generate(&store, device);
+	struct shaders shdr;
+	shdr_generate(&shdr, device);
 
 	struct textures tex;
 	tex_generate(&tex, device, cmdq);
+
+	gvec(float,2) bgverts[] = {
+		{1.0f, -1.0f},
+		{-1.0f, -1.0f},
+		{1.0f, 1.0f},
+		{-1.0f, 1.0f}
+	};
 	
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
@@ -192,11 +200,23 @@ static void *MTL_render(void *l) {
 		id<MTLRenderCommandEncoder> enc = [cmdb
 			renderCommandEncoderWithDescriptor:rpd];
 
-		[enc setRenderPipelineState:store.button];
-
 		[enc setCullMode:MTLCullModeBack];
-
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
+
+		/* background */
+		[enc setRenderPipelineState:shdr.background];
+
+		[enc setVertexBytes:bgverts length:sizeof(bgverts) atIndex:1];
+
+		[enc setFragmentTexture:tex.background atIndex:0];
+
+		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
+			vertexStart:0
+			vertexCount:4];
+
+		/* buttons */
+		[enc setRenderPipelineState:shdr.button];
+
 		[enc setFragmentTexture:tex.gui atIndex:0];
 
 		gui_drawbutton_draw(buttonverts, buttoninds, enc);
@@ -212,7 +232,7 @@ static void *MTL_render(void *l) {
 	[buttonverts release];
 	[buttoninds release];
 
-	shdr_release(&store);
+	shdr_release(&shdr);
 	tex_release(&tex);
 
 	[cmdq release];

@@ -32,7 +32,9 @@ outdata vertBackground(uint vertexID [[vertex_id]], constant matrices *mats
 	float2 pos = verts[vertexID];
 	data.position = float4(pos, 0.0f, 1.0f);
 
-	pos *= 0.5f / mats->ortho[ANC_BOTTOMLEFT][0].xy;
+	float4x4 mat = mats->ortho[ANC_TOPLEFT];
+	float2 screen = {mat[0].x, -mat[1].y};
+	pos *= 0.015625f / screen;
 	data.texcoords = pos;
 
 	return data;
