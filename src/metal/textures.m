@@ -1,3 +1,7 @@
+#include <err.h>
+#include <stdlib.h>
+#include <string.h>
+
 #import <Metal/Metal.h>
 
 #include "../image/png.h"
@@ -7,34 +11,15 @@
 static void expandalpha(unsigned char **data, int *channels, size_t width,
 		size_t height);
 
+static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels *);
+
+static id<MTLTexture> tex2d(const char *path, id<MTLDevice>);
+
 struct textures *tex_generate(struct textures *tex, id device) {
-	size_t width, height;
-	int channels;
-	unsigned char *texguidata = img_readpngpath("textures/gui/gui.png",
-			&width, &height, &channels);
-	expandalpha(&texguidata, &channels, width, height);
-
 	ARP_PUSH();
-
-	MTLTextureDescriptor *desc = [MTLTextureDescriptor
-		texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm
-					     width:width
-					    height:height
-					 mipmapped:false];
-	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-	tex->gui = [device newTextureWithDescriptor:desc];
-
+	tex->gui = tex2d("textures/gui/gui.png", device);
+	tex->background = tex2d("textures/gui/background.png", device);
 	ARP_POP();
-
-	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
-	[tex->gui replaceRegion:replace
-		    mipmapLevel:0
-		      withBytes:texguidata
-		    bytesPerRow:(width * channels)];
-
-	free(texguidata);
-
-	tex->background = nil;
 
 	return tex;
 }
@@ -46,5 +31,84 @@ void tex_release(struct textures *tex) {
 
 static void expandalpha(unsigned char **data, int *channels, size_t width,
 		size_t height) {
-	/* TODO: Implementation */
+	if (*channels != 3)
+		return;
+
+	size_t pixels = width * height;
+	size_t size = pixels * 3ul;
+	size_t newsize = (size * 4) / 3;
+
+	unsigned char *newdata = realloc(*data, newsize);
+	if (newdata == NULL)
+		err(1, "realloc");
+
+	size_t ind = 0;
+	for (size_t i = 1; i < pixels; ++i) {
+		size -= 3;
+		memmove(&newdata[ind + 4], &newdata[ind + 3], size);
+		newdata[ind + 3] = 0xff;
+		ind += 4;
+	}
+	newdata[ind + 3] = 0xff;
+
+	*data = newdata;
+	*channels = 4;
+}
+
+static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels
+		*swizzle) {
+	switch (channels) {
+		case 1:
+			*swizzle = MTLTextureSwizzleChannelsMake(
+					MTLTextureSwizzleRed,
+					MTLTextureSwizzleRed,
+					MTLTextureSwizzleRed,
+					MTLTextureSwizzleOne);
+			return MTLPixelFormatR8Unorm;
+		case 2:
+			*swizzle = MTLTextureSwizzleChannelsMake(
+					MTLTextureSwizzleRed,
+					MTLTextureSwizzleRed,
+					MTLTextureSwizzleRed,
+					MTLTextureSwizzleGreen);
+			return MTLPixelFormatRG8Unorm;
+		default:
+			*swizzle = MTLTextureSwizzleChannelsMake(
+					MTLTextureSwizzleRed,
+					MTLTextureSwizzleGreen,
+					MTLTextureSwizzleBlue,
+					MTLTextureSwizzleAlpha);
+			return MTLPixelFormatRGBA8Unorm;
+	}
+}
+
+static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
+	size_t width, height;
+	int channels;
+	unsigned char *data;
+	MTLPixelFormat fmt;
+	MTLTextureSwizzleChannels swizzle;
+
+	data = img_readpngpath(path, &width, &height, &channels);
+	expandalpha(&data, &channels, width, height);
+	fmt = getswizzle(channels, &swizzle);
+
+	MTLTextureDescriptor *desc = [MTLTextureDescriptor
+		texture2DDescriptorWithPixelFormat:fmt
+					     width:width
+					    height:height
+					 mipmapped:false];
+	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+	if (channels < 4)
+		desc.swizzle = swizzle;
+
+	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
+
+	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
+	[tex replaceRegion:replace
+	       mipmapLevel:0
+		 withBytes:data
+	       bytesPerRow:(width * channels)];
+
+	return tex;
 }
