@@ -22,17 +22,23 @@
 #define HEIGHT 480
 
 struct resizedata {
+	id<MTLDevice> device;
 	float *matrices;
-	bool unified;
 };
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
 static id<MTLBuffer> matbuf;
+static id<MTLTexture> depthtex = nil;
 static char done = 0;
 
 static void *MTL_render(void *c);
 
+static void scaledreso(uint32_t *w, uint32_t *h);
+
 static bool onwindowresize(void *userdata, SDL_Event *);
+
+static void rebuilddepth(id<MTLDevice>, uint32_t w, uint32_t h);
 
 static void updatemats(float *matrices, float width, float height);
 
@@ -92,20 +98,26 @@ void MTL_main(void) {
 		[dummy release];
 	}
 
-	bool unified = [device hasUnifiedMemory];
-
 	const MTLResourceOptions matbufops =
 		MTLResourceCPUCacheModeWriteCombined;
 	matbuf = [device newBufferWithLength:(sizeof(float) * (16 * 10))
 				     options:matbufops];
 	float *matrices = (float *)[matbuf contents];
 
-	updatemats(matrices, (float)WIDTH, (float)HEIGHT);
+	uint32_t winwid = WIDTH;
+	uint32_t winhgt = HEIGHT;
+	scaledreso(&winwid, &winhgt);
+	updatemats(matrices, (float)winwid, (float)winhgt);
+
 	const NSRange matrange = NSMakeRange(0, sizeof(float) * (16 * 10));
-	if (!unified)
+	if (![device hasUnifiedMemory])
 		[matbuf didModifyRange:matrange];
 
-	struct resizedata resizedata = {matrices, unified};
+	int wid, hgt;
+	SDL_GetWindowSizeInPixels(window, &wid, &hgt);
+	rebuilddepth(device, wid, hgt);
+
+	struct resizedata resizedata = {device, matrices};
 	SDL_AddEventWatch(onwindowresize, &resizedata);
 
 	pthread_t rthread;
@@ -147,6 +159,7 @@ void MTL_main(void) {
 	pthread_join(rthread, NULL);
 
 	[matbuf release];
+	[depthtex release];
 	[device release];
 
 	SDL_Metal_DestroyView(view);
@@ -162,6 +175,9 @@ static void *MTL_render(void *l) {
 	MTLRenderPassColorAttachmentDescriptor *color = rpd.colorAttachments[0];
 	color.loadAction = MTLLoadActionDontCare;
 	color.storeAction = MTLStoreActionDontCare;
+	MTLRenderPassDepthAttachmentDescriptor *depth = rpd.depthAttachment;
+	depth.loadAction = MTLLoadActionClear;
+	depth.storeAction = MTLStoreActionDontCare;
 	/* we don't need this for drawing UI */
 	/*color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);*/
 
@@ -194,6 +210,10 @@ static void *MTL_render(void *l) {
 
 		id<CAMetalDrawable> drawable = [layer nextDrawable];
 		color.texture = drawable.texture;
+
+		pthread_mutex_lock(&depthlock);
+		depth.texture = depthtex;
+		pthread_mutex_unlock(&depthlock);
 
 		id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
 
@@ -240,15 +260,36 @@ static void *MTL_render(void *l) {
 	return NULL;
 }
 
+static void scaledreso(uint32_t *w, uint32_t *h) {
+	uint32_t curwid = *w;
+	uint32_t curhgt = *h;
+
+	uint32_t ratiowid = curwid / (WIDTH / 2);
+	uint32_t ratiohgt = curhgt / (HEIGHT / 2);
+
+	uint32_t ratio = ratiowid;
+	if (ratio > ratiohgt)
+		ratio = ratiohgt;
+	if (!ratio)
+		ratio = 1;
+
+	*w = curwid / ratio;
+	*h = curhgt / ratio;
+}
+
 static bool onwindowresize(void *userdata, SDL_Event *event) {
 	struct resizedata *resizedata = userdata;
 	switch(event->type) {
 		case SDL_EVENT_WINDOW_RESIZED:
-			updatemats(resizedata->matrices,
-					(float)event->window.data1,
-					(float)event->window.data2);
+			;
+			uint32_t w = event->window.data1;
+			uint32_t h = event->window.data2;
 
-			if (!resizedata->unified) {
+			scaledreso(&w, &h);
+
+			updatemats(resizedata->matrices, (float)w, (float)h);
+
+			if (![resizedata->device hasUnifiedMemory]) {
 				const NSRange matrange = NSMakeRange(0,
 						sizeof(float) * (16 * 10));
 				[matbuf didModifyRange:matrange];
@@ -256,11 +297,31 @@ static bool onwindowresize(void *userdata, SDL_Event *event) {
 
 			break;
 		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-			/* TODO: depth buffer */
+			rebuilddepth(resizedata->device, event->window.data1,
+					event->window.data2);
 			break;
 	}
 
 	return true;
+}
+
+static void rebuilddepth(id<MTLDevice> device, uint32_t w, uint32_t h) {
+	pthread_mutex_lock(&depthlock);
+	[depthtex release];
+
+	ARP_PUSH();
+	MTLTextureDescriptor *desc = [MTLTextureDescriptor
+		texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float
+					     width:w
+					    height:h
+					 mipmapped:false];
+	desc.storageMode = MTLStorageModePrivate;
+	desc.usage = MTLTextureUsageRenderTarget;
+
+	depthtex = [device newTextureWithDescriptor:desc];
+	ARP_POP();
+
+	pthread_mutex_unlock(&depthlock);
 }
 
 __attribute__((visibility("internal")))
