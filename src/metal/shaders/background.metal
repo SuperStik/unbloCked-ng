@@ -31,7 +31,7 @@ outdata vertBackground(uint vertexID [[vertex_id]], constant matrices *mats
 	struct outdata data;
 
 	float2 pos = verts[vertexID];
-	data.position = float4(pos, 0.0f, 1.0f);
+	data.position = float4(pos, 1.0f, 1.0f);
 
 	float4x4 mat = mats->ortho[ANC_TOPLEFT];
 	float2 screen = {mat[0].x, -mat[1].y};

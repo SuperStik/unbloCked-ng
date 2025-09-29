@@ -203,6 +203,13 @@ static void *MTL_render(void *l) {
 		{-1.0f, 1.0f}
 	};
 
+	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
+	depthdesc.depthCompareFunction = MTLCompareFunctionLessEqual;
+	depthdesc.depthWriteEnabled = true;
+	id<MTLDepthStencilState> depthstate = [device
+		newDepthStencilStateWithDescriptor:depthdesc];
+	[depthdesc release];
+
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
 	while (__builtin_expect(!done, 1)) {
@@ -225,7 +232,16 @@ static void *MTL_render(void *l) {
 			renderCommandEncoderWithDescriptor:rpd];
 
 		[enc setCullMode:MTLCullModeBack];
+		[enc setDepthStencilState:depthstate];
+
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
+
+		/* buttons */
+		[enc setRenderPipelineState:shdr.button];
+
+		[enc setFragmentTexture:tex.gui atIndex:0];
+
+		gui_drawbutton_draw(buttonverts, buttoninds, enc);
 
 		/* background */
 		[enc setRenderPipelineState:shdr.background];
@@ -238,13 +254,6 @@ static void *MTL_render(void *l) {
 			vertexStart:0
 			vertexCount:4];
 
-		/* buttons */
-		[enc setRenderPipelineState:shdr.button];
-
-		[enc setFragmentTexture:tex.gui atIndex:0];
-
-		gui_drawbutton_draw(buttonverts, buttoninds, enc);
-
 		[enc endEncoding];
 
 		[cmdb presentDrawable:drawable];
@@ -252,6 +261,8 @@ static void *MTL_render(void *l) {
 
 		ARP_POP();
 	}
+
+	[depthstate release];
 
 	[buttonverts release];
 	[buttoninds release];
