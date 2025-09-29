@@ -170,6 +170,8 @@ static void *MTL_render(void *l) {
 	CAMetalLayer *layer = (__bridge CAMetalLayer *)l;
 	id<MTLDevice> device = layer.device;
 
+	pthread_setname_np("unblocked.render-thread");
+
 	MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor
 		renderPassDescriptor];
 	MTLRenderPassColorAttachmentDescriptor *color = rpd.colorAttachments[0];
@@ -200,7 +202,9 @@ static void *MTL_render(void *l) {
 		{1.0f, 1.0f},
 		{-1.0f, 1.0f}
 	};
-	
+
+	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
 		pthread_mutex_lock(&occllock);
