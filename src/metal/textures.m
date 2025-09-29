@@ -122,6 +122,8 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device,
 		 withBytes:data
 	       bytesPerRow:(width * channels)];
 
+	free(data);
+
 	[enc optimizeContentsForGPUAccess:tex];
 
 	return tex;
