@@ -30,6 +30,7 @@ static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
 static id<MTLBuffer> matbuf;
 static id<MTLTexture> depthtex = nil;
+static float resolutionscale = 1.0f;
 static char done = 0;
 
 static void *MTL_render(void *c);
@@ -132,8 +133,9 @@ void MTL_main(void) {
 				break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				if (ev.button.button == 1) {
-					warnx("click: (%g,%g)", ev.button.x,
-							ev.button.y);
+					float x = ev.button.x / resolutionscale;
+					float y = ev.button.y / resolutionscale;
+					warnx("click: (%g,%g)", x, y);
 				}
 				break;
 			case SDL_EVENT_WINDOW_EXPOSED:
@@ -290,6 +292,8 @@ static void scaledreso(uint32_t *w, uint32_t *h) {
 
 	*w = curwid / ratio;
 	*h = curhgt / ratio;
+
+	resolutionscale = (float)ratio;
 }
 
 static bool onwindowresize(void *userdata, SDL_Event *event) {
