@@ -13,6 +13,7 @@
 #include "../math/vector.h"
 #include "gui/anchor.h"
 #include "gui/drawbutton.h"
+#include "gui/screen.h"
 #include "main.h"
 #include "objc_macros.h"
 #include "shaders.h"
@@ -25,6 +26,8 @@ struct resizedata {
 	id<MTLDevice> device;
 	float *matrices;
 };
+
+extern struct gui_screen currentscreen;
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
