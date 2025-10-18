@@ -38,7 +38,7 @@ static char done = 0;
 
 static void *MTL_render(void *c);
 
-static void scaledreso(uint32_t *w, uint32_t *h);
+static void scaledreso(float *w, float *h);
 
 static bool onwindowresize(void *userdata, SDL_Event *);
 
@@ -108,10 +108,10 @@ void MTL_main(void) {
 				     options:matbufops];
 	float *matrices = (float *)[matbuf contents];
 
-	uint32_t winwid = WIDTH;
-	uint32_t winhgt = HEIGHT;
+	float winwid = (float)WIDTH;
+	float winhgt = (float)HEIGHT;
 	scaledreso(&winwid, &winhgt);
-	updatemats(matrices, (float)winwid, (float)winhgt);
+	updatemats(matrices, winwid, winhgt);
 
 	const NSRange matrange = NSMakeRange(0, sizeof(float) * (16 * 10));
 	if (![device hasUnifiedMemory])
@@ -280,23 +280,23 @@ static void *MTL_render(void *l) {
 	return NULL;
 }
 
-static void scaledreso(uint32_t *w, uint32_t *h) {
-	uint32_t curwid = *w;
-	uint32_t curhgt = *h;
+static void scaledreso(float *w, float *h) {
+	float curwid = *w;
+	float curhgt = *h;
 
-	uint32_t ratiowid = curwid / (WIDTH / 2);
-	uint32_t ratiohgt = curhgt / (HEIGHT / 2);
+	float ratiowid = curwid / ((float)WIDTH / 2.0f);
+	float ratiohgt = curhgt / ((float)HEIGHT / 2.0f);
 
-	uint32_t ratio = ratiowid;
+	float ratio = ratiowid;
 	if (ratio > ratiohgt)
 		ratio = ratiohgt;
 	if (!ratio)
-		ratio = 1;
+		ratio = 1.0f;
 
 	*w = curwid / ratio;
 	*h = curhgt / ratio;
 
-	resolutionscale = (float)ratio;
+	resolutionscale = ratio;
 }
 
 static bool onwindowresize(void *userdata, SDL_Event *event) {
@@ -304,12 +304,12 @@ static bool onwindowresize(void *userdata, SDL_Event *event) {
 	switch(event->type) {
 		case SDL_EVENT_WINDOW_RESIZED:
 			;
-			uint32_t w = event->window.data1;
-			uint32_t h = event->window.data2;
+			float w = (float)event->window.data1;
+			float h = (float)event->window.data2;
 
 			scaledreso(&w, &h);
 
-			updatemats(resizedata->matrices, (float)w, (float)h);
+			updatemats(resizedata->matrices, w, h);
 
 			if (![resizedata->device hasUnifiedMemory]) {
 				const NSRange matrange = NSMakeRange(0,
