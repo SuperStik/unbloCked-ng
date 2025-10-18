@@ -284,14 +284,11 @@ static void scaledreso(float *w, float *h) {
 	float curwid = *w;
 	float curhgt = *h;
 
-	float ratiowid = curwid / ((float)WIDTH / 2.0f);
-	float ratiohgt = curhgt / ((float)HEIGHT / 2.0f);
+	float ratiowid = curwid / ((float)WIDTH * 0.5f);
+	float ratiohgt = curhgt / ((float)HEIGHT * 0.5f);
 
-	float ratio = ratiowid;
-	if (ratio > ratiohgt)
-		ratio = ratiohgt;
-	if (!ratio)
-		ratio = 1.0f;
+	float ratio = fminf(ratiowid, ratiohgt);
+	ratio = fmaxf(ratio, 1.0f);
 
 	*w = curwid / ratio;
 	*h = curhgt / ratio;
