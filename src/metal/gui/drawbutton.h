@@ -14,6 +14,7 @@ id gui_drawbutton_getverts(id device, float xpos, float ypos, float width,
 		float height);
 id gui_drawbutton_getinds(id device);
 
-void gui_drawbutton_draw(id vertbuf, id indbuf, id encoder);
+void gui_drawbutton_draw(id vertbuf, id indbuf, id encoder, uint8_t *anchors,
+		unsigned long count);
 
 #endif /* GUI_DRAWBUTTON */

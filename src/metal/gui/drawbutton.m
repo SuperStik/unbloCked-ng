@@ -47,17 +47,17 @@ id gui_drawbutton_getinds(id d) {
 			   options:MTLResourceCPUCacheModeWriteCombined];
 }
 
-void gui_drawbutton_draw(id vertbuf, id indbuf, id e) {
+void gui_drawbutton_draw(id vertbuf, id indbuf, id e, uint8_t *anchors, unsigned
+		long count) {
 	id<MTLRenderCommandEncoder> enc = e;
 
-
-	uint8_t anchor = ANC_MIDDLE;
-	[enc setVertexBytes:&anchor length:sizeof(anchor) atIndex:1];
+	[enc setVertexBytes:anchors length:count atIndex:1];
 	[enc setVertexBuffer:vertbuf offset:0 atIndex:2];
 
 	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 			indexCount:12
 			 indexType:MTLIndexTypeUInt16
 		       indexBuffer:indbuf
-		 indexBufferOffset:0];
+		 indexBufferOffset:0
+		     instanceCount:count];
 }
