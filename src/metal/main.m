@@ -246,9 +246,12 @@ static void *MTL_render(void *l) {
 
 		[enc setFragmentTexture:tex.gui atIndex:0];
 
-		uint8_t anchors[] = {ANC_MIDDLELEFT, ANC_MIDDLERIGHT,
-			ANC_MIDDLE};
-		gui_drawbutton_draw(buttonverts, buttoninds, enc, anchors, 3);
+		struct gui_drawbutton_info buttons[] = {
+			{{0.0f, 0.0f}, ANC_MIDDLE},
+			{{0.0f, 20.0f}, ANC_MIDDLE},
+			{{0.0f, -20.0f}, ANC_MIDDLE}
+		};
+		gui_drawbutton_draw(buttonverts, buttoninds, enc, buttons, 3);
 
 		/* background */
 		[enc setRenderPipelineState:shdr.background];

@@ -4,6 +4,11 @@
 #include "anchor.h"
 #include "drawbutton.h"
 
+struct gui_buttonverts {
+	gvec(float,2) pos;
+	gvec(float,2) uv;
+};
+
 id gui_drawbutton_getverts(id d, float xpos,
 		float ypos, float width, float height) {
 	id<MTLDevice> device = d;
@@ -47,11 +52,13 @@ id gui_drawbutton_getinds(id d) {
 			   options:MTLResourceCPUCacheModeWriteCombined];
 }
 
-void gui_drawbutton_draw(id vertbuf, id indbuf, id e, uint8_t *anchors, unsigned
-		long count) {
+void gui_drawbutton_draw(id vertbuf, id indbuf, id e, struct
+		gui_drawbutton_info *buttons, unsigned long count) {
 	id<MTLRenderCommandEncoder> enc = e;
 
-	[enc setVertexBytes:anchors length:count atIndex:1];
+	[enc setVertexBytes:buttons
+		     length:sizeof(struct gui_drawbutton_info) * count
+		    atIndex:1];
 	[enc setVertexBuffer:vertbuf offset:0 atIndex:2];
 
 	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle

@@ -7,6 +7,11 @@ struct guivert {
 	float2 texcoords;
 };
 
+struct guiinfo {
+	float2 offset;
+	uint8_t anchor;
+};
+
 struct outdata {
 	float4 position [[position]];
 	float2 texcoords;
@@ -31,13 +36,13 @@ enum anchor {
 
 vertex
 outdata vertButton(uint vertexID [[vertex_id]], uint instanceID [[instance_id]],
-		constant matrices *mats [[buffer(0)]], constant uint8_t *anchors
+		constant matrices *mats [[buffer(0)]], constant guiinfo *items
 		[[buffer(1)]], constant guivert *verts [[buffer(2)]]) {
 	guivert vert = verts[vertexID];
 
-	uint8_t anch = anchors[instanceID];
-	float4 pos = mats->ortho[anch] * float4(vert.position, 0.0f,
-			1.0f);
+	guiinfo info = items[instanceID];
+	float4 pos = mats->ortho[info.anchor] * float4(vert.position +
+			info.offset, 0.0f, 1.0f);
 	outdata data = {pos, vert.texcoords};
 
 	return data;
