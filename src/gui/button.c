@@ -6,10 +6,11 @@
 struct gui_button *gui_button_init(struct gui_button *button, unsigned id, float
 		xpos, float ypos, float width, float height, const
 		char *displaystr) {
+	button->info.pos = (gvec(float,2)){xpos, ypos};
+	button->info.anchor = 0;
+	button->info.state = 0;
 	button->width = width;
 	button->height = height;
-	button->xpos = xpos;
-	button->ypos = ypos;
 	button->id = id;
 
 #ifdef UBLC_NO_STRDUP
@@ -34,9 +35,9 @@ void gui_button_destroy(struct gui_button *button) {
 }
 
 int gui_button_mousepressed(struct gui_button *button, float x, float y) {
-	if (button->enabled) {
-		float xpos = button->xpos;
-		float ypos = button->ypos;
+	if (button->info.state) {
+		float xpos = button->info.pos[0];
+		float ypos = button->info.pos[1];
 
 		return x >= xpos && y >= ypos && x < (xpos + button->width) &&
 			y < (ypos + button->height);
