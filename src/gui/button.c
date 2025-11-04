@@ -14,19 +14,22 @@ struct gui_button *gui_button_init(struct gui_button *button, unsigned id, float
 	button->height = height;
 	button->id = id;
 
+	if (displaystr[0] != '\0') {
 #ifdef UBLC_NO_STRDUP
-	size_t len = strlen(displaystr) + 1;
-	char *str = (char *)malloc(len);
+		size_t len = strlen(displaystr) + 1;
+		char *str = (char *)malloc(len);
 
-	memcpy(str, displaystr, len);
+		memcpy(str, displaystr, len);
 #else
-	char *str = strdup(displaystr);
+		char *str = strdup(displaystr);
 #endif /* UBLC_NO_STRDUP */
 
-	if (str == NULL)
-		return NULL;
+		if (str == NULL)
+			return NULL;
 
-	button->displaystr = str;
+		button->displaystr = str;
+	} else
+		button->displaystr = NULL;
 
 	return button;
 }
