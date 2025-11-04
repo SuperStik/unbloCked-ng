@@ -143,7 +143,7 @@ void MTL_main(void) {
 				if (ev.button.button == 1) {
 					float x = ev.button.x / resolutionscale;
 					float y = ev.button.y / resolutionscale;
-					warnx("click: (%g,%g)", x, y);
+					gui_screen_onclick(currentscreen, x, y);
 				}
 				break;
 			case SDL_EVENT_WINDOW_EXPOSED:
