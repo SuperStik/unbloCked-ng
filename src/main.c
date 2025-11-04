@@ -6,7 +6,7 @@
 #include "gui/screen.h"
 #include "metal/main.h"
 
-struct gui_screen currentscreen;
+struct gui_screen *currentscreen;
 
 int main(void) {
 	warnx("Hello unbloCked!");

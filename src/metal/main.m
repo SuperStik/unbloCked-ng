@@ -13,6 +13,7 @@
 #include "../math/vector.h"
 #include "gui/anchor.h"
 #include "gui/drawbutton.h"
+#include "gui/mainmenu.h"
 #include "gui/screen.h"
 #include "main.h"
 #include "objc_macros.h"
@@ -27,7 +28,7 @@ struct resizedata {
 	float *matrices;
 };
 
-extern struct gui_screen currentscreen;
+extern struct gui_screen *currentscreen;
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
@@ -102,18 +103,22 @@ void MTL_main(void) {
 		[dummy release];
 	}
 
+	struct gui_mainmenu mainmenu;
+	gui_mainmenu_rebuild(&mainmenu, (float)WIDTH, (float)HEIGHT);
+	currentscreen = &mainmenu.screen;
+
 	const MTLResourceOptions matbufops =
 		MTLResourceCPUCacheModeWriteCombined;
-	matbuf = [device newBufferWithLength:(sizeof(float) * (16 * 10))
+	matbuf = [device newBufferWithLength:(sizeof(float) * 16 * 10)
 				     options:matbufops];
-	float *matrices = (float *)[matbuf contents];
+	float *matrices = [matbuf contents];
 
 	float winwid = (float)WIDTH;
 	float winhgt = (float)HEIGHT;
 	scaledreso(&winwid, &winhgt);
 	updatemats(matrices, winwid, winhgt);
 
-	const NSRange matrange = NSMakeRange(0, sizeof(float) * (16 * 10));
+	const NSRange matrange = NSMakeRange(0, sizeof(float) * 16 * 10);
 	if (![device hasUnifiedMemory])
 		[matbuf didModifyRange:matrange];
 
