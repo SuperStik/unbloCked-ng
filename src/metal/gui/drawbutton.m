@@ -17,16 +17,16 @@ id gui_drawbutton_getverts(id d, float xpos,
 	float ustart = 200.0f - wd2;
 
 	const struct gui_buttonverts verts[] = {
-		{{xpos, ypos}, {0.0f, 46.0f / 256.0f}},
-		{{xpos + wd2, ypos}, {wd2 / 256.0f, 46.0f / 256.0f}},
-		{{xpos + wd2, ypos + height}, {wd2 / 256.0f, 66.0f / 256.0f}},
-		{{xpos, ypos + height}, {0.0f, 66.0 / 256.0f}},
+		{{xpos, ypos}, {0.0f, 66.0f / 256.0f}},
+		{{xpos + wd2, ypos}, {wd2 / 256.0f, 66.0f / 256.0f}},
+		{{xpos + wd2, ypos + height}, {wd2 / 256.0f, 46.0f / 256.0f}},
+		{{xpos, ypos + height}, {0.0f, 46.0 / 256.0f}},
 
-		{{xpos + wd2, ypos}, {ustart / 256.0f, 46.0f / 256.0f}},
-		{{xpos + width, ypos}, {200.0f / 256.0f, 46.0f / 256.0f}},
-		{{xpos + width, ypos + height}, {200.0f / 256.0f, 66.0f /
+		{{xpos + wd2, ypos}, {ustart / 256.0f, 66.0f / 256.0f}},
+		{{xpos + width, ypos}, {200.0f / 256.0f, 66.0f / 256.0f}},
+		{{xpos + width, ypos + height}, {200.0f / 256.0f, 46.0f /
 							256.0f}},
-		{{xpos + wd2, ypos + height}, {ustart / 256.0f, 66.0f / 256.0f}}
+		{{xpos + wd2, ypos + height}, {ustart / 256.0f, 46.0f / 256.0f}}
 	};
 
 	return [device
@@ -52,12 +52,12 @@ id gui_drawbutton_getinds(id d) {
 			   options:MTLResourceCPUCacheModeWriteCombined];
 }
 
-void gui_drawbutton_draw(id vertbuf, id indbuf, id e, struct
-		gui_drawbutton_info *buttons, unsigned long count) {
+void gui_drawbutton_draw(id vertbuf, id indbuf, id e, struct gui_button_info *
+		buttons, unsigned long count) {
 	id<MTLRenderCommandEncoder> enc = e;
 
 	[enc setVertexBytes:buttons
-		     length:sizeof(struct gui_drawbutton_info) * count
+		     length:sizeof(struct gui_button_info) * count
 		    atIndex:1];
 	[enc setVertexBuffer:vertbuf offset:0 atIndex:2];
 

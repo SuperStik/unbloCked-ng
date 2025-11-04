@@ -10,6 +10,7 @@ struct guivert {
 struct guiinfo {
 	float2 offset;
 	uint8_t anchor;
+	uint8_t state;
 };
 
 struct outdata {
@@ -43,7 +44,8 @@ outdata vertButton(uint vertexID [[vertex_id]], uint instanceID [[instance_id]],
 	guiinfo info = items[instanceID];
 	float4 pos = mats->ortho[info.anchor] * float4(vert.position +
 			info.offset, 0.0f, 1.0f);
-	outdata data = {pos, vert.texcoords};
+	const float2 curstate = {0.0f, (float)info.state * 0.078125};
+	outdata data = {pos, vert.texcoords + curstate};
 
 	return data;
 }

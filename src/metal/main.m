@@ -253,10 +253,10 @@ static void *MTL_render(void *l) {
 
 		[enc setFragmentTexture:tex.gui atIndex:0];
 
-		struct gui_drawbutton_info buttons[] = {
-			{{0.0f, 0.0f}, ANC_MIDDLE},
-			{{0.0f, 20.0f}, ANC_MIDDLE},
-			{{0.0f, -20.0f}, ANC_MIDDLE}
+		struct gui_button_info buttons[] = {
+			{{0.0f, 0.0f}, ANC_MIDDLE, 1},
+			{{0.0f, 20.0f}, ANC_MIDDLE, 1},
+			{{0.0f, -20.0f}, ANC_MIDDLE, 0}
 		};
 		gui_drawbutton_draw(buttonverts, buttoninds, enc, buttons, 3);
 
