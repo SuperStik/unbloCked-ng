@@ -1,4 +1,5 @@
 #include <err.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -110,6 +111,16 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device,
 					     width:width
 					    height:height
 					 mipmapped:false];
+
+	const unsigned size_bits = sizeof(size_t) * CHAR_BIT - 1;
+	/* width and height should NOT be zero */
+	int heightlevels = size_bits - __builtin_clzg(height);
+	int widthlevels = size_bits - __builtin_clzg(width);
+	int mipcount = widthlevels;
+	if (heightlevels > widthlevels)
+		mipcount = heightlevels;
+
+	desc.mipmapLevelCount = mipcount;
 	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
 	if (channels < 4)
 		desc.swizzle = swizzle;
@@ -125,6 +136,7 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device,
 	free(data);
 
 	[enc optimizeContentsForGPUAccess:tex];
+	[enc generateMipmapsForTexture:tex];
 
 	return tex;
 }

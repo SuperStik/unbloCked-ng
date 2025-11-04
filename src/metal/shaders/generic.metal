@@ -11,6 +11,7 @@ struct outdata {
 fragment
 half4 fragGeneric(struct outdata in[[stage_in]], texture2d<half> tex
 		[[texture(0)]]) {
-	constexpr sampler samp(filter::nearest, address::repeat);
+	constexpr sampler samp(filter::nearest, mip_filter::nearest,
+			address::repeat);
 	return tex.sample(samp, in.texcoords);
 }
