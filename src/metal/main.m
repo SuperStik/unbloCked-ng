@@ -89,7 +89,7 @@ void MTL_main(void) {
 		device = MTLCreateSystemDefaultDevice();
 
 	if (__builtin_expect(device == nil, 0))
-		err(1, "Failed to get device!");
+		errx(1, "Failed to get device!");
 
 	layer.device = device;
 	layer.pixelFormat = MTLPixelFormatBGR10A2Unorm;
