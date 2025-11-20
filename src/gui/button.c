@@ -4,12 +4,13 @@
 
 #include "button.h"
 
-struct gui_button *gui_button_init(struct gui_button *button, unsigned id, float
-		xpos, float ypos, float width, float height, const
-		char *displaystr) {
-	button->info.pos = (gvec(float,2)){xpos, ypos};
-	button->info.anchor = 0;
-	button->info.state = 1;
+struct gui_button *gui_button_init(struct gui_button *button, struct
+		gui_button_info *info, unsigned id, float xpos, float ypos,
+		float width, float height, const char *displaystr) {
+	info->pos = (gvec(float,2)){xpos, ypos};
+	info->anchor = 0;
+	info->state = 1;
+	button->info = info;
 	button->width = width;
 	button->height = height;
 	button->id = id;
@@ -39,11 +40,11 @@ void gui_button_destroy(struct gui_button *button) {
 }
 
 int gui_button_mousepressed(struct gui_button *button, float x, float y) {
-	if (button->info.state) {
+	if (button->info->state) {
 		warnx("button: %p (%g, %g)", button, x, y);
 
-		float xpos = button->info.pos[0];
-		float ypos = button->info.pos[1];
+		float xpos = button->info->pos[0];
+		float ypos = button->info->pos[1];
 
 		return x >= xpos && y >= ypos && x < (xpos + button->width) &&
 			y < (ypos + button->height);
