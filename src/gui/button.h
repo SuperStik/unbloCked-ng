@@ -25,6 +25,9 @@ struct gui_button *gui_button_init(struct gui_button *, struct
 		gui_button_info *, unsigned id, float xpos, float ypos, float
 		width, float height, const char *displaystr);
 
+struct gui_button *gui_button_resize(struct gui_button *, float x, float y,
+		float width, float height);
+
 void gui_button_destroy(struct gui_button *);
 
 int gui_button_mousepressed(struct gui_button *, float x, float y);

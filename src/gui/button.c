@@ -36,6 +36,11 @@ struct gui_button *gui_button_init(struct gui_button *button, struct
 	return button;
 }
 
+struct gui_button *gui_button_resize(struct gui_button *button, float x, float
+		y, float width, float height) {
+	return button;
+}
+
 void gui_button_destroy(struct gui_button *button) {
 	free(button->displaystr);
 }

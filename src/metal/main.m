@@ -104,7 +104,7 @@ void MTL_main(void) {
 	}
 
 	struct gui_mainmenu mainmenu;
-	gui_mainmenu_rebuild(&mainmenu, (float)WIDTH, (float)HEIGHT);
+	gui_mainmenu_init(&mainmenu, (float)WIDTH, (float)HEIGHT);
 	currentscreen = &mainmenu.screen;
 
 	const MTLResourceOptions matbufops =
@@ -173,6 +173,8 @@ void MTL_main(void) {
 	[matbuf release];
 	[depthtex release];
 	[device release];
+
+	gui_mainmenu_destroy(&mainmenu);
 
 	SDL_Metal_DestroyView(view);
 	SDL_DestroyWindow(window);
