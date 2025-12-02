@@ -11,6 +11,5 @@ void gui_mainmenu_rebuild(struct gui_mainmenu *screen, float w, float h) {
 	float hd2 = h / 2;
 	for (int i = 0; i < 5; ++i)
 		gui_button_init(&(screen->buttons[i]), &(screen->buttoninfo[i]),
-				i, 0.0f, i * -24, 50.0f, 16.0f,
-				"BIG TEST");
+				i, 0.0f, i * -24, 50.0f, 16.0f, "TEST");
 }
