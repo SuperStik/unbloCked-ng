@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
-#include "anchor.h"
+#include "../../gui/anchor.h"
 #include "drawbutton.h"
 
 struct gui_buttonverts {

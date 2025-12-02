@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "anchor.h"
 #include "button.h"
 
 struct gui_button *gui_button_init(struct gui_button *button, struct
 		gui_button_info *info, unsigned id, float xpos, float ypos,
 		float width, float height, const char *displaystr) {
 	info->pos = (gvec(float,2)){xpos, ypos};
-	info->anchor = 0;
+	info->anchor = ANC_MIDDLE;
 	info->state = 1;
 	button->info = info;
 	button->width = width;

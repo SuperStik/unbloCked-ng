@@ -8,6 +8,7 @@
 
 struct gui_screen {
 	struct gui_button *ctrllist;
+	struct gui_button_info *ctrlinfo;
 	size_t ctrllistlen;
 	float width;
 	float height;

@@ -258,7 +258,10 @@ static void *MTL_render(void *l) {
 			{{0.0f, 20.0f}, ANC_MIDDLE, 1},
 			{{0.0f, -20.0f}, ANC_MIDDLE, 0}
 		};
-		gui_drawbutton_draw(buttonverts, buttoninds, enc, buttons, 3);
+
+		gui_drawbutton_draw(buttonverts, buttoninds, enc,
+				currentscreen->ctrlinfo,
+				currentscreen->ctrllistlen);
 
 		/* background */
 		[enc setRenderPipelineState:shdr.background];
