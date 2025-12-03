@@ -4,8 +4,9 @@
 #include <objc/objc.h>
 
 struct shaders {
-	id button;
 	id background;
+	id button;
+	id text;
 };
 
 struct shaders *shdr_generate(struct shaders *, id device);
