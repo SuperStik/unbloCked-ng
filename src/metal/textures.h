@@ -6,6 +6,7 @@
 struct textures {
 	id background;
 	id gui;
+	id text;
 };
 
 struct textures *tex_generate(struct textures *, id device, id commandqueue);

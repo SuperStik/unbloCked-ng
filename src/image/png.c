@@ -10,8 +10,8 @@
 
 static int typepng2chan(int bit_depth, int color_type);
 
-unsigned char *img_readpng(FILE *file, size_t *width, size_t *height,
-		int *channels, int closefile) {
+unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
+		channels) {
 	unsigned char sig[8];
 	fread(sig, 1, 8, file);
 
@@ -54,7 +54,6 @@ unsigned char *img_readpng(FILE *file, size_t *width, size_t *height,
 			&color_type, NULL, NULL, NULL);
 	*width = w;
 	*height = h;
-
 
 	*channels = typepng2chan(bit_depth, color_type);
 
@@ -102,14 +101,11 @@ unsigned char *img_readpng(FILE *file, size_t *width, size_t *height,
 
 	png_destroy_read_struct(&png_reader, &png_info, NULL);
 
-	if (closefile)
-		fclose(file);
-
 	return image;
 }
 
-unsigned char *img_readpngpath(const char *path, size_t *width, size_t *height,
-		int *channels) {
+unsigned char *img_readpngpath(const char *path, uint32_t *width, uint32_t *
+		height, int *channels) {
 	int fd = openatres(path, O_RDONLY);
 	if (fd < 0) {
 		warn("openatres: %s", path);
@@ -123,7 +119,11 @@ unsigned char *img_readpngpath(const char *path, size_t *width, size_t *height,
 		return NULL;
 	}
 
-	return img_readpng(file, width, height, channels, 1);
+	unsigned char *data = img_readpng(file, width, height, channels);
+
+	fclose(file);
+
+	return data;
 }
 
 static int typepng2chan(int bit_depth, int color_type) {
