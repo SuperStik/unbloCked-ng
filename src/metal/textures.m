@@ -34,7 +34,6 @@ struct textures *tex_generate(struct textures *tex, id device, id cmdq) {
 	[enc endEncoding];
 
 	[cmdb commit];
-	[cmdb waitUntilCompleted];
 
 	ARP_POP();
 
