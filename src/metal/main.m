@@ -228,13 +228,13 @@ static void *MTL_render(void *l) {
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
 
 	depthdesc.depthCompareFunction = MTLCompareFunctionLessEqual;
-	depthdesc.label = @"unbloCked.depthstencil.nowrite";
-	id<MTLDepthStencilState> ds_nowrite = [device
+	depthdesc.label = @"depth.state.nowrite";
+	id<MTLDepthStencilState> d_nowrite = [device
 		newDepthStencilStateWithDescriptor:depthdesc];
 
 	depthdesc.depthWriteEnabled = true;
-	depthdesc.label = @"unbloCked.depthstencil.default";
-	id<MTLDepthStencilState> ds_default = [device
+	depthdesc.label = @"depth.state.default";
+	id<MTLDepthStencilState> d_default = [device
 		newDepthStencilStateWithDescriptor:depthdesc];
 
 	[depthdesc release];
@@ -261,7 +261,7 @@ static void *MTL_render(void *l) {
 			renderCommandEncoderWithDescriptor:rpd];
 
 		[enc setCullMode:MTLCullModeBack];
-		[enc setDepthStencilState:ds_default];
+		[enc setDepthStencilState:d_default];
 
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
 
@@ -292,7 +292,7 @@ static void *MTL_render(void *l) {
 			vertexCount:4];
 
 		/* text */
-		[enc setDepthStencilState:ds_nowrite];
+		[enc setDepthStencilState:d_nowrite];
 
 		[enc setRenderPipelineState:shdr.text];
 
@@ -314,8 +314,8 @@ static void *MTL_render(void *l) {
 		ARP_POP();
 	}
 
-	[ds_default release];
-	[ds_nowrite release];
+	[d_default release];
+	[d_nowrite release];
 
 	[buttonverts release];
 	[buttoninds release];
@@ -386,6 +386,7 @@ static void rebuilddepth(id<MTLDevice> device, uint32_t w, uint32_t h) {
 	desc.usage = MTLTextureUsageRenderTarget;
 
 	depthtex = [device newTextureWithDescriptor:desc];
+	depthtex.label = @"depth.texture";
 	ARP_POP();
 
 	pthread_mutex_unlock(&depthlock);
