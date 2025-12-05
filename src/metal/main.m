@@ -226,10 +226,17 @@ static void *MTL_render(void *l) {
 	};
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
+
 	depthdesc.depthCompareFunction = MTLCompareFunctionLessEqual;
-	depthdesc.depthWriteEnabled = true;
-	id<MTLDepthStencilState> depthstate = [device
+	depthdesc.label = @"unbloCked.depthstencil.nowrite";
+	id<MTLDepthStencilState> ds_nowrite = [device
 		newDepthStencilStateWithDescriptor:depthdesc];
+
+	depthdesc.depthWriteEnabled = true;
+	depthdesc.label = @"unbloCked.depthstencil.default";
+	id<MTLDepthStencilState> ds_default = [device
+		newDepthStencilStateWithDescriptor:depthdesc];
+
 	[depthdesc release];
 
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
@@ -254,7 +261,7 @@ static void *MTL_render(void *l) {
 			renderCommandEncoderWithDescriptor:rpd];
 
 		[enc setCullMode:MTLCullModeBack];
-		[enc setDepthStencilState:depthstate];
+		[enc setDepthStencilState:ds_default];
 
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
 
@@ -285,6 +292,8 @@ static void *MTL_render(void *l) {
 			vertexCount:4];
 
 		/* text */
+		[enc setDepthStencilState:ds_nowrite];
+
 		[enc setRenderPipelineState:shdr.text];
 
 		[enc setVertexBytes:textverts
@@ -305,7 +314,8 @@ static void *MTL_render(void *l) {
 		ARP_POP();
 	}
 
-	[depthstate release];
+	[ds_default release];
+	[ds_nowrite release];
 
 	[buttonverts release];
 	[buttoninds release];
