@@ -69,7 +69,12 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	[vertText release];
 	desc.fragmentFunction = fragText;
 	[fragText release];
-	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+	MTLRenderPipelineColorAttachmentDescriptor *colortext;
+	colortext = desc.colorAttachments[0];
+	colortext.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	colortext.blendingEnabled = true;
+	colortext.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+	colortext.sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
 
 	bufs = desc.vertexBuffers;
 	bufs[0].mutability = MTLMutabilityImmutable;
