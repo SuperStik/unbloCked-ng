@@ -253,7 +253,7 @@ static void *MTL_render(void *l) {
 		id<MTLRenderCommandEncoder> enc = [cmdb
 			renderCommandEncoderWithDescriptor:rpd];
 
-		//[enc setCullMode:MTLCullModeBack];
+		[enc setCullMode:MTLCullModeBack];
 		[enc setDepthStencilState:depthstate];
 
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
