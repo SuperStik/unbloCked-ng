@@ -9,13 +9,15 @@ struct matrices {
 };
 
 struct vertdata {
-	float2 position;
-	half2 texcoords;
+	float2 position [[attribute(0)]];
+	float2 texcoords [[attribute(1)]];
+	uchar character [[attribute(2)]];
 };
 
 struct fragdata {
 	float4 position [[position]];
 	float2 texcoords;
+	uchar character;
 };
 
 enum anchor {
@@ -32,19 +34,20 @@ enum anchor {
 
 vertex
 fragdata vertText(uint vertID [[vertex_id]], constant matrices *mats
-		[[buffer(0)]], constant vertdata *verts [[buffer(16)]]) {
+		[[buffer(0)]], vertdata vert [[stage_in]]) {
 	fragdata frag;
-	vertdata vert = verts[vertID];
 
 	frag.position = float4(vert.position, 0.0f, 1.0f);
-	frag.texcoords = float2(vert.texcoords);
+	frag.texcoords = vert.texcoords;
+	frag.character = vert.character;
 
 	return frag;
 }
 
 fragment
-half4 fragText(fragdata frag [[stage_in]], texture2d<half> tex [[texture(0)]]) {
+half4 fragText(fragdata frag [[stage_in]], texture2d_array<half> tex
+		[[texture(0)]]) {
 	constexpr sampler samp;
 
-	return tex.sample(samp, frag.texcoords);
+	return tex.sample(samp, frag.texcoords, frag.character);
 }

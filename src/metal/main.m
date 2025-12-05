@@ -13,6 +13,7 @@
 #include "../math/vector.h"
 #include "gui/anchor.h"
 #include "gui/drawbutton.h"
+#include "gui/drawtext.h"
 #include "gui/mainmenu.h"
 #include "gui/screen.h"
 #include "main.h"
@@ -217,6 +218,13 @@ static void *MTL_render(void *l) {
 		{-1.0f, 1.0f}
 	};
 
+	struct gui_textvert textverts[] = {
+		{{0.5f, -0.5f}, {1.0f16, 0.0f16}, 48},
+		{{-0.5f, -0.5f}, {0.0f16, 0.0f16}, 48},
+		{{0.5f, 0.5f}, {1.0f16, 1.0f16}, 48},
+		{{-0.5f, 0.5f}, {0.0f16, 1.0f16}, 48}
+	};
+
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
 	depthdesc.depthCompareFunction = MTLCompareFunctionLessEqual;
 	depthdesc.depthWriteEnabled = true;
@@ -245,7 +253,7 @@ static void *MTL_render(void *l) {
 		id<MTLRenderCommandEncoder> enc = [cmdb
 			renderCommandEncoderWithDescriptor:rpd];
 
-		[enc setCullMode:MTLCullModeBack];
+		//[enc setCullMode:MTLCullModeBack];
 		[enc setDepthStencilState:depthstate];
 
 		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
@@ -271,6 +279,19 @@ static void *MTL_render(void *l) {
 		[enc setVertexBytes:bgverts length:sizeof(bgverts) atIndex:1];
 
 		[enc setFragmentTexture:tex.background atIndex:0];
+
+		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
+			vertexStart:0
+			vertexCount:4];
+
+		/* text */
+		[enc setRenderPipelineState:shdr.text];
+
+		[enc setVertexBytes:textverts
+			     length:sizeof(textverts)
+			    atIndex:16];
+
+		[enc setFragmentTexture:tex.text atIndex:0];
 
 		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 			vertexStart:0

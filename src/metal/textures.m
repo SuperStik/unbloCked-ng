@@ -118,14 +118,6 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device,
 					    height:height
 					 mipmapped:true];
 
-	/* width and height should NOT be zero */
-	int heightlevels = 31 - __builtin_clzg(height);
-	int widthlevels = 31 - __builtin_clzg(width);
-	int mipcount = widthlevels;
-	if (heightlevels > widthlevels)
-		mipcount = heightlevels;
-
-	desc.mipmapLevelCount = mipcount;
 	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
 	if (channels < 4)
 		desc.swizzle = swizzle;
@@ -173,6 +165,13 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 
 	fmt = getswizzle(channels, &swizzle);
 
+	MTLTextureDescriptor *basedesc = [MTLTextureDescriptor
+		texture2DDescriptorWithPixelFormat:fmt
+					     width:totalw
+					    height:totalh
+					 mipmapped:false];
+	basedesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+
 	MTLTextureDescriptor *desc = [[MTLTextureDescriptor alloc] init];
 	desc.textureType = MTLTextureType2DArray;
 	desc.pixelFormat = fmt;
@@ -187,34 +186,45 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 	if (heightlevels > widthlevels)
 		mipcount = heightlevels;
 
-	desc.mipmapLevelCount = mipcount;
-	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+	desc.mipmapLevelCount = mipcount + 1;
+	desc.storageMode = MTLStorageModePrivate;
 	if (channels < 4)
 		desc.swizzle = swizzle;
 
+	id<MTLTexture> basetex = [device newTextureWithDescriptor:basedesc];
 	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
+	tex.label = [NSString stringWithUTF8String:path];
 
 	[desc release];
 
-	tex.label = [NSString stringWithUTF8String:path];
-
-	for (uint32_t x = 0; x < tx; ++x) {
-		for (uint32_t y = 0; y < totalh; ++y) {
-			MTLRegion replace = MTLRegionMake2D(0, y % ty, width,
-					1);
-			ptrdiff_t off = (y * totalh * channels) + x * tx *
-				channels;
-
-			[tex replaceRegion:replace
-			       mipmapLevel:0
-				 withBytes:(data + off)
-			       bytesPerRow:(width * channels)];
-		}
-	}
+	MTLRegion baseregion = MTLRegionMake2D(0, 0, totalw, totalh);
+	[basetex replaceRegion:baseregion
+		   mipmapLevel:0
+		     withBytes:data
+		   bytesPerRow:(totalw * channels)];
 
 	free(data);
 
-	[enc optimizeContentsForGPUAccess:tex];
+	[enc optimizeContentsForGPUAccess:basetex];
+
+	MTLSize texsize = MTLSizeMake(width, height, 1);
+	MTLOrigin dstorigin = MTLOriginMake(0, 0, 0);
+	for (NSUInteger i = 0; i < arraylen; ++i) {
+		MTLOrigin srcorigin = MTLOriginMake((i % tx) * width, (i / ty) *
+				height, 0);
+		[enc copyFromTexture:basetex
+			 sourceSlice:0
+			 sourceLevel:0
+			sourceOrigin:srcorigin
+			  sourceSize:texsize
+			   toTexture:tex
+		    destinationSlice:i
+		    destinationLevel:0
+		   destinationOrigin:dstorigin];
+	}
+
+	[basetex release];
+
 	[enc generateMipmapsForTexture:tex];
 
 	return tex;

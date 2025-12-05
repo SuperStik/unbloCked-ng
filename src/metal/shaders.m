@@ -1,12 +1,18 @@
+#include <stddef.h>
+
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
+#include "../math/vector.h"
+#include "gui/drawtext.h"
 #include "objc_macros.h"
 #include "shaders.h"
 
 struct shaders *shdr_generate(struct shaders *store, id d) {
 	id<MTLDevice> device = d;
 	MTLPipelineBufferDescriptorArray *bufs;
+	MTLVertexAttributeDescriptorArray *attrs;
+	MTLVertexAttributeDescriptor *attr;
 
 	id<MTLLibrary> lib = [device newDefaultLibrary];
 
@@ -21,6 +27,8 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	id<MTLFunction> fragText = [lib newFunctionWithName:@"fragText"];
 
 	[lib release];
+
+	ARP_PUSH();
 
 	/* Background Pipeline */
 	MTLRenderPipelineDescriptor *desc = [MTLRenderPipelineDescriptor new];
@@ -66,11 +74,35 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	bufs = desc.vertexBuffers;
 	bufs[0].mutability = MTLMutabilityImmutable;
 	bufs[16].mutability = MTLMutabilityImmutable;
+	bufs[17].mutability = MTLMutabilityImmutable;
+
+	MTLVertexDescriptor *vertdesctext = [MTLVertexDescriptor
+		vertexDescriptor];
+	attrs = vertdesctext.attributes;
+	attr = attrs[0];
+	attr.format = MTLVertexFormatFloat2;
+	attr.offset = offsetof(struct gui_textvert, pos);
+	attr.bufferIndex = 16;
+	attr = attrs[1];
+	attr.format = MTLVertexFormatHalf2;
+	attr.offset = offsetof(struct gui_textvert, uv);
+	attr.bufferIndex = 16;
+	attr = attrs[2];
+	attr.format = MTLVertexFormatUChar;
+	attr.offset = offsetof(struct gui_textvert, character);
+	attr.bufferIndex = 16;
+
+	/* not ideal way of doing this, but whatever */
+	vertdesctext.layouts[16].stride = sizeof(struct gui_textvert);
+
+	desc.vertexDescriptor = vertdesctext;
 
 	store->text = [device newRenderPipelineStateWithDescriptor:desc
 							     error:nil];
 
 	[desc release];
+
+	ARP_POP();
 
 	return store;
 }
