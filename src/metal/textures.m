@@ -186,7 +186,7 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 	if (heightlevels > widthlevels)
 		mipcount = heightlevels;
 
-	desc.mipmapLevelCount = mipcount;
+	desc.mipmapLevelCount = mipcount + 1;
 	desc.storageMode = MTLStorageModePrivate;
 	if (channels < 4)
 		desc.swizzle = swizzle;
