@@ -172,21 +172,14 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 					 mipmapped:false];
 	basedesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
 
-	MTLTextureDescriptor *desc = [[MTLTextureDescriptor alloc] init];
+	MTLTextureDescriptor *desc = [MTLTextureDescriptor
+		texture2DDescriptorWithPixelFormat:fmt
+					     width:width
+					    height:height
+					 mipmapped:true];
 	desc.textureType = MTLTextureType2DArray;
-	desc.pixelFormat = fmt;
-	desc.width = width;
-	desc.height = height;
 	desc.arrayLength = arraylen;
 
-	/* width and height should NOT be zero */
-	int heightlevels = 31 - __builtin_clzg(height);
-	int widthlevels = 31 - __builtin_clzg(width);
-	int mipcount = widthlevels;
-	if (heightlevels > widthlevels)
-		mipcount = heightlevels;
-
-	desc.mipmapLevelCount = mipcount + 1;
 	desc.storageMode = MTLStorageModePrivate;
 	if (channels < 4)
 		desc.swizzle = swizzle;
@@ -194,8 +187,6 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 	id<MTLTexture> basetex = [device newTextureWithDescriptor:basedesc];
 	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
 	tex.label = [NSString stringWithUTF8String:path];
-
-	[desc release];
 
 	MTLRegion baseregion = MTLRegionMake2D(0, 0, totalw, totalh);
 	[basetex replaceRegion:baseregion
