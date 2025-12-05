@@ -218,11 +218,17 @@ static void *MTL_render(void *l) {
 		{-1.0f, 1.0f}
 	};
 
+	struct gui_button_info buttons[] = {
+		{{0.0f, 0.0f}, ANC_MIDDLE, 1},
+		{{0.0f, 20.0f}, ANC_MIDDLE, 1},
+		{{0.0f, -20.0f}, ANC_MIDDLE, 0}
+	};
+
 	struct gui_textvert textverts[] = {
-		{{0.5f, -0.5f}, {1.0f16, 0.0f16}, 48},
-		{{-0.5f, -0.5f}, {0.0f16, 0.0f16}, 48},
-		{{0.5f, 0.5f}, {1.0f16, 1.0f16}, 48},
-		{{-0.5f, 0.5f}, {0.0f16, 1.0f16}, 48}
+		{{0.5f, -0.5f}, {1.0f16, 1.0f16}, 2},
+		{{-0.5f, -0.5f}, {0.0f16, 1.0f16}, 2},
+		{{0.5f, 0.5f}, {1.0f16, 0.0f16}, 2},
+		{{-0.5f, 0.5f}, {0.0f16, 0.0f16}, 2}
 	};
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
@@ -269,12 +275,6 @@ static void *MTL_render(void *l) {
 		[enc setRenderPipelineState:shdr.button];
 
 		[enc setFragmentTexture:tex.gui atIndex:0];
-
-		struct gui_button_info buttons[] = {
-			{{0.0f, 0.0f}, ANC_MIDDLE, 1},
-			{{0.0f, 20.0f}, ANC_MIDDLE, 1},
-			{{0.0f, -20.0f}, ANC_MIDDLE, 0}
-		};
 
 		gui_drawbutton_draw(buttonverts, buttoninds, enc,
 				currentscreen->ctrlinfo,
