@@ -17,6 +17,7 @@ struct vertdata {
 struct fragdata {
 	float4 position [[position]];
 	float2 texcoords;
+	half3 color;
 	uchar character;
 };
 
@@ -33,12 +34,19 @@ enum anchor {
 };
 
 vertex
-fragdata vertText(uint vertID [[vertex_id]], constant matrices *mats
-		[[buffer(0)]], vertdata vert [[stage_in]]) {
+fragdata vertText(uint vertID [[vertex_id]], uint instanceID [[instance_id]],
+		constant matrices *mats [[buffer(0)]], vertdata vert
+		[[stage_in]]) {
+	uint shift = instanceID & 1;
+	half darken = (half)shift * 0.75h + 0.25h;
+
 	fragdata frag;
 
-	frag.position = float4(vert.position, 0.0f, 1.0f);
+	float4 pos = float4(vert.position + float2((float)shift * 4.0f), 0.0f,
+			1.0f);
+	frag.position = mats->ortho[ANC_MIDDLE] * pos;
 	frag.texcoords = vert.texcoords;
+	frag.color = half3(1.0h) * darken;
 	frag.character = vert.character;
 
 	return frag;
@@ -49,5 +57,7 @@ half4 fragText(fragdata frag [[stage_in]], texture2d_array<half> tex
 		[[texture(0)]]) {
 	constexpr sampler samp;
 
-	return tex.sample(samp, frag.texcoords, frag.character);
+	half4 color = tex.sample(samp, frag.texcoords, frag.character);
+	color.rgb *= frag.color;
+	return color;
 }

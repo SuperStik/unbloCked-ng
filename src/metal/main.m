@@ -225,10 +225,10 @@ static void *MTL_render(void *l) {
 	};
 
 	struct gui_textvert textverts[] = {
-		{{0.5f, -0.5f}, {1.0f16, 1.0f16}, 2},
-		{{-0.5f, -0.5f}, {0.0f16, 1.0f16}, 2},
-		{{0.5f, 0.5f}, {1.0f16, 0.0f16}, 2},
-		{{-0.5f, 0.5f}, {0.0f16, 0.0f16}, 2}
+		{{16.0f, -16.0f}, {1.0f16, 1.0f16}, 2},
+		{{-16.0f, -16.0f}, {0.0f16, 1.0f16}, 2},
+		{{16.0f, 16.0f}, {1.0f16, 0.0f16}, 2},
+		{{-16.0f, 16.0f}, {0.0f16, 0.0f16}, 2}
 	};
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
@@ -304,7 +304,8 @@ static void *MTL_render(void *l) {
 
 		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 			vertexStart:0
-			vertexCount:4];
+			vertexCount:4
+		      instanceCount:2];
 
 		[enc endEncoding];
 
