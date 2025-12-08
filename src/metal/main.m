@@ -185,7 +185,7 @@ static void *MTL_render(void *l) {
 	CAMetalLayer *layer = (__bridge CAMetalLayer *)l;
 	id<MTLDevice> device = layer.device;
 
-	pthread_setname_np("unblocked.render-thread");
+	pthread_setname_np("unbloCked.render-thread");
 
 	MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor
 		renderPassDescriptor];
