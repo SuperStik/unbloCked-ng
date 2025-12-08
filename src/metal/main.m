@@ -225,10 +225,10 @@ static void *MTL_render(void *l) {
 	};
 
 	struct gui_textvert textverts[] = {
-		{{16.0f, -16.0f}, {1.0f16, 1.0f16}, 2},
-		{{-16.0f, -16.0f}, {0.0f16, 1.0f16}, 2},
-		{{16.0f, 16.0f}, {1.0f16, 0.0f16}, 2},
-		{{-16.0f, 16.0f}, {0.0f16, 0.0f16}, 2}
+		{{4.0f, -4.0f}, {1.0f16, 1.0f16}, 2},
+		{{-4.0f, -4.0f}, {0.0f16, 1.0f16}, 2},
+		{{4.0f, 4.0f}, {1.0f16, 0.0f16}, 2},
+		{{-4.0f, 4.0f}, {0.0f16, 0.0f16}, 2}
 	};
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];

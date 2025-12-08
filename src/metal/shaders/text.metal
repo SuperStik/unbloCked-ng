@@ -39,11 +39,10 @@ fragdata vertText(uint vertID [[vertex_id]], uint instanceID [[instance_id]],
 		[[stage_in]]) {
 	uint shift = instanceID & 1;
 	half darken = (half)shift * 0.75h + 0.25h;
+	float4 pos = float4(vert.position + float2((float)shift), 0.0f, 1.0f);
 
 	fragdata frag;
 
-	float4 pos = float4(vert.position + float2((float)shift * 4.0f), 0.0f,
-			1.0f);
 	frag.position = mats->ortho[ANC_MIDDLE] * pos;
 	frag.texcoords = vert.texcoords;
 	frag.color = half3(1.0h) * darken;
