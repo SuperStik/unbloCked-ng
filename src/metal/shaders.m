@@ -4,6 +4,7 @@
 #import <Metal/Metal.h>
 
 #include "../math/vector.h"
+#include "gui/drawbutton.h"
 #include "gui/drawtext.h"
 #include "objc_macros.h"
 #include "shaders.h"
@@ -13,6 +14,8 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	MTLPipelineBufferDescriptorArray *bufs;
 	MTLVertexAttributeDescriptorArray *attrs;
 	MTLVertexAttributeDescriptor *attr;
+	MTLVertexBufferLayoutDescriptorArray *layouts;
+	MTLVertexBufferLayoutDescriptor *layout;
 
 	id<MTLLibrary> lib = [device newDefaultLibrary];
 
@@ -32,6 +35,8 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 
 	/* Background Pipeline */
 	MTLRenderPipelineDescriptor *desc = [MTLRenderPipelineDescriptor new];
+	MTLVertexDescriptor *vertexdesc = [MTLVertexDescriptor
+		vertexDescriptor];
 	desc.label = @"pipeline.gui.background";
 	desc.vertexFunction = vertBackground;
 	[vertBackground release];
@@ -43,11 +48,21 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	for (int i = 0; i < 2; ++i)
 		bufs[i].mutability = MTLMutabilityImmutable;
 
+	attr = vertexdesc.attributes[0];
+	attr.format = MTLVertexFormatChar2Normalized;
+	attr.offset = 0;
+	attr.bufferIndex = 1;
+
+	vertexdesc.layouts[1].stride = sizeof(gvec(uint8_t,2));
+
+	desc.vertexDescriptor = vertexdesc;
+
 	store->background = [device newRenderPipelineStateWithDescriptor:desc
 								   error:nil];
 
 	/* Button Pipeline */
 	[desc reset];
+	[vertexdesc reset];
 	desc.label = @"pipeline.gui.button";
 	desc.vertexFunction = vertButton;
 	[vertButton release];
@@ -59,11 +74,47 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	for (int i = 0; i < 3; ++i)
 		bufs[i].mutability = MTLMutabilityImmutable;
 
+	attrs = vertexdesc.attributes;
+
+	attr = attrs[0];
+	attr.format = MTLVertexFormatFloat2;
+	attr.offset = offsetof(struct gui_buttonverts, pos);
+	attr.bufferIndex = 1;
+
+	attr = attrs[1];
+	attr.format = MTLVertexFormatFloat2;
+	attr.offset = offsetof(struct gui_buttonverts, uv);
+	attr.bufferIndex = 1;
+
+	attr = attrs[2];
+	attr.format = MTLVertexFormatFloat2;
+	attr.offset = offsetof(struct gui_button_info, pos);
+	attr.bufferIndex = 2;
+
+	attr = attrs[3];
+	attr.format = MTLVertexFormatUChar;
+	attr.offset = offsetof(struct gui_button_info, anchor);
+	attr.bufferIndex = 2;
+
+	attr = attrs[4];
+	attr.format = MTLVertexFormatUChar;
+	attr.offset = offsetof(struct gui_button_info, state);
+	attr.bufferIndex = 2;
+
+	layouts = vertexdesc.layouts;
+	layouts[1].stride = sizeof(struct gui_buttonverts);
+	layout = layouts[2];
+	layout.stepFunction = MTLVertexStepFunctionPerInstance;
+	layout.stride = sizeof(struct gui_button_info);
+
+	desc.vertexDescriptor = vertexdesc;
+
 	store->button = [device newRenderPipelineStateWithDescriptor:desc
 							       error:nil];
 
 	/* Text Pipeline */
 	[desc reset];
+	[vertexdesc reset];
 	desc.label = @"pipeline.gui.text";
 	desc.vertexFunction = vertText;
 	[vertText release];
@@ -81,26 +132,26 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	bufs[16].mutability = MTLMutabilityImmutable;
 	bufs[17].mutability = MTLMutabilityImmutable;
 
-	MTLVertexDescriptor *vertdesctext = [MTLVertexDescriptor
-		vertexDescriptor];
-	attrs = vertdesctext.attributes;
+	attrs = vertexdesc.attributes;
+
 	attr = attrs[0];
 	attr.format = MTLVertexFormatFloat2;
 	attr.offset = offsetof(struct gui_textvert, pos);
 	attr.bufferIndex = 16;
+
 	attr = attrs[1];
 	attr.format = MTLVertexFormatHalf2;
 	attr.offset = offsetof(struct gui_textvert, uv);
 	attr.bufferIndex = 16;
+
 	attr = attrs[2];
 	attr.format = MTLVertexFormatUChar;
 	attr.offset = offsetof(struct gui_textvert, character);
 	attr.bufferIndex = 16;
 
-	/* not ideal way of doing this, but whatever */
-	vertdesctext.layouts[16].stride = sizeof(struct gui_textvert);
+	vertexdesc.layouts[16].stride = sizeof(struct gui_textvert);
 
-	desc.vertexDescriptor = vertdesctext;
+	desc.vertexDescriptor = vertexdesc;
 
 	store->text = [device newRenderPipelineStateWithDescriptor:desc
 							     error:nil];

@@ -5,6 +5,11 @@
 #include <math/vector.h>
 #include <objc/objc.h>
 
+struct gui_buttonverts {
+	gvec(float,2) pos;
+	gvec(float,2) uv;
+};
+
 id gui_drawbutton_getverts(id device, float xpos, float ypos, float width,
 		float height);
 id gui_drawbutton_getinds(id device);

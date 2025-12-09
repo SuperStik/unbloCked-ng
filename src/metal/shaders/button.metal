@@ -2,18 +2,15 @@
 
 using namespace metal;
 
-struct guivert {
-	float2 position;
-	float2 texcoords;
+struct vertdata {
+	float2 position [[attribute(0)]];
+	float2 texcoords [[attribute(1)]];
+	float2 offset [[attribute(2)]];
+	uint8_t anchor [[attribute(3)]];
+	uint8_t state [[attribute(4)]];
 };
 
-struct guiinfo {
-	float2 offset;
-	uint8_t anchor;
-	uint8_t state;
-};
-
-struct outdata {
+struct fragdata {
 	float4 position [[position]];
 	float2 texcoords;
 };
@@ -36,16 +33,13 @@ enum anchor {
 };
 
 vertex
-outdata vertButton(uint vertexID [[vertex_id]], uint instanceID [[instance_id]],
-		constant matrices *mats [[buffer(0)]], constant guiinfo *items
-		[[buffer(1)]], constant guivert *verts [[buffer(2)]]) {
-	guivert vert = verts[vertexID];
+fragdata vertButton(constant matrices *mats [[buffer(0)]], vertdata vert
+		[[stage_in]]) {
+	float4 pos = mats->ortho[vert.anchor] * float4(vert.position +
+			vert.offset, 0.0f, 1.0f);
 
-	guiinfo info = items[instanceID];
-	float4 pos = mats->ortho[info.anchor] * float4(vert.position +
-			info.offset, 0.0f, 1.0f);
-	const float2 curstate = {0.0f, (float)info.state * 0.078125};
-	outdata data = {pos, vert.texcoords + curstate};
+	const float2 curstate = {0.0f, (float)vert.state * 0.078125};
+	fragdata data = {pos, vert.texcoords + curstate};
 
 	return data;
 }

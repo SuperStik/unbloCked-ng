@@ -211,11 +211,11 @@ static void *MTL_render(void *l) {
 	struct textures tex;
 	tex_generate(&tex, device, cmdq);
 
-	gvec(float,2) bgverts[] = {
-		{1.0f, -1.0f},
-		{-1.0f, -1.0f},
-		{1.0f, 1.0f},
-		{-1.0f, 1.0f}
+	const gvec(int8_t,2) bgverts[] = {
+		{127, -127},
+		{-127, -127},
+		{127, 127},
+		{-127, 127}
 	};
 
 	struct gui_button_info buttons[] = {

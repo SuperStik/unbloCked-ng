@@ -8,7 +8,7 @@ struct matrices {
 	float4x4 ortho[9];
 };
 
-struct outdata {
+struct fragdata {
 	float4 position [[position]];
 	float2 texcoords;
 };
@@ -26,27 +26,27 @@ enum anchor {
 };
 
 vertex
-outdata vertBackground(uint vertexID [[vertex_id]], constant matrices *mats
-		[[buffer(0)]], constant float2 *verts [[buffer(1)]]) {
-	struct outdata data;
+fragdata vertBackground(constant matrices *mats [[buffer(0)]], float2 position
+		[[attribute(0)]] [[stage_in]]) {
+	struct fragdata frag;
 
-	float2 pos = verts[vertexID];
-	data.position = float4(pos, 1.0f, 1.0f);
+	float2 pos = position;
+	frag.position = float4(pos, 1.0f, 1.0f);
 
 	float4x4 mat = mats->ortho[ANC_TOPLEFT];
 	float2 screen = {mat[0].x, -mat[1].y};
 	pos *= 0.03125f / screen;
-	data.texcoords = pos;
+	frag.texcoords = pos;
 
-	return data;
+	return frag;
 }
 
 [[early_fragment_tests]]
 fragment
-half4 fragBackground(struct outdata in[[stage_in]], texture2d<half> tex
+half4 fragBackground(struct fragdata frag[[stage_in]], texture2d<half> tex
 		[[texture(0)]]) {
 	constexpr sampler samp(filter::nearest, address::repeat);
-	half4 texcolor = tex.sample(samp, in.texcoords);
+	half4 texcolor = tex.sample(samp, frag.texcoords);
 	texcolor.rgb *= 0.25h;
 	return texcolor;
 }
