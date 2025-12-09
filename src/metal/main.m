@@ -228,12 +228,12 @@ static void *MTL_render(void *l) {
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
 
 	depthdesc.depthCompareFunction = MTLCompareFunctionLessEqual;
-	depthdesc.label = @"depth.state.nowrite";
+	depthdesc.label = @"depth.state.lex";
 	id<MTLDepthStencilState> d_nowrite = [device
 		newDepthStencilStateWithDescriptor:depthdesc];
 
 	depthdesc.depthWriteEnabled = true;
-	depthdesc.label = @"depth.state.default";
+	depthdesc.label = @"depth.state.lew";
 	id<MTLDepthStencilState> d_default = [device
 		newDepthStencilStateWithDescriptor:depthdesc];
 
