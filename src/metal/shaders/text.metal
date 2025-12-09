@@ -51,6 +51,7 @@ fragdata vertText(uint vertID [[vertex_id]], uint instanceID [[instance_id]],
 	return frag;
 }
 
+[[early_fragment_tests]]
 fragment
 half4 fragText(fragdata frag [[stage_in]], texture2d_array<half> tex
 		[[texture(0)]]) {
