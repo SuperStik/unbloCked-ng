@@ -117,14 +117,13 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device,
 					     width:width
 					    height:height
 					 mipmapped:true];
-
 	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+
 	if (channels < 4)
 		desc.swizzle = swizzle;
 
 	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
-
-	tex.label = [NSString stringWithUTF8String:path];
+	tex.label = [NSString stringWithFormat:@"texture2D [%s]", path];
 
 	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
 	[tex replaceRegion:replace
@@ -179,14 +178,14 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 					 mipmapped:true];
 	desc.textureType = MTLTextureType2DArray;
 	desc.arrayLength = arraylen;
-
 	desc.storageMode = MTLStorageModePrivate;
+
 	if (channels < 4)
 		desc.swizzle = swizzle;
 
 	id<MTLTexture> basetex = [device newTextureWithDescriptor:basedesc];
 	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
-	tex.label = [NSString stringWithUTF8String:path];
+	tex.label = [NSString stringWithFormat:@"texture2Darray [%s]", path];
 
 	MTLRegion baseregion = MTLRegionMake2D(0, 0, totalw, totalh);
 	[basetex replaceRegion:baseregion
