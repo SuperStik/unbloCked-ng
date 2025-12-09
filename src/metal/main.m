@@ -218,12 +218,6 @@ static void *MTL_render(void *l) {
 		{-127, 127}
 	};
 
-	struct gui_button_info buttons[] = {
-		{{0.0f, 0.0f}, ANC_MIDDLE, 1},
-		{{0.0f, 20.0f}, ANC_MIDDLE, 1},
-		{{0.0f, -20.0f}, ANC_MIDDLE, 0}
-	};
-
 	struct gui_textvert textverts[] = {
 		{{4.0f, -4.0f}, {1.0f16, 1.0f16}, 2},
 		{{-4.0f, -4.0f}, {0.0f16, 1.0f16}, 2},
