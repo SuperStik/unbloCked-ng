@@ -170,6 +170,7 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 					    height:totalh
 					 mipmapped:false];
 	basedesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+	id<MTLTexture> basetex = [device newTextureWithDescriptor:basedesc];
 
 	MTLTextureDescriptor *desc = [MTLTextureDescriptor
 		texture2DDescriptorWithPixelFormat:fmt
@@ -183,7 +184,6 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 	if (channels < 4)
 		desc.swizzle = swizzle;
 
-	id<MTLTexture> basetex = [device newTextureWithDescriptor:basedesc];
 	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
 	tex.label = [NSString stringWithFormat:@"texture2Darray [%s]", path];
 
