@@ -386,7 +386,6 @@ static void rebuilddepth(id<MTLDevice> device, uint32_t w, uint32_t h) {
 	pthread_mutex_unlock(&depthlock);
 }
 
-__attribute__((visibility("internal")))
 static void updatemats(float *matrices, float width, float height) {
 	float wd2 = width * 0.5f;
 	float hd2 = height * 0.5f;
