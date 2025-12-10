@@ -4,6 +4,9 @@
 #include "../../gui/anchor.h"
 #include "drawbutton.h"
 
+#define BUFFER_OPTIONS (MTLResourceCPUCacheModeWriteCombined|\
+		MTLResourceHazardTrackingModeUntracked)
+
 id gui_drawbutton_getverts(id d, float xpos,
 		float ypos, float width, float height) {
 	id<MTLDevice> device = d;
@@ -24,10 +27,9 @@ id gui_drawbutton_getverts(id d, float xpos,
 		{{xpos + wd2, ypos + height}, {ustart / 256.0f, 46.0f / 256.0f}}
 	};
 
-	return [device
-		newBufferWithBytes:verts
-			    length:sizeof(verts)
-			   options:MTLResourceCPUCacheModeWriteCombined];
+	return [device newBufferWithBytes:verts
+				   length:sizeof(verts)
+				  options:BUFFER_OPTIONS];
 }
 
 id gui_drawbutton_getinds(id d) {
@@ -41,10 +43,9 @@ id gui_drawbutton_getinds(id d) {
 		6, 5, 7
 	};
 
-	return [device
-		newBufferWithBytes:indices
-			    length:sizeof(indices)
-			   options:MTLResourceCPUCacheModeWriteCombined];
+	return [device newBufferWithBytes:indices
+				   length:sizeof(indices)
+				  options:BUFFER_OPTIONS];
 }
 
 void gui_drawbutton_draw(id vertbuf, id indbuf, id e, struct gui_button_info *

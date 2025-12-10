@@ -108,10 +108,9 @@ void MTL_main(void) {
 	gui_mainmenu_init(&mainmenu, (float)WIDTH, (float)HEIGHT);
 	currentscreen = &mainmenu.screen;
 
-	const MTLResourceOptions matbufops =
-		MTLResourceCPUCacheModeWriteCombined;
-	matbuf = [device newBufferWithLength:(sizeof(float) * 16 * 10)
-				     options:matbufops];
+	matbuf = [device
+		newBufferWithLength:(sizeof(float) * 16 * 10)
+			    options:MTLResourceCPUCacheModeWriteCombined];
 	float *matrices = [matbuf contents];
 
 	float winwid = (float)WIDTH;
