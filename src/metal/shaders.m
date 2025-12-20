@@ -45,15 +45,15 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
 	bufs = desc.vertexBuffers;
-	for (int i = 0; i < 2; ++i)
-		bufs[i].mutability = MTLMutabilityImmutable;
+	bufs[0].mutability = MTLMutabilityImmutable;
+	bufs[16].mutability = MTLMutabilityImmutable;
 
 	attr = vertexdesc.attributes[0];
 	attr.format = MTLVertexFormatChar2Normalized;
 	attr.offset = 0;
-	attr.bufferIndex = 1;
+	attr.bufferIndex = 16;
 
-	vertexdesc.layouts[1].stride = sizeof(gvec(uint8_t,2));
+	vertexdesc.layouts[16].stride = sizeof(gvec(uint8_t,2));
 
 	desc.vertexDescriptor = vertexdesc;
 
@@ -71,41 +71,41 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
 	bufs = desc.vertexBuffers;
-	for (int i = 0; i < 3; ++i)
-		bufs[i].mutability = MTLMutabilityImmutable;
-
+	bufs[0].mutability = MTLMutabilityImmutable;
+	bufs[4].mutability = MTLMutabilityImmutable;
+	bufs[16].mutability = MTLMutabilityImmutable;
 	attrs = vertexdesc.attributes;
 
 	attr = attrs[0];
 	attr.format = MTLVertexFormatFloat2;
 	attr.offset = offsetof(struct gui_buttonverts, pos);
-	attr.bufferIndex = 1;
+	attr.bufferIndex = 16;
 
 	attr = attrs[1];
 	attr.format = MTLVertexFormatFloat2;
 	attr.offset = offsetof(struct gui_buttonverts, uv);
-	attr.bufferIndex = 1;
+	attr.bufferIndex = 16;
 
 	attr = attrs[2];
 	attr.format = MTLVertexFormatFloat2;
 	attr.offset = offsetof(struct gui_button_info, pos);
-	attr.bufferIndex = 2;
+	attr.bufferIndex = 4;
 
 	attr = attrs[3];
 	attr.format = MTLVertexFormatUChar;
 	attr.offset = offsetof(struct gui_button_info, anchor);
-	attr.bufferIndex = 2;
+	attr.bufferIndex = 4;
 
 	attr = attrs[4];
 	attr.format = MTLVertexFormatUChar;
 	attr.offset = offsetof(struct gui_button_info, state);
-	attr.bufferIndex = 2;
+	attr.bufferIndex = 4;
 
 	layouts = vertexdesc.layouts;
-	layouts[1].stride = sizeof(struct gui_buttonverts);
-	layout = layouts[2];
+	layout = layouts[4];
 	layout.stepFunction = MTLVertexStepFunctionPerInstance;
 	layout.stride = sizeof(struct gui_button_info);
+	layouts[16].stride = sizeof(struct gui_buttonverts);
 
 	desc.vertexDescriptor = vertexdesc;
 

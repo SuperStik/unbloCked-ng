@@ -52,10 +52,10 @@ void gui_drawbutton_draw(id vertbuf, id indbuf, id e, struct gui_button_info *
 		buttons, unsigned long count) {
 	id<MTLRenderCommandEncoder> enc = e;
 
-	[enc setVertexBuffer:vertbuf offset:0 atIndex:1];
+	[enc setVertexBuffer:vertbuf offset:0 atIndex:16];
 	[enc setVertexBytes:buttons
 		     length:sizeof(struct gui_button_info) * count
-		    atIndex:2];
+		    atIndex:4];
 
 	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 			indexCount:12

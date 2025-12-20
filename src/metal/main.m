@@ -274,7 +274,7 @@ static void *MTL_render(void *l) {
 		/* background */
 		[enc setRenderPipelineState:shdr.background];
 
-		[enc setVertexBytes:bgverts length:sizeof(bgverts) atIndex:1];
+		[enc setVertexBytes:bgverts length:sizeof(bgverts) atIndex:16];
 
 		[enc setFragmentTexture:tex.background atIndex:0];
 
