@@ -312,6 +312,9 @@ static void *MTL_render(void *l) {
 	[buttonverts release];
 	[buttoninds release];
 
+	[textbuf release];
+	[textind release];
+
 	shdr_release(&shdr);
 	tex_release(&tex);
 
