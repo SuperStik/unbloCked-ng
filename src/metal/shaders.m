@@ -42,7 +42,8 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	[vertBackground release];
 	desc.fragmentFunction = fragBackground;
 	[fragBackground release];
-	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGR10A2Unorm;
+	desc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
 
 	bufs = desc.vertexBuffers;
 	bufs[0].mutability = MTLMutabilityImmutable;
@@ -68,7 +69,8 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	[vertButton release];
 	desc.fragmentFunction = fragGeneric;
 	[fragGeneric release];
-	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+	desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGR10A2Unorm;
+	desc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
 
 	bufs = desc.vertexBuffers;
 	bufs[0].mutability = MTLMutabilityImmutable;
@@ -120,9 +122,10 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 	[vertText release];
 	desc.fragmentFunction = fragText;
 	[fragText release];
+	desc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
 	MTLRenderPipelineColorAttachmentDescriptor *colortext;
 	colortext = desc.colorAttachments[0];
-	colortext.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	colortext.pixelFormat = MTLPixelFormatBGR10A2Unorm;
 	colortext.blendingEnabled = true;
 	colortext.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
 	colortext.sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
