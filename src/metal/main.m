@@ -217,12 +217,10 @@ static void *MTL_render(void *l) {
 		{-127, 127}
 	};
 
-	struct gui_textvert textverts[] = {
-		{{4.0f, -4.0f}, {1.0f16, 1.0f16}, 2},
-		{{-4.0f, -4.0f}, {0.0f16, 1.0f16}, 2},
-		{{4.0f, 4.0f}, {1.0f16, 0.0f16}, 2},
-		{{-4.0f, 4.0f}, {0.0f16, 0.0f16}, 2}
-	};
+	id <MTLBuffer> textbuf;
+	id <MTLBuffer> textind;
+	unsigned textverts = gui_drawtext_maketextbuf(device, &textbuf,
+			&textind, "Hello world!");
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
 
@@ -289,16 +287,16 @@ static void *MTL_render(void *l) {
 
 		[enc setRenderPipelineState:shdr.text];
 
-		[enc setVertexBytes:textverts
-			     length:sizeof(textverts)
-			    atIndex:16];
+		[enc setVertexBuffer:textbuf offset:0 atIndex:16];
 
 		[enc setFragmentTexture:tex.text atIndex:0];
 
-		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
-			vertexStart:0
-			vertexCount:4
-		      instanceCount:2];
+		[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+				indexCount:textverts
+				 indexType:MTLIndexTypeUInt16
+			       indexBuffer:textind
+			 indexBufferOffset:0
+			     instanceCount:2];
 
 		[enc endEncoding];
 
