@@ -7,7 +7,7 @@
 #include "drawtext.h"
 
 #define BUFFER_OPTIONS (MTLResourceCPUCacheModeWriteCombined | \
-		MTLResourceHazardTrackingModeTracked)
+		MTLResourceHazardTrackingModeUntracked)
 
 const static _Float16 fontwidth[256] = {
 	0.0f16, 1.0f16, 1.0f16, 1.0f16,
