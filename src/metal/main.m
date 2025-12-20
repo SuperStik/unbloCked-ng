@@ -37,6 +37,7 @@ static id<MTLBuffer> matbuf;
 static id<MTLTexture> depthtex = nil;
 static float resolutionscale = 1.0f;
 static char done = 0;
+static char occluded = 0;
 
 static void *MTL_render(void *c);
 
@@ -132,7 +133,6 @@ void MTL_main(void) {
 	pthread_t rthread;
 	pthread_create(&rthread, NULL, MTL_render, layer);
 
-	char occluded = 0;
 	SDL_Event ev;
 	while (!done && SDL_WaitEvent(&ev)) {
 		switch (ev.type) {
@@ -240,17 +240,21 @@ static void *MTL_render(void *l) {
 
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
-		pthread_mutex_lock(&occllock);
-		pthread_mutex_unlock(&occllock);
+		if (occluded) {
+			pthread_mutex_lock(&occllock);
+			pthread_mutex_unlock(&occllock);
+		}
 
 		ARP_PUSH();
 
 		id<CAMetalDrawable> drawable = [layer nextDrawable];
 		color.texture = drawable.texture;
 
-		pthread_mutex_lock(&depthlock);
-		depth.texture = depthtex;
-		pthread_mutex_unlock(&depthlock);
+		if (depth.texture != depthtex) {
+			pthread_mutex_lock(&depthlock);
+			depth.texture = depthtex;
+			pthread_mutex_unlock(&depthlock);
+		}
 
 		id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
 
