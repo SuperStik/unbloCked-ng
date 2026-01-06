@@ -7,7 +7,6 @@
 #import <Metal/Metal.h>
 
 #include "../image/png.h"
-#include "objc_macros.h"
 #include "textures.h"
 
 static void expandalpha(unsigned char **data, int *channels, size_t width,
@@ -21,40 +20,41 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tilex,
 		unsigned short tiley, id<MTLDevice>, id<MTLBlitCommandEncoder>);
 
 struct textures *tex_generate(struct textures *tex, id device, id cmdq) {
-	ARP_PUSH();
+	@autoreleasepool {
+		dispatch_queue_t queue = dispatch_get_global_queue(
+				DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+		dispatch_group_t group = dispatch_group_create();
 
-	dispatch_queue_t queue = dispatch_get_global_queue(
-			DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-	dispatch_group_t group = dispatch_group_create();
+		dispatch_group_async(group, queue, ^(void) {
+				tex->background = tex2d(
+						"textures/gui/background.png",
+						device);
+				});
 
-	dispatch_group_async(group, queue, ^(void) {
-		tex->background = tex2d("textures/gui/background.png", device);
-	});
+		dispatch_group_async(group, queue, ^(void) {
+				tex->gui = tex2d("textures/gui/gui.png",
+						device);
+				});
 
-	dispatch_group_async(group, queue, ^(void) {
-		tex->gui = tex2d("textures/gui/gui.png", device);
-	});
+		id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
 
-	id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
+		id<MTLBlitCommandEncoder> enc = [cmdb blitCommandEncoder];
+		tex->text = tex2d_array("textures/font/default.png", 16, 16,
+				device, enc);
 
-	id<MTLBlitCommandEncoder> enc = [cmdb blitCommandEncoder];
-	tex->text = tex2d_array("textures/font/default.png", 16, 16, device,
-			enc);
+		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+		dispatch_release(group);
 
-	dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-	dispatch_release(group);
+		[enc optimizeContentsForGPUAccess:tex->background];
+		[enc generateMipmapsForTexture:tex->background];
 
-	[enc optimizeContentsForGPUAccess:tex->background];
-	[enc generateMipmapsForTexture:tex->background];
+		[enc optimizeContentsForGPUAccess:tex->background];
+		[enc generateMipmapsForTexture:tex->background];
 
-	[enc optimizeContentsForGPUAccess:tex->background];
-	[enc generateMipmapsForTexture:tex->background];
+		[enc endEncoding];
 
-	[enc endEncoding];
-
-	[cmdb commit];
-
-	ARP_POP();
+		[cmdb commit];
+	}
 
 	return tex;
 }

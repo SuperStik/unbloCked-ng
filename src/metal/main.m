@@ -17,7 +17,6 @@
 #include "gui/mainmenu.h"
 #include "gui/screen.h"
 #include "main.h"
-#include "objc_macros.h"
 #include "shaders.h"
 #include "textures.h"
 
@@ -65,23 +64,24 @@ void MTL_main(void) {
 
 	id<MTLDevice> device = nil;
 
-	ARP_PUSH();
-	NSProcessInfo *pinfo = NSProcessInfo.processInfo;
-	bool lowpower = pinfo.lowPowerModeEnabled;
+	@autoreleasepool {
+		NSProcessInfo *pinfo = NSProcessInfo.processInfo;
+		bool lowpower = pinfo.lowPowerModeEnabled;
 
-	NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
-	NSEnumerator<id<MTLDevice>> *devenum = [devices objectEnumerator];
-	id<MTLDevice> curdevice = nil;
-	while(curdevice = [devenum nextObject]) {
-		if (curdevice.lowPower == lowpower) {
-			device = curdevice;
-			[device retain];
-			break;
+		NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
+		NSEnumerator<id<MTLDevice>> *devenum = [devices
+			objectEnumerator];
+		id<MTLDevice> curdevice = nil;
+		while(curdevice = [devenum nextObject]) {
+			if (curdevice.lowPower == lowpower) {
+				device = curdevice;
+				[device retain];
+				break;
+			}
 		}
-	}
 
-	[devices release];
-	ARP_POP();
+		[devices release];
+	}
 
 	if (device == nil) {
 		device = layer.preferredDevice;
@@ -245,69 +245,68 @@ static void *MTL_render(void *l) {
 			pthread_mutex_unlock(&occllock);
 		}
 
-		ARP_PUSH();
+		@autoreleasepool {
+			id<CAMetalDrawable> drawable = [layer nextDrawable];
+			color.texture = drawable.texture;
 
-		id<CAMetalDrawable> drawable = [layer nextDrawable];
-		color.texture = drawable.texture;
+			if (depth.texture != depthtex) {
+				pthread_mutex_lock(&depthlock);
+				depth.texture = depthtex;
+				pthread_mutex_unlock(&depthlock);
+			}
 
-		if (depth.texture != depthtex) {
-			pthread_mutex_lock(&depthlock);
-			depth.texture = depthtex;
-			pthread_mutex_unlock(&depthlock);
+			id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
+
+			id<MTLRenderCommandEncoder> enc = [cmdb
+				renderCommandEncoderWithDescriptor:rpd];
+
+			[enc setCullMode:MTLCullModeBack];
+			[enc setDepthStencilState:d_default];
+
+			[enc setVertexBuffer:matbuf offset:0 atIndex:0];
+
+			/* buttons */
+			[enc setRenderPipelineState:shdr.button];
+
+			[enc setFragmentTexture:tex.gui atIndex:0];
+
+			gui_drawbutton_draw(buttonverts, buttoninds, enc,
+					currentscreen->ctrlinfo,
+					currentscreen->ctrllistlen);
+
+			/* background */
+			[enc setRenderPipelineState:shdr.background];
+
+			[enc setVertexBytes:bgverts length:sizeof(bgverts)
+				    atIndex:16];
+
+			[enc setFragmentTexture:tex.background atIndex:0];
+
+			[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
+				vertexStart:0
+				vertexCount:4];
+
+			/* text */
+			[enc setDepthStencilState:d_nowrite];
+
+			[enc setRenderPipelineState:shdr.text];
+
+			[enc setVertexBuffer:textbuf offset:0 atIndex:16];
+
+			[enc setFragmentTexture:tex.text atIndex:0];
+
+			[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+					indexCount:textverts
+					 indexType:MTLIndexTypeUInt16
+				       indexBuffer:textind
+				 indexBufferOffset:0
+				     instanceCount:2];
+
+			[enc endEncoding];
+
+			[cmdb presentDrawable:drawable];
+			[cmdb commit];
 		}
-
-		id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
-
-		id<MTLRenderCommandEncoder> enc = [cmdb
-			renderCommandEncoderWithDescriptor:rpd];
-
-		[enc setCullMode:MTLCullModeBack];
-		[enc setDepthStencilState:d_default];
-
-		[enc setVertexBuffer:matbuf offset:0 atIndex:0];
-
-		/* buttons */
-		[enc setRenderPipelineState:shdr.button];
-
-		[enc setFragmentTexture:tex.gui atIndex:0];
-
-		gui_drawbutton_draw(buttonverts, buttoninds, enc,
-				currentscreen->ctrlinfo,
-				currentscreen->ctrllistlen);
-
-		/* background */
-		[enc setRenderPipelineState:shdr.background];
-
-		[enc setVertexBytes:bgverts length:sizeof(bgverts) atIndex:16];
-
-		[enc setFragmentTexture:tex.background atIndex:0];
-
-		[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
-			vertexStart:0
-			vertexCount:4];
-
-		/* text */
-		[enc setDepthStencilState:d_nowrite];
-
-		[enc setRenderPipelineState:shdr.text];
-
-		[enc setVertexBuffer:textbuf offset:0 atIndex:16];
-
-		[enc setFragmentTexture:tex.text atIndex:0];
-
-		[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-				indexCount:textverts
-				 indexType:MTLIndexTypeUInt16
-			       indexBuffer:textind
-			 indexBufferOffset:0
-			     instanceCount:2];
-
-		[enc endEncoding];
-
-		[cmdb presentDrawable:drawable];
-		[cmdb commit];
-
-		ARP_POP();
 	}
 
 	[d_default release];
@@ -375,18 +374,19 @@ static void rebuilddepth(id<MTLDevice> device, uint32_t w, uint32_t h) {
 	pthread_mutex_lock(&depthlock);
 	[depthtex release];
 
-	ARP_PUSH();
-	MTLTextureDescriptor *desc = [MTLTextureDescriptor
-		texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float
-					     width:w
-					    height:h
-					 mipmapped:false];
-	desc.storageMode = MTLStorageModePrivate;
-	desc.usage = MTLTextureUsageRenderTarget;
+	@autoreleasepool {
+		const MTLPixelFormat fmt = MTLPixelFormatDepth32Float;
+		MTLTextureDescriptor *desc = [MTLTextureDescriptor
+			texture2DDescriptorWithPixelFormat:fmt
+						     width:w
+						    height:h
+						 mipmapped:false];
+		desc.storageMode = MTLStorageModePrivate;
+		desc.usage = MTLTextureUsageRenderTarget;
 
-	depthtex = [device newTextureWithDescriptor:desc];
-	depthtex.label = @"depth.texture";
-	ARP_POP();
+		depthtex = [device newTextureWithDescriptor:desc];
+		depthtex.label = @"depth.texture";
+	}
 
 	pthread_mutex_unlock(&depthlock);
 }
