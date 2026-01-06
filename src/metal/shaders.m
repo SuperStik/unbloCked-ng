@@ -1,5 +1,6 @@
 #include <stddef.h>
 
+#include <dispatch/dispatch.h>
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
@@ -31,6 +32,8 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 
 	[lib release];
 
+	dispatch_group_t group = dispatch_group_create();
+
 	ARP_PUSH();
 
 	/* Background Pipeline */
@@ -58,8 +61,15 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 
 	desc.vertexDescriptor = vertexdesc;
 
-	store->background = [device newRenderPipelineStateWithDescriptor:desc
-								   error:nil];
+	dispatch_group_enter(group);
+	[device newRenderPipelineStateWithDescriptor:desc
+				   completionHandler:^(id<
+						   MTLRenderPipelineState>
+						   state, NSError *e) {
+					   store->background = state;
+					   [state retain];
+					   dispatch_group_leave(group);
+				   }];
 
 	/* Button Pipeline */
 	[desc reset];
@@ -111,8 +121,15 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 
 	desc.vertexDescriptor = vertexdesc;
 
-	store->button = [device newRenderPipelineStateWithDescriptor:desc
-							       error:nil];
+	dispatch_group_enter(group);
+	[device newRenderPipelineStateWithDescriptor:desc
+				   completionHandler:^(id<
+						   MTLRenderPipelineState>
+						   state, NSError *e) {
+					   store->button = state;
+					   [state retain];
+					   dispatch_group_leave(group);
+				   }];
 
 	/* Text Pipeline */
 	[desc reset];
@@ -156,12 +173,22 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 
 	desc.vertexDescriptor = vertexdesc;
 
-	store->text = [device newRenderPipelineStateWithDescriptor:desc
-							     error:nil];
+	dispatch_group_enter(group);
+	[device newRenderPipelineStateWithDescriptor:desc
+				   completionHandler:^(id<
+						   MTLRenderPipelineState>
+						   state, NSError *e) {
+					   store->text = state;
+					   [state retain];
+					   dispatch_group_leave(group);
+				   }];
 
 	[desc release];
 
 	ARP_POP();
+
+	dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+	dispatch_release(group);
 
 	return store;
 }
