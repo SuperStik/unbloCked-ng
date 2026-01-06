@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <dispatch/dispatch.h>
 #import <Metal/Metal.h>
 
 #include "../image/png.h"
@@ -14,8 +15,7 @@ static void expandalpha(unsigned char **data, int *channels, size_t width,
 
 static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels *);
 
-static id<MTLTexture> tex2d(const char *path, id<MTLDevice>,
-		id<MTLBlitCommandEncoder>);
+static id<MTLTexture> tex2d(const char *path, id<MTLDevice>);
 
 static id<MTLTexture> tex2d_array(const char *path, unsigned short tilex,
 		unsigned short tiley, id<MTLDevice>, id<MTLBlitCommandEncoder>);
@@ -23,13 +23,32 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tilex,
 struct textures *tex_generate(struct textures *tex, id device, id cmdq) {
 	ARP_PUSH();
 
-	id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
-	id<MTLBlitCommandEncoder> enc = [cmdb blitCommandEncoder];
+	dispatch_queue_t queue = dispatch_get_global_queue(
+			DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+	dispatch_group_t group = dispatch_group_create();
 
-	tex->background = tex2d("textures/gui/background.png", device, enc);
-	tex->gui = tex2d("textures/gui/gui.png", device, enc);
+	dispatch_group_async(group, queue, ^(void) {
+		tex->background = tex2d("textures/gui/background.png", device);
+	});
+
+	dispatch_group_async(group, queue, ^(void) {
+		tex->gui = tex2d("textures/gui/gui.png", device);
+	});
+
+	id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
+
+	id<MTLBlitCommandEncoder> enc = [cmdb blitCommandEncoder];
 	tex->text = tex2d_array("textures/font/default.png", 16, 16, device,
 			enc);
+
+	dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+	dispatch_release(group);
+
+	[enc optimizeContentsForGPUAccess:tex->background];
+	[enc generateMipmapsForTexture:tex->background];
+
+	[enc optimizeContentsForGPUAccess:tex->background];
+	[enc generateMipmapsForTexture:tex->background];
 
 	[enc endEncoding];
 
@@ -99,8 +118,7 @@ static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels
 	}
 }
 
-static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device,
-		id<MTLBlitCommandEncoder> enc) {
+static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 	uint32_t width, height;
 	int channels;
 	unsigned char *data;
@@ -132,9 +150,6 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device,
 	       bytesPerRow:(width * channels)];
 
 	free(data);
-
-	[enc optimizeContentsForGPUAccess:tex];
-	[enc generateMipmapsForTexture:tex];
 
 	return tex;
 }
