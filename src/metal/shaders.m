@@ -55,11 +55,11 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 		bufs[16].mutability = MTLMutabilityImmutable;
 
 		attr = vertexdesc.attributes[0];
-		attr.format = MTLVertexFormatChar2Normalized;
+		attr.format = MTLVertexFormatHalf2;
 		attr.offset = 0;
 		attr.bufferIndex = 16;
 
-		vertexdesc.layouts[16].stride = sizeof(gvec(uint8_t,2));
+		vertexdesc.layouts[16].stride = sizeof(gvec(_Float16,2));
 
 		desc.vertexDescriptor = vertexdesc;
 
