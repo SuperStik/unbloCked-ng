@@ -210,7 +210,7 @@ static void *MTL_render(void *l) {
 	struct textures tex;
 	tex_generate(&tex, device, cmdq);
 
-	const gvec(int16_t,2) bgverts[] = {
+	const gvec(_Float16,2) bgverts[] = {
 		{1.0f16, -1.0f16},
 		{-1.0f16, -1.0f16},
 		{1.0f16, 1.0f16},
