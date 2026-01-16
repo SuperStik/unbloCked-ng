@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <Accelerate/Accelerate.h>
 #include <dispatch/dispatch.h>
 #import <Metal/Metal.h>
 
 #include "../image/png.h"
 #include "textures.h"
 
-static void expandalpha(unsigned char **data, int *channels, size_t width,
-		size_t height);
+static size_t expandalpha(unsigned char **data, size_t width, size_t height);
 
 static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels *);
 
@@ -65,30 +65,22 @@ void tex_release(struct textures *tex) {
 	[tex->text release];
 }
 
-static void expandalpha(unsigned char **data, int *channels, size_t width,
-		size_t height) {
-	if (*channels != 3)
-		return;
+static size_t expandalpha(unsigned char **data, size_t width, size_t height) {
+	vImage_Buffer src, dst;
+	src.data = *data;
+	src.height = height;
+	src.width = width;
+	src.rowBytes = width * 3ul;
 
-	size_t pixels = width * height;
-	size_t size = pixels * 3ul;
-	size_t newsize = pixels * 4ul;
+	vImageBuffer_Init(&dst, height, width, 32, kvImageNoFlags);
 
-	unsigned char *newdata = realloc(*data, newsize);
-	if (newdata == NULL)
-		err(1, "realloc");
+	vImageConvert_RGB888toBGRA8888(&src, nil, 0xFF, &dst, false,
+			kvImageNoFlags);
 
-	size_t ind = 0;
-	for (size_t i = 1; i < pixels; ++i) {
-		size -= 3;
-		memmove(&newdata[ind + 4], &newdata[ind + 3], size);
-		newdata[ind + 3] = 0xff;
-		ind += 4;
-	}
-	newdata[ind + 3] = 0xff;
+	free(*data);
+	*data = dst.data;
 
-	*data = newdata;
-	*channels = 4;
+	return dst.rowBytes;
 }
 
 static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels
@@ -108,6 +100,13 @@ static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels
 					MTLTextureSwizzleRed,
 					MTLTextureSwizzleGreen);
 			return MTLPixelFormatRG8Unorm;
+		case 3:
+			*swizzle = MTLTextureSwizzleChannelsMake(
+					MTLTextureSwizzleRed,
+					MTLTextureSwizzleGreen,
+					MTLTextureSwizzleBlue,
+					MTLTextureSwizzleAlpha);
+			return MTLPixelFormatBGRA8Unorm;
 		default:
 			*swizzle = MTLTextureSwizzleChannelsMake(
 					MTLTextureSwizzleRed,
@@ -126,9 +125,13 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 	MTLTextureSwizzleChannels swizzle;
 
 	data = img_readpngpath(path, &width, &height, &channels);
-	expandalpha(&data, &channels, width, height);
-
 	fmt = getswizzle(channels, &swizzle);
+	NSUInteger bytesperrow = (NSUInteger)width * channels;
+
+	if (channels == 3) {
+		bytesperrow = expandalpha(&data, width, height);
+		channels = 4;
+	}
 
 	MTLTextureDescriptor *desc = [MTLTextureDescriptor
 		texture2DDescriptorWithPixelFormat:fmt
@@ -147,7 +150,7 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 	[tex replaceRegion:replace
 	       mipmapLevel:0
 		 withBytes:data
-	       bytesPerRow:(width * channels)];
+	       bytesPerRow:bytesperrow];
 
 	free(data);
 
@@ -175,9 +178,13 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 	uint32_t width = totalw / tx;
 	uint32_t height = totalh / ty;
 
-	expandalpha(&data, &channels, width, height);
-
 	fmt = getswizzle(channels, &swizzle);
+	NSUInteger bytesperrow = (NSUInteger)totalw * channels;
+
+	if (channels == 3) {
+		bytesperrow = expandalpha(&data, width, height);
+		channels = 4;
+	}
 
 	MTLTextureDescriptor *basedesc = [MTLTextureDescriptor
 		texture2DDescriptorWithPixelFormat:fmt
@@ -206,7 +213,7 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 	[basetex replaceRegion:baseregion
 		   mipmapLevel:0
 		     withBytes:data
-		   bytesPerRow:(totalw * channels)];
+		   bytesPerRow:bytesperrow];
 
 	free(data);
 

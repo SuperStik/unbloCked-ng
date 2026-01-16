@@ -23,7 +23,7 @@ SHDR_AIR_OUT = $(patsubst ${SHDR_SRC}/%.metal,${OBJ_DIR}/%.air,${SHDR_METAL})
 SHDR_OUT = ${OUT_DIR}/default.metallib
 
 override LIB += m png pthread sdl3
-override FRAMEWORK += Foundation Metal
+override FRAMEWORK += Accelerate Foundation Metal
 override LIB_PATH += /usr/local/lib
 override INCL_PATH += src /usr/local/include
 
