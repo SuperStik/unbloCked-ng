@@ -6,7 +6,6 @@
 #include <png.h> /* confusing */
 
 #include "png.h"
-#include "../resources.h"
 
 static int typepng2chan(int bit_depth, int color_type);
 
@@ -102,28 +101,6 @@ unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 	png_destroy_read_struct(&png_reader, &png_info, NULL);
 
 	return image;
-}
-
-unsigned char *img_readpngpath(const char *path, uint32_t *width, uint32_t *
-		height, int *channels) {
-	int fd = openatres(path, O_RDONLY);
-	if (fd < 0) {
-		warn("openatres: %s", path);
-		return NULL;
-	}
-
-	FILE *file = fdopen(fd, "rb");
-	if (file == NULL) {
-		warn("fdopen: %i", fd);
-		close(fd);
-		return NULL;
-	}
-
-	unsigned char *data = img_readpng(file, width, height, channels);
-
-	fclose(file);
-
-	return data;
 }
 
 static int typepng2chan(int bit_depth, int color_type) {
