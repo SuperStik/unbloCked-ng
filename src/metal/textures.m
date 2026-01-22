@@ -119,13 +119,15 @@ static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels
 
 static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 	id<MTLTexture> tex;
-	uint32_t width, height;
-	int channels;
-	unsigned char *data;
-	MTLPixelFormat fmt;
-	MTLTextureSwizzleChannels swizzle;
 
 	@autoreleasepool {
+		uint32_t width, height;
+		int channels;
+		size_t bytesperrow;
+		unsigned char *data;
+		MTLPixelFormat fmt;
+		MTLTextureSwizzleChannels swizzle;
+
 		NSURL *base = NSBundle.mainBundle.resourceURL;
 		NSURL *resources = [NSURL
 			fileURLWithFileSystemRepresentation:"resources"
@@ -136,9 +138,9 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 						isDirectory:false
 					      relativeToURL:resources];
 		FILE *file = fopen(pathurl.fileSystemRepresentation, "rb");
-		data = img_readpng(file, &width, &height, &channels);
+		data = img_readpng(file, &width, &height, &channels,
+				&bytesperrow);
 		fmt = getswizzle(channels, &swizzle);
-		NSUInteger bytesperrow = (NSUInteger)width * channels;
 
 		if (channels == 3) {
 			bytesperrow = expandalpha(&data, width, height);
@@ -177,13 +179,15 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 		return nil;
 
 	id<MTLTexture> tex;
-	uint32_t totalw, totalh;
-	int channels;
-	unsigned char *data;
-	MTLPixelFormat fmt;
-	MTLTextureSwizzleChannels swizzle;
 
 	@autoreleasepool {
+		uint32_t totalw, totalh;
+		int channels;
+		size_t bytesperrow;
+		unsigned char *data;
+		MTLPixelFormat fmt;
+		MTLTextureSwizzleChannels swizzle;
+
 		NSURL *base = NSBundle.mainBundle.resourceURL;
 		NSURL *resources = [NSURL
 			fileURLWithFileSystemRepresentation:"resources"
@@ -194,7 +198,8 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 						isDirectory:false
 					      relativeToURL:resources];
 		FILE *file = fopen(pathurl.fileSystemRepresentation, "rb");
-		data = img_readpng(file, &totalw, &totalh, &channels);
+		data = img_readpng(file, &totalw, &totalh, &channels,
+				&bytesperrow);
 		if (totalw % tx || totalh % ty) {
 			free(data);
 			return nil;
@@ -204,7 +209,6 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 		uint32_t height = totalh / ty;
 
 		fmt = getswizzle(channels, &swizzle);
-		NSUInteger bytesperrow = (NSUInteger)totalw * channels;
 
 		if (channels == 3) {
 			bytesperrow = expandalpha(&data, width, height);

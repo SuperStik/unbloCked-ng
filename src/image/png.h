@@ -5,6 +5,6 @@
 #include <stdio.h>
 
 unsigned char *img_readpng(FILE *, uint32_t *width, uint32_t *height, int *
-		channels);
+		channels, size_t *bytesperrow);
 
 #endif /* IMG_PNG_H */

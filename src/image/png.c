@@ -7,10 +7,10 @@
 
 #include "png.h"
 
-static int typepng2chan(int bit_depth, int color_type);
+static int typepng2chan(int color_type);
 
 unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
-		channels) {
+		channels, size_t *bytesperrow) {
 	unsigned char sig[8];
 	fread(sig, 1, 8, file);
 
@@ -54,7 +54,8 @@ unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 	*width = w;
 	*height = h;
 
-	*channels = typepng2chan(bit_depth, color_type);
+	*channels = typepng2chan(color_type);
+	*bytesperrow = (size_t)w * *channels * (bit_depth / 8);
 
 	size_t rowbytes = png_get_rowbytes(png_reader, png_info);
 
@@ -103,43 +104,25 @@ unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 	return image;
 }
 
-static int typepng2chan(int bit_depth, int color_type) {
+static int typepng2chan(int color_type) {
 	int channels;
-	switch(bit_depth) {
-		case 4:
-			switch(color_type) {
-				case PNG_COLOR_TYPE_GRAY:
-					channels = 1;
-					break;
-				default:
-					warnx("pngreader: bad color type: %i",
-							color_type);
-					channels = -1;
-			}
+	switch(color_type) {
+		case PNG_COLOR_TYPE_GRAY:
+			channels = 1;
 			break;
-		case 8:
-			switch(color_type) {
-				case PNG_COLOR_TYPE_GRAY:
-					channels = 1;
-					break;
-				case PNG_COLOR_TYPE_GRAY_ALPHA:
-					channels = 2;
-					break;
-				case PNG_COLOR_TYPE_PALETTE:
-				case PNG_COLOR_TYPE_RGB:
-					channels = 3;
-					break;
-				case PNG_COLOR_TYPE_RGB_ALPHA:
-					channels = 4;
-					break;
-				default:
-					warnx("pngreader: bad color type: %i",
-							color_type);
-					channels = -1;
-			}
+		case PNG_COLOR_TYPE_GRAY_ALPHA:
+			channels = 2;
+			break;
+		case PNG_COLOR_TYPE_PALETTE:
+		case PNG_COLOR_TYPE_RGB:
+			channels = 3;
+			break;
+		case PNG_COLOR_TYPE_RGB_ALPHA:
+			channels = 4;
 			break;
 		default:
-			warnx("pngreader: bad bit depth: %i", bit_depth);
+			warnx("pngreader: bad color type: %i",
+					color_type);
 			channels = -1;
 	}
 
