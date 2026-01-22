@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <Accelerate/Accelerate.h>
 #include <dispatch/dispatch.h>
@@ -10,9 +11,11 @@
 #include "../image/png.h"
 #include "textures.h"
 
-static size_t expandalpha(unsigned char **data, size_t width, size_t height);
+static size_t expandalpha(unsigned char **data, size_t width, size_t height,
+		size_t bytesperrow, int bit_depth);
 
-static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels *);
+static MTLPixelFormat getswizzle(int channels, int bit_depth,
+		MTLTextureSwizzleChannels *);
 
 static id<MTLTexture> tex2d(const char *path, id<MTLDevice>);
 
@@ -65,17 +68,23 @@ void tex_release(struct textures *tex) {
 	[tex->text release];
 }
 
-static size_t expandalpha(unsigned char **data, size_t width, size_t height) {
+static size_t expandalpha(unsigned char **data, size_t width, size_t height,
+		size_t bytesperrow, int bit_depth) {
 	vImage_Buffer src, dst;
 	src.data = *data;
 	src.height = height;
 	src.width = width;
-	src.rowBytes = width * 3ul;
+	src.rowBytes = bytesperrow;
 
-	vImageBuffer_Init(&dst, height, width, 32, kvImageNoFlags);
-
-	vImageConvert_RGB888toBGRA8888(&src, nil, 0xFF, &dst, false,
+	vImageBuffer_Init(&dst, height, width, 32 * (bit_depth / 8),
 			kvImageNoFlags);
+
+	if (bit_depth == 16)
+		vImageConvert_RGB16UtoRGBA16U(&src, nil, 0xFFFF, &dst, false,
+				kvImageNoFlags);
+	else
+		vImageConvert_RGB888toBGRA8888(&src, nil, 0xFF, &dst, false,
+				kvImageNoFlags);
 
 	free(*data);
 	*data = dst.data;
@@ -83,8 +92,8 @@ static size_t expandalpha(unsigned char **data, size_t width, size_t height) {
 	return dst.rowBytes;
 }
 
-static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels
-		*swizzle) {
+static MTLPixelFormat getswizzle(int channels, int bit_depth,
+		MTLTextureSwizzleChannels *swizzle) {
 	switch (channels) {
 		case 1:
 			*swizzle = MTLTextureSwizzleChannelsMake(
@@ -92,28 +101,32 @@ static MTLPixelFormat getswizzle(int channels, MTLTextureSwizzleChannels
 					MTLTextureSwizzleRed,
 					MTLTextureSwizzleRed,
 					MTLTextureSwizzleOne);
-			return MTLPixelFormatR8Unorm;
+			return bit_depth == 16 ? MTLPixelFormatR8Unorm :
+				MTLPixelFormatR8Unorm;
 		case 2:
 			*swizzle = MTLTextureSwizzleChannelsMake(
 					MTLTextureSwizzleRed,
 					MTLTextureSwizzleRed,
 					MTLTextureSwizzleRed,
 					MTLTextureSwizzleGreen);
-			return MTLPixelFormatRG8Unorm;
+			return bit_depth == 16 ? MTLPixelFormatRG16Unorm :
+				MTLPixelFormatRG8Unorm;
 		case 3:
 			*swizzle = MTLTextureSwizzleChannelsMake(
 					MTLTextureSwizzleRed,
 					MTLTextureSwizzleGreen,
 					MTLTextureSwizzleBlue,
 					MTLTextureSwizzleAlpha);
-			return MTLPixelFormatBGRA8Unorm;
+			return bit_depth == 16 ? MTLPixelFormatRGBA16Unorm :
+				MTLPixelFormatBGRA8Unorm;
 		default:
 			*swizzle = MTLTextureSwizzleChannelsMake(
 					MTLTextureSwizzleRed,
 					MTLTextureSwizzleGreen,
 					MTLTextureSwizzleBlue,
 					MTLTextureSwizzleAlpha);
-			return MTLPixelFormatRGBA8Unorm;
+			return bit_depth == 16 ? MTLPixelFormatRGBA16Unorm :
+				MTLPixelFormatRGBA8Unorm;
 	}
 }
 
@@ -122,7 +135,7 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 
 	@autoreleasepool {
 		uint32_t width, height;
-		int channels;
+		int channels, bit_depth;
 		size_t bytesperrow;
 		unsigned char *data;
 		MTLPixelFormat fmt;
@@ -138,12 +151,13 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 						isDirectory:false
 					      relativeToURL:resources];
 		FILE *file = fopen(pathurl.fileSystemRepresentation, "rb");
-		data = img_readpng(file, &width, &height, &channels,
+		data = img_readpng(file, &width, &height, &channels, &bit_depth,
 				&bytesperrow);
-		fmt = getswizzle(channels, &swizzle);
+		fmt = getswizzle(channels, bit_depth, &swizzle);
 
 		if (channels == 3) {
-			bytesperrow = expandalpha(&data, width, height);
+			bytesperrow = expandalpha(&data, width, height,
+					bytesperrow, bit_depth);
 			channels = 4;
 		}
 
@@ -182,7 +196,7 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 
 	@autoreleasepool {
 		uint32_t totalw, totalh;
-		int channels;
+		int channels, bit_depth;
 		size_t bytesperrow;
 		unsigned char *data;
 		MTLPixelFormat fmt;
@@ -199,7 +213,7 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 					      relativeToURL:resources];
 		FILE *file = fopen(pathurl.fileSystemRepresentation, "rb");
 		data = img_readpng(file, &totalw, &totalh, &channels,
-				&bytesperrow);
+				&bit_depth, &bytesperrow);
 		if (totalw % tx || totalh % ty) {
 			free(data);
 			return nil;
@@ -208,10 +222,11 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 		uint32_t width = totalw / tx;
 		uint32_t height = totalh / ty;
 
-		fmt = getswizzle(channels, &swizzle);
+		fmt = getswizzle(channels, bit_depth, &swizzle);
 
 		if (channels == 3) {
-			bytesperrow = expandalpha(&data, width, height);
+			bytesperrow = expandalpha(&data, width, height,
+					bytesperrow, bit_depth);
 			channels = 4;
 		}
 

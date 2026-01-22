@@ -10,7 +10,7 @@
 static int typepng2chan(int color_type);
 
 unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
-		channels, size_t *bytesperrow) {
+		channels, int *bit_depth, size_t *rowbytes) {
 	unsigned char sig[8];
 	fread(sig, 1, 8, file);
 
@@ -40,6 +40,10 @@ unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 
 	png_read_info(png_reader, png_info);
 
+#if __BYTE_ORDER__ != __ORDER_BIG_ENDIAN__
+	png_set_swap(png_reader);
+#endif /* __ORDER_BIG_ENDIAN__ */
+
 	if (setjmp(png_jmpbuf(png_reader))) {
 		warnx("libpng: Failed to read png");
 		png_read_end(png_reader, png_info);
@@ -47,17 +51,16 @@ unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 		return NULL;
 	}
 
-	int bit_depth, color_type;
+	int color_type;
 	png_uint_32 w, h;
-	png_get_IHDR(png_reader, png_info, &w, &h, &bit_depth,
+	png_get_IHDR(png_reader, png_info, &w, &h, bit_depth,
 			&color_type, NULL, NULL, NULL);
 	*width = w;
 	*height = h;
 
 	*channels = typepng2chan(color_type);
-	*bytesperrow = (size_t)w * *channels * (bit_depth / 8);
 
-	size_t rowbytes = png_get_rowbytes(png_reader, png_info);
+	*rowbytes = png_get_rowbytes(png_reader, png_info);
 
 	/* hack to support paletted PNGs with alpha channel */
 	if (color_type == PNG_COLOR_TYPE_PALETTE) {
@@ -69,14 +72,14 @@ unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 		png_get_tRNS(png_reader, png_info, &trans, &num_trans,
 				&trans_values);
 		if (trans != NULL) {
-			rowbytes *= 4;
+			*rowbytes *= 4;
 			*channels = 4;
 		} else
-			rowbytes *= 3;
+			*rowbytes *= 3;
 	}
 
 	unsigned char *image = (unsigned char *)malloc((*height) *
-			sizeof(png_bytep) * rowbytes);
+			sizeof(png_byte) * *rowbytes);
 	if (image == NULL) {
 		warn("malloc", NULL);
 		png_read_end(png_reader, png_info);
@@ -93,7 +96,7 @@ unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 	}
 
 	for (long i = 0; i < *height; ++i)
-		rows[i] = &(image[i * rowbytes]);
+		rows[i] = &(image[i * *rowbytes]);
 
 	png_read_image(png_reader, rows);
 
