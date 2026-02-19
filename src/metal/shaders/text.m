@@ -54,4 +54,6 @@ void shdr_text_new(id *pipe, id l, dispatch_group_t group) {
 	}
 
 	shdr_helper_pipe_make(pipe, desc, lib.device, group);
+
+	[desc release];
 }
