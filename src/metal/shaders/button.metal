@@ -1,4 +1,5 @@
 #include <metal_matrix>
+#include <metal_texture>
 
 using namespace metal;
 
@@ -44,4 +45,12 @@ fragdata vertButton(constant matrices *mats [[buffer(0)]], vertdata vert
 	return data;
 }
 
+[[early_fragment_tests]]
+fragment
+half4 fragButton(struct fragdata frag [[stage_in]], texture2d<half> tex
+		[[texture(0)]]) {
+	constexpr sampler samp(filter::nearest, mip_filter::nearest,
+			address::repeat);
+	return tex.sample(samp, frag.texcoords);
+}
 
