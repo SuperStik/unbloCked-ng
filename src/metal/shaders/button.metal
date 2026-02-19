@@ -34,8 +34,7 @@ enum anchor {
 };
 
 vertex
-fragdata vertButton(constant matrices *mats [[buffer(0)]], vertdata vert
-		[[stage_in]]) {
+fragdata vertButton(constant matrices *mats, vertdata vert [[stage_in]]) {
 	float4 pos = mats->ortho[vert.anchor] * float4(vert.position +
 			vert.offset, 0.0f, 1.0f);
 
@@ -47,8 +46,7 @@ fragdata vertButton(constant matrices *mats [[buffer(0)]], vertdata vert
 
 [[early_fragment_tests]]
 fragment
-half4 fragButton(struct fragdata frag [[stage_in]], texture2d<half> tex
-		[[texture(0)]]) {
+half4 fragButton(struct fragdata frag [[stage_in]], texture2d<half> tex) {
 	constexpr sampler samp(filter::nearest, mip_filter::nearest,
 			address::repeat);
 	return tex.sample(samp, frag.texcoords);

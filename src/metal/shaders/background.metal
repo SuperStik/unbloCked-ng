@@ -26,7 +26,7 @@ enum anchor {
 };
 
 vertex
-fragdata vertBackground(constant matrices *mats [[buffer(0)]], float2 position
+fragdata vertBackground(constant matrices *mats, float2 position
 		[[attribute(0)]] [[stage_in]]) {
 	struct fragdata frag;
 
@@ -43,8 +43,7 @@ fragdata vertBackground(constant matrices *mats [[buffer(0)]], float2 position
 
 [[early_fragment_tests]]
 fragment
-half4 fragBackground(struct fragdata frag[[stage_in]], texture2d<half> tex
-		[[texture(0)]]) {
+half4 fragBackground(struct fragdata frag[[stage_in]], texture2d<half> tex) {
 	constexpr sampler samp(filter::nearest, address::repeat);
 	half4 texcolor = tex.sample(samp, frag.texcoords);
 	texcolor.rgb *= 0.25h;

@@ -34,9 +34,8 @@ enum anchor {
 };
 
 vertex
-fragdata vertText(uint vertID [[vertex_id]], uint instanceID [[instance_id]],
-		constant matrices *mats [[buffer(0)]], vertdata vert
-		[[stage_in]]) {
+fragdata vertText(uint instanceID [[instance_id]], constant matrices *mats,
+		vertdata vert[[stage_in]]) {
 	uint shift = instanceID & 1;
 	half darken = (half)shift * 0.75h + 0.25h;
 	float4 pos = float4(vert.position + float2((float)shift), 0.0f, 1.0f);
@@ -53,8 +52,7 @@ fragdata vertText(uint vertID [[vertex_id]], uint instanceID [[instance_id]],
 
 [[early_fragment_tests]]
 fragment
-half4 fragText(fragdata frag [[stage_in]], texture2d_array<half> tex
-		[[texture(0)]]) {
+half4 fragText(fragdata frag [[stage_in]], texture2d_array<half> tex) {
 	constexpr sampler samp;
 
 	half4 color = tex.sample(samp, frag.texcoords, frag.character);
