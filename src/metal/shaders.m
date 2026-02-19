@@ -16,18 +16,11 @@ struct shaders *shdr_generate(struct shaders *store, id d) {
 
 	dispatch_group_t group = dispatch_group_create();
 
-	@autoreleasepool {
-		const MTLPixelFormat fmt = MTLPixelFormatBGR10A2Unorm;
+	shdr_background_new(&(store->background), lib, group);
 
-		/* Background Pipeline */
-		shdr_background_new(&(store->background), lib, group);
+	shdr_button_new(&(store->button), lib, group);
 
-		/* Button Pipeline */
-		shdr_button_new(&(store->button), lib, group);
-		
-		/* Text Pipeline */
-		shdr_text_new(&(store->text), lib, group);
-	}
+	shdr_text_new(&(store->text), lib, group);
 
 	[lib release];
 
