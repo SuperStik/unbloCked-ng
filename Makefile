@@ -3,8 +3,8 @@ EXE := unbloCked
 SRC_DIR := src
 SRC_DIRS := $(shell find ${SRC_DIR}/ -type d)
 # TODO: figure out how to make this one command
-SRC := $(shell find ${SRC_DIR}/ -type f -name '*.c')
-SRC += $(shell find ${SRC_DIR}/ -type f -name '*.m')
+SRC_C := $(shell find ${SRC_DIR}/ -type f -name '*.c')
+SRC_M := $(shell find ${SRC_DIR}/ -type f -name '*.m')
 RES := resources
 # TODO: make sure the base name has at least one character
 RES_SRC := $(shell find ${RES}/ -name '*.*')
@@ -13,8 +13,8 @@ SHDR_SRC := ${SRC_DIR}/metal/shaders
 SHDR_METAL := $(wildcard ${SHDR_SRC}/*.metal)
 
 OBJ_DIR = ${OUT_DIR}/objects
-OBJ_C = $(patsubst src/%.c,${OBJ_DIR}/%.o,${SRC})
-OBJ = $(patsubst src/%.m,${OBJ_DIR}/%.o,${OBJ_C})
+OBJ_C = $(patsubst src/%.c,${OBJ_DIR}/%.c.o,${SRC_C})
+OBJ_M = $(patsubst src/%.m,${OBJ_DIR}/%.m.o,${SRC_M})
 OBJ_DIRS = $(patsubst ${SRC_DIR}/%,${OBJ_DIR}/%,${SRC_DIRS})
 RES_DIR = ${OUT_DIR}/resources
 RES_OUT = $(patsubst ${RES}/%,${RES_DIR}/%,${RES_SRC})
@@ -43,13 +43,13 @@ override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibili
 
 all: ${OBJ_DIRS} ${OUT} ${SHDR_OUT} ${RES_OUT}
 
-${OUT}: ${OBJ}
+${OUT}: ${OBJ_C} ${OBJ_M}
 	${CC} $^ -O$O -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS}
 
-${OBJ_DIR}/%.o: ${SRC_DIR}/%.c ${OBJ_DIRS}
+${OBJ_DIR}/%.c.o: ${SRC_DIR}/%.c ${OBJ_DIRS}
 	${CC} $< -O$O -o $@ -c ${INCL_PATH_FL} ${CCFLAGS}
 
-${OBJ_DIR}/%.o: ${SRC_DIR}/%.m ${OBJ_DIRS}
+${OBJ_DIR}/%.m.o: ${SRC_DIR}/%.m ${OBJ_DIRS}
 	${CC} $< -O$O -o $@ -c ${INCL_PATH_FL} ${CCFLAGS}
 
 ${OBJ_DIR}/%.air: ${SHDR_SRC}/%.metal ${OBJ_DIR}
