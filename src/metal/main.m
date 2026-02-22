@@ -105,10 +105,6 @@ void MTL_main(void) {
 		[dummy release];
 	}
 
-	struct gui_mainmenu mainmenu;
-	gui_mainmenu_init(&mainmenu, (float)WIDTH, (float)HEIGHT);
-	currentscreen = &mainmenu.screen;
-
 	matbuf = [device
 		newBufferWithLength:(sizeof(float) * 16 * 10)
 			    options:MTLResourceCPUCacheModeWriteCombined];
@@ -118,6 +114,10 @@ void MTL_main(void) {
 	float winhgt = (float)HEIGHT;
 	scaledreso(&winwid, &winhgt);
 	updatemats(matrices, winwid, winhgt);
+
+	struct gui_mainmenu mainmenu;
+	gui_mainmenu_init(&mainmenu, winwid, winhgt);
+	currentscreen = &mainmenu.screen;
 
 	const NSRange matrange = NSMakeRange(0, sizeof(float) * 16 * 10);
 	if (![device hasUnifiedMemory])

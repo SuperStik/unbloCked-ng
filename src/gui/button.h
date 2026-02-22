@@ -30,6 +30,7 @@ struct gui_button *gui_button_resize(struct gui_button *, float x, float y,
 
 void gui_button_destroy(struct gui_button *);
 
-int gui_button_mousepressed(struct gui_button *, float x, float y);
+int gui_button_mousepressed(struct gui_button *, gvec(float,2) position,
+		gvec(float,2) area);
 
 #endif /* GUI_BUTTON_H */

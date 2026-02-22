@@ -2,6 +2,8 @@
 
 gvec(float,2) anc_getoffset(enum anchor anc, gvec(float,2) winsize,
 		gvec(float,2) pos){
+	pos[1] = -pos[1];
+	winsize[1] = -winsize[1];
 	gvec(float,2) offset;
 	
 	switch (anc) {
@@ -34,5 +36,5 @@ gvec(float,2) anc_getoffset(enum anchor anc, gvec(float,2) winsize,
 			offset = winsize;
 	}
 
-	return pos + offset;
+	return pos - offset;
 }

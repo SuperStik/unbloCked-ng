@@ -7,8 +7,12 @@ ssize_t gui_screen_onclick(struct gui_screen *screen, float x, float y) {
 
 	size_t len = screen->ctrllistlen;
 	struct gui_button *start = screen->ctrllist;
+	gvec(float,2) pos = {x, y};
+	gvec(float,2) area = {screen->width, screen->height};
+
 	for (size_t i = 0; i < len; ++i)
-		gui_button_mousepressed(start + i, x, y);
+		if (gui_button_mousepressed(start + i, pos, area))
+			break;
 
 	return -1;
 }

@@ -45,15 +45,21 @@ void gui_button_destroy(struct gui_button *button) {
 	free(button->displaystr);
 }
 
-int gui_button_mousepressed(struct gui_button *button, float x, float y) {
+int gui_button_mousepressed(struct gui_button *button, gvec(float,2) pos,
+		gvec(float,2) area) {
 	if (button->info->state) {
-		warnx("button: %p (%g, %g)", button, x, y);
+		pos = anc_getoffset(button->info->anchor, area, pos);
+
+		warnx("button: %p (%g, %g)", button, pos[0], pos[1]);
 
 		float xpos = button->info->pos[0];
 		float ypos = button->info->pos[1];
 
-		return x >= xpos && y >= ypos && x < (xpos + button->width) &&
-			y < (ypos + button->height);
+		warnx("button: %p (%g, %g)", button, xpos, ypos);
+
+		return pos[0] >= xpos && pos[1] >= ypos && pos[0] < (xpos +
+				button->width) && pos[1] < (ypos +
+					button->height);
 	}
 
 	return 0;
