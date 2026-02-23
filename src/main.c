@@ -13,10 +13,13 @@ int main(void) {
 	warnx("Hello unbloCked!");
 	
 	warnx("Initializing SDL...");
-	SDL_Init(SDL_INIT_VIDEO);
+	if (!SDL_Init(SDL_INIT_VIDEO))
+		errx(1, "%s", SDL_GetError());
 
 	warnx("Initializing miniaudio...");
-	ma_engine_init(NULL, &engine);
+	ma_result result = ma_engine_init(NULL, &engine);
+	if (result != MA_SUCCESS)
+		errx(1, "ma_engine_init: %s", ma_result_description(result));
 
 	warnx("Done!");
 	MTL_main();
