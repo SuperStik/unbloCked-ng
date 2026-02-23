@@ -21,8 +21,12 @@ int main(void) {
 	if (result != MA_SUCCESS)
 		errx(1, "ma_engine_init: %s", ma_result_description(result));
 
+	sound_ui_init(&engine, &sound_ui);
+
 	warnx("Done!");
 	MTL_main();
+
+	sound_ui_uninit(&sound_ui);
 
 	ma_engine_uninit(&engine);
 
