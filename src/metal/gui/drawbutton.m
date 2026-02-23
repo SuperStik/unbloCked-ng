@@ -7,24 +7,23 @@
 #define BUFFER_OPTIONS (MTLResourceCPUCacheModeWriteCombined|\
 		MTLResourceHazardTrackingModeUntracked)
 
-id gui_drawbutton_getverts(id d, float xpos,
-		float ypos, float width, float height) {
+id gui_drawbutton_getverts(id d, float width, float height) {
 	id<MTLDevice> device = d;
 
-	float wd2 = width * 0.5f;
+	float wd2 = width / 2.0f;
+	float hd2 = height / 2.0f;
 	float ustart = 200.0f - wd2;
 
 	const struct gui_buttonverts verts[] = {
-		{{xpos, ypos}, {0.0f, 66.0f / 256.0f}},
-		{{xpos + wd2, ypos}, {wd2 / 256.0f, 66.0f / 256.0f}},
-		{{xpos + wd2, ypos + height}, {wd2 / 256.0f, 46.0f / 256.0f}},
-		{{xpos, ypos + height}, {0.0f, 46.0 / 256.0f}},
+		{{-wd2, -hd2}, {0.0f, 66.0f / 256.0f}},
+		{{0.0f, -hd2}, {wd2 / 256.0f, 66.0f / 256.0f}},
+		{{0.0f, hd2}, {wd2 / 256.0f, 46.0f / 256.0f}},
+		{{-wd2, hd2}, {0.0f, 46.0 / 256.0f}},
 
-		{{xpos + wd2, ypos}, {ustart / 256.0f, 66.0f / 256.0f}},
-		{{xpos + width, ypos}, {200.0f / 256.0f, 66.0f / 256.0f}},
-		{{xpos + width, ypos + height}, {200.0f / 256.0f, 46.0f /
-							256.0f}},
-		{{xpos + wd2, ypos + height}, {ustart / 256.0f, 46.0f / 256.0f}}
+		{{0.0f, -hd2}, {ustart / 256.0f, 66.0f / 256.0f}},
+		{{wd2, -hd2}, {200.0f / 256.0f, 66.0f / 256.0f}},
+		{{wd2, hd2}, {200.0f / 256.0f, 46.0f / 256.0f}},
+		{{0.0f, hd2}, {ustart / 256.0f, 46.0f / 256.0f}}
 	};
 
 	return [device newBufferWithBytes:verts

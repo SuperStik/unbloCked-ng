@@ -200,8 +200,8 @@ static void *MTL_render(void *l) {
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
-	id<MTLBuffer> buttonverts = gui_drawbutton_getverts(device, -100.0f,
-			0.0f, 200.0f, 16.0f);
+	id<MTLBuffer> buttonverts = gui_drawbutton_getverts(device, 200.0f,
+			16.0f);
 	id<MTLBuffer> buttoninds = gui_drawbutton_getinds(device);
 
 	struct shaders shdr;

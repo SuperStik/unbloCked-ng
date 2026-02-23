@@ -52,14 +52,18 @@ int gui_button_mousepressed(struct gui_button *button, gvec(float,2) pos,
 
 		warnx("button: %p (%g, %g)", button, pos[0], pos[1]);
 
-		float xpos = button->info->pos[0];
-		float ypos = button->info->pos[1];
+		gvec(float,2) button_pos = button->info->pos;
+		gvec(float,2) button_size = {button->width, button->height};
+		button_size /= 2.0f;
 
-		warnx("button: %p (%g, %g)", button, xpos, ypos);
+		gvec(float,2) pos_lo = button_pos - button_size;
+		gvec(float,2) pos_hi = button_pos + button_size;
 
-		return pos[0] >= xpos && pos[1] >= ypos && pos[0] < (xpos +
-				button->width) && pos[1] < (ypos +
-					button->height);
+		warnx("button: %p (%g, %g)", button, button_size[0],
+				button_size[1]);
+
+		return pos[0] >= pos_lo[0] && pos[1] >= pos_lo[1] && pos[0] <
+			pos_hi[0] && pos[1] < pos_hi[1];
 	}
 
 	return 0;
