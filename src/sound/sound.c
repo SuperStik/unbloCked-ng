@@ -42,7 +42,7 @@ ma_result sound_init_from_file_relative(ma_engine *engine, const char *path,
 }
 
 ma_result sound_ui_init(ma_engine *engine, struct sound_ui *ui) {
-	sound_init_from_file_relative(engine, "resources/sound/ui/click.mp3",
+	sound_init_from_file_relative(engine, "resources/sound/ui/click.opus",
 			MA_SOUND_FLAG_NO_SPATIALIZATION, NULL, NULL,
 			&(ui->click));
 

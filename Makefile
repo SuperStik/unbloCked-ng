@@ -22,10 +22,10 @@ RES_OUT = $(patsubst ${RES}/%,${RES_DIR}/%,${RES_SRC})
 SHDR_AIR_OUT = $(patsubst ${SHDR_SRC}/%.metal,${OBJ_DIR}/%.air,${SHDR_METAL})
 SHDR_OUT = ${OUT_DIR}/default.metallib
 
-override LIB += m png pthread sdl3
+override LIB += m png pthread opus opusfile sdl3 vorbis vorbisfile
 override FRAMEWORK += Accelerate AudioToolbox CoreAudio Foundation Metal
 override LIB_PATH += /usr/local/lib
-override INCL_PATH += src miniaudio /usr/local/include
+override INCL_PATH += src miniaudio /usr/local/include /usr/local/include/opus
 
 LIB_FL := $(patsubst %,-l%,${LIB})
 FRAMEWORK_FL := $(patsubst %, -framework %, ${FRAMEWORK})
