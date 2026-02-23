@@ -50,8 +50,6 @@ int gui_button_mousepressed(struct gui_button *button, gvec(float,2) pos,
 	if (button->info->state) {
 		pos = anc_getoffset(button->info->anchor, area, pos);
 
-		warnx("button: %p (%g, %g)", button, pos[0], pos[1]);
-
 		gvec(float,2) button_pos = button->info->pos;
 		gvec(float,2) button_size = {button->width, button->height};
 		button_size /= 2.0f;
