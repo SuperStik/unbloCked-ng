@@ -23,7 +23,7 @@ SHDR_AIR_OUT = $(patsubst ${SHDR_SRC}/%.metal,${OBJ_DIR}/%.air,${SHDR_METAL})
 SHDR_OUT = ${OUT_DIR}/default.metallib
 
 override LIB += m png pthread sdl3
-override FRAMEWORK += Accelerate Foundation Metal
+override FRAMEWORK += Accelerate AudioToolbox CoreAudio Foundation Metal
 override LIB_PATH += /usr/local/lib
 override INCL_PATH += src /usr/local/include
 
@@ -39,7 +39,7 @@ OUT := ${OUT_DIR}/${EXE}
 
 O ?= 2
 
-override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibility=hidden
+override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibility=hidden -DMA_NO_RUNTIME_LINKING
 
 all: ${OBJ_DIRS} ${OUT} ${SHDR_OUT} ${RES_OUT}
 
