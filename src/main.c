@@ -40,6 +40,7 @@ int main(void) {
 	sound_ui_uninit(&sound_ui);
 
 	ma_engine_uninit(&engine);
+	ma_resource_manager_uninit(&resource_manager);
 
 	SDL_Quit();
 	return 0;
