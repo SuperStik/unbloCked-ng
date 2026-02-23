@@ -48,6 +48,8 @@ static void rebuilddepth(id<MTLDevice>, uint32_t w, uint32_t h);
 
 static void updatemats(float *matrices, float width, float height);
 
+static id<MTLDevice> getdevice(CAMetalLayer *);
+
 void MTL_main(void) {
 	SDL_Window *window = SDL_CreateWindow("unbloCked", WIDTH, HEIGHT,
 			SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY |
@@ -62,34 +64,7 @@ void MTL_main(void) {
 	void *l = SDL_Metal_GetLayer(view);
 	CAMetalLayer *layer = (__bridge CAMetalLayer *)l;
 
-	id<MTLDevice> device = nil;
-
-	@autoreleasepool {
-		NSProcessInfo *pinfo = NSProcessInfo.processInfo;
-		bool lowpower = pinfo.lowPowerModeEnabled;
-
-		NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
-		NSEnumerator<id<MTLDevice>> *devenum = [devices
-			objectEnumerator];
-		id<MTLDevice> curdevice = nil;
-		while(curdevice = [devenum nextObject]) {
-			if (curdevice.lowPower == lowpower) {
-				device = curdevice;
-				[device retain];
-				break;
-			}
-		}
-
-		[devices release];
-	}
-
-	if (device == nil) {
-		device = layer.preferredDevice;
-		[device retain];
-	}
-
-	if (device == nil)
-		device = MTLCreateSystemDefaultDevice();
+	id<MTLDevice> device = getdevice(layer);
 
 	if (__builtin_expect(device == nil, 0))
 		errx(1, "Failed to get device!");
@@ -415,4 +390,37 @@ static void updatemats(float *matrices, float width, float height) {
 			height, 0.0f, 256.0f);
 	GUTL_orthof(&matrices[(ANC_BOTTOMRIGHT * 16) + 16], -width, 0.0f, 0.0f,
 			height, 0.0f, 256.0f); 
+}
+
+static id<MTLDevice> getdevice(CAMetalLayer *layer) {
+	id<MTLDevice> device = nil;
+
+	@autoreleasepool {
+		NSProcessInfo *pinfo = NSProcessInfo.processInfo;
+		bool lowpower = pinfo.lowPowerModeEnabled;
+
+		NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
+		NSEnumerator<id<MTLDevice>> *devenum = [devices
+			objectEnumerator];
+		id<MTLDevice> curdevice = nil;
+		while(curdevice = [devenum nextObject]) {
+			if (curdevice.lowPower == lowpower) {
+				device = curdevice;
+				[device retain];
+				break;
+			}
+		}
+
+		[devices release];
+	}
+
+	if (device == nil) {
+		device = layer.preferredDevice;
+		[device retain];
+	}
+
+	if (device == nil)
+		device = MTLCreateSystemDefaultDevice();
+
+	return device;
 }
