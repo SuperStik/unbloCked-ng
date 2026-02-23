@@ -1,6 +1,10 @@
 # unbloCked-ng
 ## Sound credits
-- misc/explode.opus -- [largex.wav](https://freesound.org/people/inferno/sounds/18384/) by [inferno](https://freesound.org/people/inferno/) | License: [Sampling+](http://creativecommons.org/licenses/sampling+/1.0/)
+- misc/explode.opus -- [largex.wav](https://freesound.org/people/inferno/sounds/18384/) by [inferno](https://freesound.org/people/inferno/) | License: [Sampling+](https://creativecommons.org/licenses/sampling+/1.0/)
+- mob/pig/ambient1.opus -- [20061230.pig.00.flac](https://freesound.org/people/dobroide/sounds/27926/) by [dobroide](https://freesound.org/people/dobroide/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+- mob/pig/ambient2.opus -- [20061230.pig.00.flac](https://freesound.org/people/dobroide/sounds/27926/) by [dobroide](https://freesound.org/people/dobroide/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+- mob/pig/ambient3.opus -- [20061230.pig.00.flac](https://freesound.org/people/dobroide/sounds/27926/) by [dobroide](https://freesound.org/people/dobroide/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+- mob/pig/death.ogg -- [pig04.ogg](https://freesound.org/people/Erdie/sounds/44273/) by [Erdie](https://freesound.org/people/Erdie/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - mob/player/hurt1.opus -- [hurt1.wav](https://freesound.org/people/thecheeseman/sounds/44428/) by [thecheeseman](https://freesound.org/people/thecheeseman/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - mob/player/hurt2.opus -- [hurt2.wav](https://freesound.org/people/thecheeseman/sounds/44429/) by [thecheeseman](https://freesound.org/people/thecheeseman/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - mob/player/hurt3.opus -- [hurt3.wav](https://freesound.org/people/thecheeseman/sounds/44430/) by [thecheeseman](https://freesound.org/people/thecheeseman/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
