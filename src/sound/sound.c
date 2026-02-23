@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MA_NO_ENCODING
+#include <miniaudio.c>
 #include <SDL3/SDL_filesystem.h>
 
 #include "sound.h"

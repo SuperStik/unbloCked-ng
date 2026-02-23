@@ -25,7 +25,7 @@ SHDR_OUT = ${OUT_DIR}/default.metallib
 override LIB += m png pthread sdl3
 override FRAMEWORK += Accelerate AudioToolbox CoreAudio Foundation Metal
 override LIB_PATH += /usr/local/lib
-override INCL_PATH += src /usr/local/include
+override INCL_PATH += src miniaudio /usr/local/include
 
 LIB_FL := $(patsubst %,-l%,${LIB})
 FRAMEWORK_FL := $(patsubst %, -framework %, ${FRAMEWORK})
