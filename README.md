@@ -1,8 +1,9 @@
 # unbloCked-ng
 ## Sound credits
+- misc/bow1.opus -- [bow01.wav](https://freesound.org/people/Erdie/sounds/65733/) by [Erdie](https://freesound.org/people/Erdie/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+- misc/bow2.opus -- [bow02.wav](https://freesound.org/people/Erdie/sounds/65734/) by [Erdie](https://freesound.org/people/Erdie/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - misc/explode.opus -- [largex.wav](https://freesound.org/people/inferno/sounds/18384/) by [inferno](https://freesound.org/people/inferno/) | License: [Sampling+](https://creativecommons.org/licenses/sampling+/1.0/)
-- misc/bow1.opus -- [bow01.wav](https://freesound.org/people/Erdie/sounds/65733/) by [Erdie](https://freesound.org/people/Erdie/)| License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
-- misc/bow2.opus -- [bow02.wav](https://freesound.org/people/Erdie/sounds/65734/) by [Erdie](https://freesound.org/people/Erdie/)| License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+- misc/fizz.opus -- [41\_STEAM.wav](https://freesound.org/people/ReWired/sounds/48693/) by [ReWired](https://freesound.org/people/ReWired/) | License: [Sampling+](https://creativecommons.org/licenses/sampling+/1.0/)
 - misc/splash.mp3 -- [WATRSplsh\_Water Splash\_DIGIC02-68](https://soundeffects.fandom.com/wiki/Sound_Ideas,_WATER,_SPLASH_-_ROCK_THROWN_IN_WATER,_BIG_SPLASH,_DIGIFFECTS) from [Sound Effects Wiki](https://soundeffects.fandom.com/wiki/Sound_Effects_Wiki) | License: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/legalcode)
 - mob/pig/ambient1.opus -- [20061230.pig.00.flac](https://freesound.org/people/dobroide/sounds/27926/) by [dobroide](https://freesound.org/people/dobroide/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - mob/pig/ambient2.opus -- [20061230.pig.00.flac](https://freesound.org/people/dobroide/sounds/27926/) by [dobroide](https://freesound.org/people/dobroide/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
