@@ -14,7 +14,7 @@ ssize_t gui_screen_onclick(struct gui_screen *screen, float x, float y) {
 
 	for (size_t i = 0; i < len; ++i) {
 		if (gui_button_mousepressed(start + i, pos, area)) {
-			sound_restart(&sound_ui.click);
+			sound_restart(&sound.ui.click);
 			break;
 		}
 	}

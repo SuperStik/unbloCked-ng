@@ -6,18 +6,44 @@
 
 extern ma_engine engine;
 
-extern struct sound_ui sound_ui;
+struct sound {
+	struct {
+		ma_sound bow[2];
+		ma_sound explode;
+		ma_sound fizz;
+		ma_sound fuse;
+		ma_sound pop;
+		ma_sound splash;
+	} misc;
 
-struct sound_ui {
-	ma_sound click;
+	struct {
+		struct {
+			ma_sound ambient[3];
+			ma_sound death;
+		} pig;
+
+		struct {
+			ma_sound hurt[3];
+		} player;
+
+		struct {
+			ma_sound attack[2];
+		} slime;
+	} mob;
+
+	struct {
+		ma_sound click;
+	} ui;
 };
+
+extern struct sound sound;
 
 void sound_restart(ma_sound *);
 
 ma_result sound_init_from_file_relative(ma_engine *, const char *path, ma_uint32
 		flags, ma_sound_group *, ma_fence *, ma_sound *);
 
-ma_result sound_ui_init(ma_engine *, struct sound_ui *);
-void sound_ui_uninit(struct sound_ui *);
+ma_result sound_load(ma_engine *);
+void sound_unload(void);
 
 #endif /* UBLC_SOUND */

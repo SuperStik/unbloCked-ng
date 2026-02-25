@@ -32,12 +32,13 @@ int main(void) {
 	if (result != MA_SUCCESS)
 		errx(1, "ma_engine_init: %s", ma_result_description(result));
 
-	sound_ui_init(&engine, &sound_ui);
+	warnx("Loading sounds...");
+	sound_load(&engine);
 
 	warnx("Done!");
 	MTL_main();
 
-	sound_ui_uninit(&sound_ui);
+	sound_unload();
 
 	ma_engine_uninit(&engine);
 	ma_resource_manager_uninit(&resource_manager);
