@@ -28,4 +28,5 @@
 - tile/grass/step2.opus -- [grass2.wav](https://freesound.org/people/Snoman/sounds/9905/) by [Snoman](https://freesound.org/people/Snoman/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - tile/grass/step3.opus -- [grass3.wav](https://freesound.org/people/Snoman/sounds/9906/) by [Snoman](https://freesound.org/people/Snoman/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - tile/grass/step4.opus -- [grass4.wav](https://freesound.org/people/Snoman/sounds/9907/) by [Snoman](https://freesound.org/people/Snoman/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+- tile/note/basedrum.opus -- [bd.wav](https://freesound.org/people/altemark/sounds/35913/) by [altemark](https://freesound.org/people/altemark/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - ui/click.opus -- [btn121.wav](https://freesound.org/people/junggle/sounds/29301/) by [junggle](https://freesound.org/people/junggle/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
