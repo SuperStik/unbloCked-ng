@@ -66,6 +66,22 @@ static inline void tex_load_art(struct texture *tex, id<MTLDevice> device,
 	[blit generateMipmapsForTexture:tex->art.kz];
 }
 
+static inline void tex_load_environment(struct texture *tex, id<MTLDevice>
+		device, id<MTLBlitCommandEncoder> blit) {
+	tex->environment.clouds = tex2d("textures/environment/clouds.png",
+			device);
+	tex->environment.rain = tex2d("textures/environment/rain.png", device);
+	tex->environment.snow = tex2d("textures/environment/snow.png", device);
+
+	[blit optimizeContentsForGPUAccess:tex->environment.clouds];
+	[blit optimizeContentsForGPUAccess:tex->environment.rain];
+	[blit optimizeContentsForGPUAccess:tex->environment.snow];
+
+	[blit generateMipmapsForTexture:tex->environment.clouds];
+	[blit generateMipmapsForTexture:tex->environment.rain];
+	[blit generateMipmapsForTexture:tex->environment.snow];
+}
+
 static inline void tex_load_font(struct texture *tex, id<MTLDevice> device,
 		id<MTLBlitCommandEncoder> blit) {
 
@@ -117,6 +133,28 @@ static inline void tex_load_gui(struct texture *tex, id<MTLDevice> device,
 	[blit generateMipmapsForTexture:tex->gui.unknown_pack];
 }
 
+static inline void tex_load_item(struct texture *tex, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> blit) {
+	tex->item.arrows = tex2d_array("textures/item/arrows.png", 1, 2, device,
+			blit);
+	tex->item.boat = tex2d("textures/item/boat.png", device);
+	tex->item.cart = tex2d("textures/item/cart.png", device);
+	tex->item.door = tex2d("textures/item/door.png", device);
+	tex->item.sign = tex2d("textures/item/sign.png", device);
+
+
+	[blit optimizeContentsForGPUAccess:tex->item.boat];
+	[blit optimizeContentsForGPUAccess:tex->item.cart];
+	[blit optimizeContentsForGPUAccess:tex->item.door];
+	[blit optimizeContentsForGPUAccess:tex->item.sign];
+
+	[blit generateMipmapsForTexture:tex->item.arrows];
+	[blit generateMipmapsForTexture:tex->item.boat];
+	[blit generateMipmapsForTexture:tex->item.cart];
+	[blit generateMipmapsForTexture:tex->item.door];
+	[blit generateMipmapsForTexture:tex->item.sign];
+}
+
 /* TODO: make parallel */
 struct texture *tex_load(struct texture *tex, id c) {
 	id<MTLCommandQueue> cmdq = c;
@@ -129,8 +167,10 @@ struct texture *tex_load(struct texture *tex, id c) {
 		tex_load_achievement(tex, device, blit);
 		tex_load_armor(tex, device, blit);
 		tex_load_art(tex, device, blit);
+		tex_load_environment(tex, device, blit);
 		tex_load_font(tex, device, blit);
 		tex_load_gui(tex, device, blit);
+		tex_load_item(tex, device, blit);
 
 		[blit endEncoding];
 		[cmdb commit];

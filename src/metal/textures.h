@@ -23,6 +23,12 @@ struct texture {
 	} art;
 
 	struct {
+		id clouds;
+		id rain;
+		id snow;
+	} environment;
+
+	struct {
 		id font;
 	} font;
 
@@ -40,6 +46,14 @@ struct texture {
 		id trap;
 		id unknown_pack;
 	} gui;
+
+	struct {
+		id arrows;
+		id boat;
+		id cart;
+		id door;
+		id sign;
+	} item;
 };
 
 struct texture *tex_load(struct texture *, id commandqueue);
