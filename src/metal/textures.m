@@ -57,6 +57,15 @@ static inline void tex_load_armor(struct texture *tex, id<MTLDevice> device,
 	[blit generateMipmapsForTexture:tex->armor.power];
 }
 
+static inline void tex_load_art(struct texture *tex, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> blit) {
+	tex->art.kz = tex2d("textures/art/kz.png", device);
+
+	[blit optimizeContentsForGPUAccess:tex->art.kz];
+
+	[blit generateMipmapsForTexture:tex->art.kz];
+}
+
 static inline void tex_load_font(struct texture *tex, id<MTLDevice> device,
 		id<MTLBlitCommandEncoder> blit) {
 
@@ -117,6 +126,9 @@ struct texture *tex_load(struct texture *tex, id c) {
 		id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
 		id<MTLBlitCommandEncoder> blit = [cmdb blitCommandEncoder];
 
+		tex_load_achievement(tex, device, blit);
+		tex_load_armor(tex, device, blit);
+		tex_load_art(tex, device, blit);
 		tex_load_font(tex, device, blit);
 		tex_load_gui(tex, device, blit);
 

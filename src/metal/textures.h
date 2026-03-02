@@ -19,6 +19,10 @@ struct texture {
 	} armor;
 
 	struct {
+		id kz;
+	} art;
+
+	struct {
 		id font;
 	} font;
 
