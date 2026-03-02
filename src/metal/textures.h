@@ -54,6 +54,21 @@ struct texture {
 		id door;
 		id sign;
 	} item;
+
+	struct {
+		id dial;
+		id foliagecolor;
+		id footprint;
+		id grasscolor;
+		id mapbg;
+		id mapicons;
+		id particles;
+		id pumpkinblur;
+		id shadow;
+		id vignette;
+		id water;
+		id watercolor;
+	} misc;
 };
 
 struct texture *tex_load(struct texture *, id commandqueue);

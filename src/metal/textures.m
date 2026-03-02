@@ -16,11 +16,18 @@ static size_t expandalpha(unsigned char **data, size_t width, size_t height,
 static MTLPixelFormat getswizzle(int channels, int bit_depth,
 		MTLTextureSwizzleChannels *);
 
-static id<MTLTexture> tex2d(const char *path, id<MTLDevice>);
+static id<MTLTexture> tex2d_ex(const char *path, id<MTLDevice>, int flags);
 
-static id<MTLTexture> tex2d_array(const char *path, unsigned short tilex,
-		unsigned short tiley, id<MTLDevice>, id<MTLBlitCommandEncoder>);
+static id<MTLTexture> tex2d_array_ex(const char *path, unsigned short tilex,
+		unsigned short tiley, id<MTLDevice>, id<MTLBlitCommandEncoder>,
+		int flags);
 
+#define TEX_FLAG_NONE 0
+#define TEX_FLAG_NO_MIP 1
+
+#define tex2d(path, device) tex2d_ex(path, device, TEX_FLAG_NONE)
+#define tex2d_array(path, tilex, tiley, device, blit) tex2d_array_ex(path,\
+		tilex, tiley, device, blit, TEX_FLAG_NONE)
 static inline void tex_load_achievement(struct texture *tex, id<MTLDevice>
 		device, id<MTLBlitCommandEncoder> blit) {
 	tex->achievement.bg = tex2d("textures/achievement/bg.png", device);
@@ -155,6 +162,49 @@ static inline void tex_load_item(struct texture *tex, id<MTLDevice> device,
 	[blit generateMipmapsForTexture:tex->item.sign];
 }
 
+static inline void tex_load_misc(struct texture *tex, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> blit) {
+	tex->misc.dial = tex2d("textures/misc/dial.png", device);
+	tex->misc.foliagecolor = tex2d("textures/misc/foliagecolor.png",
+			device);
+	tex->misc.footprint = tex2d("textures/misc/footprint.png", device);
+	tex->misc.grasscolor = tex2d("textures/misc/grasscolor.png", device);
+	tex->misc.mapbg = tex2d("textures/misc/mapbg.png", device);
+	tex->misc.mapicons = tex2d_array("textures/misc/mapicons.png", 2, 1,
+			device, blit);
+	tex->misc.particles = tex2d_array("textures/misc/particles.png", 8, 3,
+			device, blit);
+	tex->misc.pumpkinblur = tex2d("textures/misc/pumpkinblur.png", device);
+	tex->misc.shadow = tex2d("textures/misc/shadow.png", device);
+	tex->misc.vignette = tex2d("textures/misc/vignette.png", device);
+	tex->misc.water = tex2d("textures/misc/water.png", device);
+	tex->misc.watercolor = tex2d("textures/misc/watercolor.png", device);
+
+	[blit optimizeContentsForGPUAccess:tex->misc.dial];
+	[blit optimizeContentsForGPUAccess:tex->misc.foliagecolor];
+	[blit optimizeContentsForGPUAccess:tex->misc.footprint];
+	[blit optimizeContentsForGPUAccess:tex->misc.grasscolor];
+	[blit optimizeContentsForGPUAccess:tex->misc.mapbg];
+	[blit optimizeContentsForGPUAccess:tex->misc.pumpkinblur];
+	[blit optimizeContentsForGPUAccess:tex->misc.shadow];
+	[blit optimizeContentsForGPUAccess:tex->misc.vignette];
+	[blit optimizeContentsForGPUAccess:tex->misc.water];
+	[blit optimizeContentsForGPUAccess:tex->misc.watercolor];
+
+	[blit generateMipmapsForTexture:tex->misc.dial];
+	[blit generateMipmapsForTexture:tex->misc.foliagecolor];
+	[blit generateMipmapsForTexture:tex->misc.footprint];
+	[blit generateMipmapsForTexture:tex->misc.grasscolor];
+	[blit generateMipmapsForTexture:tex->misc.mapbg];
+	[blit generateMipmapsForTexture:tex->misc.mapicons];
+	[blit generateMipmapsForTexture:tex->misc.particles];
+	[blit generateMipmapsForTexture:tex->misc.pumpkinblur];
+	[blit generateMipmapsForTexture:tex->misc.shadow];
+	[blit generateMipmapsForTexture:tex->misc.vignette];
+	[blit generateMipmapsForTexture:tex->misc.water];
+	[blit generateMipmapsForTexture:tex->misc.watercolor];
+}
+
 /* TODO: make parallel */
 struct texture *tex_load(struct texture *tex, id c) {
 	id<MTLCommandQueue> cmdq = c;
@@ -171,6 +221,7 @@ struct texture *tex_load(struct texture *tex, id c) {
 		tex_load_font(tex, device, blit);
 		tex_load_gui(tex, device, blit);
 		tex_load_item(tex, device, blit);
+		tex_load_misc(tex, device, blit);
 
 		[blit endEncoding];
 		[cmdb commit];
@@ -249,7 +300,8 @@ static MTLPixelFormat getswizzle(int channels, int bit_depth,
 	}
 }
 
-static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
+static id<MTLTexture> tex2d_ex(const char *path, id<MTLDevice> device, int
+		flags) {
 	id<MTLTexture> tex;
 
 	uint32_t width, height;
@@ -283,7 +335,7 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 		texture2DDescriptorWithPixelFormat:fmt
 					     width:width
 					    height:height
-					 mipmapped:true];
+					 mipmapped:!!(flags & TEX_FLAG_NO_MIP)];
 	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
 
 	if (channels < 4)
@@ -303,13 +355,14 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 	return tex;
 }
 
-static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
-		short ty, id<MTLDevice> device, id<MTLBlitCommandEncoder> enc) {
+static id<MTLTexture> tex2d_array_ex(const char *path, unsigned short tx,
+		unsigned short ty, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> enc, int flags) {
 	NSUInteger arraylen = tx * ty;
 	if (arraylen > 2048)
 		return nil;
 
-	id<MTLTexture> basetex = tex2d(path, device);
+	id<MTLTexture> basetex = tex2d_ex(path, device, TEX_FLAG_NO_MIP);
 	uint32_t width = basetex.width / tx;
 	uint32_t height = basetex.height / ty;
 
@@ -317,7 +370,7 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 		texture2DDescriptorWithPixelFormat:basetex.pixelFormat
 					     width:width
 					    height:height
-					 mipmapped:true];
+					 mipmapped:!!(flags & TEX_FLAG_NO_MIP)];
 	desc.textureType = MTLTextureType2DArray;
 	desc.arrayLength = arraylen;
 	desc.storageMode = MTLStorageModePrivate;
