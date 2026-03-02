@@ -102,6 +102,7 @@ unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 
 	free(rows);
 
+	png_read_end(png_reader, png_info);
 	png_destroy_read_struct(&png_reader, &png_info, NULL);
 
 	return image;
