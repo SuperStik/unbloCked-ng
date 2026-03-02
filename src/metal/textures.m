@@ -335,7 +335,7 @@ static id<MTLTexture> tex2d_ex(const char *path, id<MTLDevice> device, int
 		texture2DDescriptorWithPixelFormat:fmt
 					     width:width
 					    height:height
-					 mipmapped:!!(flags & TEX_FLAG_NO_MIP)];
+					 mipmapped:!(flags & TEX_FLAG_NO_MIP)];
 	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
 
 	if (channels < 4)
@@ -363,6 +363,7 @@ static id<MTLTexture> tex2d_array_ex(const char *path, unsigned short tx,
 		return nil;
 
 	id<MTLTexture> basetex = tex2d_ex(path, device, TEX_FLAG_NO_MIP);
+
 	uint32_t width = basetex.width / tx;
 	uint32_t height = basetex.height / ty;
 
@@ -370,7 +371,7 @@ static id<MTLTexture> tex2d_array_ex(const char *path, unsigned short tx,
 		texture2DDescriptorWithPixelFormat:basetex.pixelFormat
 					     width:width
 					    height:height
-					 mipmapped:!!(flags & TEX_FLAG_NO_MIP)];
+					 mipmapped:!(flags & TEX_FLAG_NO_MIP)];
 	desc.textureType = MTLTextureType2DArray;
 	desc.arrayLength = arraylen;
 	desc.storageMode = MTLStorageModePrivate;
