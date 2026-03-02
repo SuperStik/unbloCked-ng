@@ -33,13 +33,43 @@ static inline void tex_load_font(struct texture *tex, id<MTLDevice> device,
 static inline void tex_load_gui(struct texture *tex, id<MTLDevice> device,
 		id<MTLBlitCommandEncoder> blit) {
 	tex->gui.background = tex2d("textures/gui/background.png", device);
+	tex->gui.container = tex2d("textures/gui/container.png", device);
+	tex->gui.crafting = tex2d("textures/gui/crafting.png", device);
+	tex->gui.furnace = tex2d("textures/gui/furnace.png", device);
 	tex->gui.gui = tex2d("textures/gui/gui.png", device);
+	tex->gui.icons = tex2d("textures/gui/icons.png", device);
+	tex->gui.inventory = tex2d("textures/gui/inventory.png", device);
+	tex->gui.items = tex2d_array("textures/gui/items.png", 16, 16, device,
+			blit);
+	tex->gui.particles = tex2d_array("textures/gui/particles.png", 8, 1,
+			device, blit);
+	tex->gui.slot = tex2d("textures/gui/slot.png", device);
+	tex->gui.trap = tex2d("textures/gui/trap.png", device);
+	tex->gui.unknown_pack = tex2d("textures/gui/unknown_pack.png", device);
 
 	[blit optimizeContentsForGPUAccess:tex->gui.background];
+	[blit optimizeContentsForGPUAccess:tex->gui.container];
+	[blit optimizeContentsForGPUAccess:tex->gui.crafting];
+	[blit optimizeContentsForGPUAccess:tex->gui.furnace];
 	[blit optimizeContentsForGPUAccess:tex->gui.gui];
+	[blit optimizeContentsForGPUAccess:tex->gui.icons];
+	[blit optimizeContentsForGPUAccess:tex->gui.inventory];
+	[blit optimizeContentsForGPUAccess:tex->gui.slot];
+	[blit optimizeContentsForGPUAccess:tex->gui.trap];
+	[blit optimizeContentsForGPUAccess:tex->gui.unknown_pack];
 
 	[blit generateMipmapsForTexture:tex->gui.background];
+	[blit generateMipmapsForTexture:tex->gui.container];
+	[blit generateMipmapsForTexture:tex->gui.crafting];
+	[blit generateMipmapsForTexture:tex->gui.furnace];
 	[blit generateMipmapsForTexture:tex->gui.gui];
+	[blit generateMipmapsForTexture:tex->gui.icons];
+	[blit generateMipmapsForTexture:tex->gui.inventory];
+	[blit generateMipmapsForTexture:tex->gui.items];
+	[blit generateMipmapsForTexture:tex->gui.particles];
+	[blit generateMipmapsForTexture:tex->gui.slot];
+	[blit generateMipmapsForTexture:tex->gui.trap];
+	[blit generateMipmapsForTexture:tex->gui.unknown_pack];
 }
 
 /* TODO: make parallel */

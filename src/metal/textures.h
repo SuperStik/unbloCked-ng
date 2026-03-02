@@ -10,7 +10,17 @@ struct texture {
 
 	struct {
 		id background;
+		id container;
+		id crafting;
+		id furnace;
 		id gui;
+		id icons;
+		id inventory;
+		id items;
+		id particles;
+		id slot;
+		id trap;
+		id unknown_pack;
 	} gui;
 };
 
