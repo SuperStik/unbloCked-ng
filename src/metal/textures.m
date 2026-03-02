@@ -33,6 +33,30 @@ static inline void tex_load_achievement(struct texture *tex, id<MTLDevice>
 	[blit generateMipmapsForTexture:tex->achievement.icons];
 }
 
+static inline void tex_load_armor(struct texture *tex, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> blit) {
+	tex->armor.cloth = tex2d_array("textures/armor/cloth.png", 1, 2, device,
+			blit);
+	tex->armor.chain = tex2d_array("textures/armor/chain.png", 1, 2, device,
+			blit);
+	tex->armor.iron = tex2d_array("textures/armor/iron.png", 1, 2, device,
+			blit);
+	tex->armor.gold = tex2d_array("textures/armor/gold.png", 1, 2, device,
+			blit);
+	tex->armor.diamond = tex2d_array("textures/armor/diamond.png", 1, 2,
+			device, blit);
+	tex->armor.power = tex2d("textures/armor/power.png", device);
+
+	[blit optimizeContentsForGPUAccess:tex->armor.power];
+
+	[blit generateMipmapsForTexture:tex->armor.cloth];
+	[blit generateMipmapsForTexture:tex->armor.chain];
+	[blit generateMipmapsForTexture:tex->armor.iron];
+	[blit generateMipmapsForTexture:tex->armor.gold];
+	[blit generateMipmapsForTexture:tex->armor.diamond];
+	[blit generateMipmapsForTexture:tex->armor.power];
+}
+
 static inline void tex_load_font(struct texture *tex, id<MTLDevice> device,
 		id<MTLBlitCommandEncoder> blit) {
 

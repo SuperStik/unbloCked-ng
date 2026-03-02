@@ -10,6 +10,15 @@ struct texture {
 	} achievement;
 
 	struct {
+		id cloth;
+		id chain;
+		id iron;
+		id gold;
+		id diamond;
+		id power;
+	} armor;
+
+	struct {
 		id font;
 	} font;
 
