@@ -182,8 +182,10 @@ static void *MTL_render(void *l) {
 	struct shaders shdr;
 	shdr_generate(&shdr, device);
 
+	warnx("Loading textures...");
 	struct texture tex;
 	tex_load(&tex, cmdq);
+	warnx("Done!");
 
 	const gvec(_Float16,2) bgverts[] = {
 		{1.0f16, -1.0f16},
