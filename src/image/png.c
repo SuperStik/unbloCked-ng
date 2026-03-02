@@ -7,8 +7,6 @@
 
 #include "png.h"
 
-static int typepng2chan(int color_type);
-
 unsigned char *img_readpng(FILE *file, uint32_t *width, uint32_t *height, int *
 		channels, int *bit_depth, size_t *rowbytes) {
 	unsigned char sig[8];
