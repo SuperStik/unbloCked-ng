@@ -91,6 +91,11 @@ struct texture {
 		id wolf;
 		id zombie;
 	} mob;
+
+	struct {
+		id celestial;
+		id terrain;
+	} terrain;
 };
 
 struct texture *tex_load(struct texture *, id commandqueue);

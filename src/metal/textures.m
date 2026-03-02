@@ -24,6 +24,7 @@ static id<MTLTexture> tex2d_array_ex(const char *path, unsigned short tilex,
 
 #define TEX_FLAG_NONE 0
 #define TEX_FLAG_NO_MIP 1
+#define TEX_FLAG_WRITE 2
 
 #define tex2d(path, device) tex2d_ex(path, device, TEX_FLAG_NONE)
 #define tex2d_array(path, tilex, tiley, device, blit) tex2d_array_ex(path,\
@@ -268,6 +269,17 @@ static inline void tex_load_mob(struct texture *tex, id<MTLDevice> device,
 	[blit generateMipmapsForTexture:tex->mob.zombie];
 }
 
+static inline void tex_load_terrain(struct texture *tex, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> blit) {
+	tex->terrain.celestial = tex2d_array("textures/terrain/celestial.png",
+			2, 1, device, blit);
+	tex->terrain.terrain = tex2d_array_ex("textures/terrain/terrain.png",
+			16, 16, device, blit, TEX_FLAG_WRITE);
+
+	[blit generateMipmapsForTexture:tex->terrain.celestial];
+	[blit generateMipmapsForTexture:tex->terrain.terrain];
+}
+
 /* TODO: make parallel */
 struct texture *tex_load(struct texture *tex, id c) {
 	id<MTLCommandQueue> cmdq = c;
@@ -286,6 +298,7 @@ struct texture *tex_load(struct texture *tex, id c) {
 		tex_load_item(tex, device, blit);
 		tex_load_misc(tex, device, blit);
 		tex_load_mob(tex, device, blit);
+		tex_load_terrain(tex, device, blit);
 
 		[blit endEncoding];
 		[cmdb commit];
@@ -412,6 +425,10 @@ static id<MTLTexture> tex2d_ex(const char *path, id<MTLDevice> device, int
 	if (channels < 4)
 		desc.swizzle = swizzle;
 
+	if (flags & TEX_FLAG_WRITE)
+		desc.usage = MTLTextureUsageShaderRead |
+			MTLTextureUsageShaderWrite;
+
 	tex = [device newTextureWithDescriptor:desc];
 	tex.label = [NSString stringWithFormat:@"%s", path];
 
@@ -448,6 +465,10 @@ static id<MTLTexture> tex2d_array_ex(const char *path, unsigned short tx,
 	desc.storageMode = MTLStorageModePrivate;
 
 	desc.swizzle = basetex.swizzle;
+
+	if (flags & TEX_FLAG_WRITE)
+		desc.usage = MTLTextureUsageShaderRead |
+			MTLTextureUsageShaderWrite;
 
 	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
 	tex.label = [NSString stringWithFormat:@"%s", path];
