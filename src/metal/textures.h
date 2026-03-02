@@ -69,6 +69,28 @@ struct texture {
 		id water;
 		id watercolor;
 	} misc;
+
+	struct {
+		id chicken;
+		id cow;
+		id creeper;
+		id ghast;
+		id human;
+		id pig;
+		id pigman;
+		id pigzombie;
+		id saddle;
+		id sheep_fur;
+		id sheep;
+		id silverfish;
+		id skeleton;
+		id slime;
+		id spider_eyes;
+		id spider;
+		id squid;
+		id wolf;
+		id zombie;
+	} mob;
 };
 
 struct texture *tex_load(struct texture *, id commandqueue);

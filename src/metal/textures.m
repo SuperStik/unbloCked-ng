@@ -205,6 +205,69 @@ static inline void tex_load_misc(struct texture *tex, id<MTLDevice> device,
 	[blit generateMipmapsForTexture:tex->misc.watercolor];
 }
 
+static inline void tex_load_mob(struct texture *tex, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> blit) {
+	tex->mob.chicken = tex2d("textures/mob/chicken.png", device);
+	tex->mob.cow = tex2d("textures/mob/cow.png", device);
+	tex->mob.creeper = tex2d("textures/mob/creeper.png", device);
+	tex->mob.ghast = tex2d_array("textures/mob/ghast.png", 1, 2, device,
+			blit);
+	tex->mob.human = tex2d("textures/mob/human.png", device);
+	tex->mob.pig = tex2d("textures/mob/pig.png", device);
+	tex->mob.pigman = tex2d("textures/mob/pigman.png", device);
+	tex->mob.pigzombie = tex2d("textures/mob/pigzombie.png", device);
+	tex->mob.saddle = tex2d("textures/mob/saddle.png", device);
+	tex->mob.sheep_fur = tex2d("textures/mob/sheep_fur.png", device);
+	tex->mob.sheep = tex2d("textures/mob/sheep.png", device);
+	tex->mob.silverfish = tex2d("textures/mob/silverfish.png", device);
+	tex->mob.skeleton = tex2d("textures/mob/skeleton.png", device);
+	tex->mob.slime = tex2d("textures/mob/slime.png", device);
+	tex->mob.spider_eyes = tex2d("textures/mob/spider_eyes.png", device);
+	tex->mob.spider = tex2d("textures/mob/spider.png", device);
+	tex->mob.squid = tex2d("textures/mob/squid.png", device);
+	tex->mob.wolf = tex2d_array("textures/mob/wolf.png", 1, 3, device,
+			blit);
+	tex->mob.zombie = tex2d("textures/mob/zombie.png", device);
+
+	[blit optimizeContentsForGPUAccess:tex->mob.chicken];
+	[blit optimizeContentsForGPUAccess:tex->mob.cow];
+	[blit optimizeContentsForGPUAccess:tex->mob.creeper];
+	[blit optimizeContentsForGPUAccess:tex->mob.human];
+	[blit optimizeContentsForGPUAccess:tex->mob.pig];
+	[blit optimizeContentsForGPUAccess:tex->mob.pigman];
+	[blit optimizeContentsForGPUAccess:tex->mob.pigzombie];
+	[blit optimizeContentsForGPUAccess:tex->mob.saddle];
+	[blit optimizeContentsForGPUAccess:tex->mob.sheep_fur];
+	[blit optimizeContentsForGPUAccess:tex->mob.sheep];
+	[blit optimizeContentsForGPUAccess:tex->mob.silverfish];
+	[blit optimizeContentsForGPUAccess:tex->mob.skeleton];
+	[blit optimizeContentsForGPUAccess:tex->mob.slime];
+	[blit optimizeContentsForGPUAccess:tex->mob.spider_eyes];
+	[blit optimizeContentsForGPUAccess:tex->mob.spider];
+	[blit optimizeContentsForGPUAccess:tex->mob.squid];
+	[blit optimizeContentsForGPUAccess:tex->mob.zombie];
+
+	[blit generateMipmapsForTexture:tex->mob.chicken];
+	[blit generateMipmapsForTexture:tex->mob.cow];
+	[blit generateMipmapsForTexture:tex->mob.creeper];
+	[blit generateMipmapsForTexture:tex->mob.ghast];
+	[blit generateMipmapsForTexture:tex->mob.human];
+	[blit generateMipmapsForTexture:tex->mob.pig];
+	[blit generateMipmapsForTexture:tex->mob.pigman];
+	[blit generateMipmapsForTexture:tex->mob.pigzombie];
+	[blit generateMipmapsForTexture:tex->mob.saddle];
+	[blit generateMipmapsForTexture:tex->mob.sheep_fur];
+	[blit generateMipmapsForTexture:tex->mob.sheep];
+	[blit generateMipmapsForTexture:tex->mob.silverfish];
+	[blit generateMipmapsForTexture:tex->mob.skeleton];
+	[blit generateMipmapsForTexture:tex->mob.slime];
+	[blit generateMipmapsForTexture:tex->mob.spider_eyes];
+	[blit generateMipmapsForTexture:tex->mob.spider];
+	[blit generateMipmapsForTexture:tex->mob.squid];
+	[blit generateMipmapsForTexture:tex->mob.wolf];
+	[blit generateMipmapsForTexture:tex->mob.zombie];
+}
+
 /* TODO: make parallel */
 struct texture *tex_load(struct texture *tex, id c) {
 	id<MTLCommandQueue> cmdq = c;
@@ -222,6 +285,7 @@ struct texture *tex_load(struct texture *tex, id c) {
 		tex_load_gui(tex, device, blit);
 		tex_load_item(tex, device, blit);
 		tex_load_misc(tex, device, blit);
+		tex_load_mob(tex, device, blit);
 
 		[blit endEncoding];
 		[cmdb commit];
@@ -320,9 +384,16 @@ static id<MTLTexture> tex2d_ex(const char *path, id<MTLDevice> device, int
 		fileURLWithFileSystemRepresentation:path
 					isDirectory:false
 				      relativeToURL:resources];
-	FILE *file = fopen(pathurl.fileSystemRepresentation, "rb");
+	const char *pathstr = pathurl.fileSystemRepresentation;
+	FILE *file = fopen(pathstr, "rb");
+	if (file == NULL) {
+		warn("fopen: %s", pathstr);
+		return nil;
+	}
+
 	data = img_readpng(file, &width, &height, &channels, &bit_depth,
 			&bytesperrow);
+	fclose(file);
 	fmt = getswizzle(channels, bit_depth, &swizzle);
 
 	if (channels == 3) {
