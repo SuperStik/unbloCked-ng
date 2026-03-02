@@ -5,6 +5,11 @@
 
 struct texture {
 	struct {
+		id bg;
+		id icons;
+	} achievement;
+
+	struct {
 		id font;
 	} font;
 

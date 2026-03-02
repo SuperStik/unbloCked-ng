@@ -21,6 +21,18 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice>);
 static id<MTLTexture> tex2d_array(const char *path, unsigned short tilex,
 		unsigned short tiley, id<MTLDevice>, id<MTLBlitCommandEncoder>);
 
+static inline void tex_load_achievement(struct texture *tex, id<MTLDevice>
+		device, id<MTLBlitCommandEncoder> blit) {
+	tex->achievement.bg = tex2d("textures/achievement/bg.png", device);
+	tex->achievement.icons = tex2d_array("textures/achievement/icons.png",
+			16, 16, device, blit);
+
+	[blit optimizeContentsForGPUAccess:tex->achievement.bg];
+
+	[blit generateMipmapsForTexture:tex->achievement.bg];
+	[blit generateMipmapsForTexture:tex->achievement.icons];
+}
+
 static inline void tex_load_font(struct texture *tex, id<MTLDevice> device,
 		id<MTLBlitCommandEncoder> blit) {
 
