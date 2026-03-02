@@ -182,8 +182,8 @@ static void *MTL_render(void *l) {
 	struct shaders shdr;
 	shdr_generate(&shdr, device);
 
-	struct textures tex;
-	tex_generate(&tex, device, cmdq);
+	struct texture tex;
+	tex_load(&tex, cmdq);
 
 	const gvec(_Float16,2) bgverts[] = {
 		{1.0f16, -1.0f16},
@@ -243,7 +243,7 @@ static void *MTL_render(void *l) {
 			/* buttons */
 			[enc setRenderPipelineState:shdr.button];
 
-			[enc setFragmentTexture:tex.gui atIndex:0];
+			[enc setFragmentTexture:tex.gui.gui atIndex:0];
 
 			gui_drawbutton_draw(buttonverts, buttoninds, enc,
 					currentscreen->ctrlinfo,
@@ -255,7 +255,7 @@ static void *MTL_render(void *l) {
 			[enc setVertexBytes:bgverts length:sizeof(bgverts)
 				    atIndex:16];
 
-			[enc setFragmentTexture:tex.background atIndex:0];
+			[enc setFragmentTexture:tex.gui.background atIndex:0];
 
 			[enc drawPrimitives:MTLPrimitiveTypeTriangleStrip
 				vertexStart:0
@@ -268,7 +268,7 @@ static void *MTL_render(void *l) {
 
 			[enc setVertexBuffer:textbuf offset:0 atIndex:16];
 
-			[enc setFragmentTexture:tex.text atIndex:0];
+			[enc setFragmentTexture:tex.font.font atIndex:0];
 
 			[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 					indexCount:textverts
@@ -294,7 +294,7 @@ static void *MTL_render(void *l) {
 	[textind release];
 
 	shdr_release(&shdr);
-	tex_release(&tex);
+	tex_unload(&tex);
 
 	[cmdq release];
 

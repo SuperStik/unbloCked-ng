@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include <Accelerate/Accelerate.h>
-#include <dispatch/dispatch.h>
 #import <Metal/Metal.h>
 
 #include "../image/png.h"
@@ -22,50 +21,52 @@ static id<MTLTexture> tex2d(const char *path, id<MTLDevice>);
 static id<MTLTexture> tex2d_array(const char *path, unsigned short tilex,
 		unsigned short tiley, id<MTLDevice>, id<MTLBlitCommandEncoder>);
 
-struct textures *tex_generate(struct textures *tex, id device, id cmdq) {
+static inline void tex_load_font(struct texture *tex, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> blit) {
+
+	tex->font.font = tex2d_array("textures/font/font.png", 16, 16, device,
+			blit);
+
+	[blit generateMipmapsForTexture:tex->font.font];
+}
+
+static inline void tex_load_gui(struct texture *tex, id<MTLDevice> device,
+		id<MTLBlitCommandEncoder> blit) {
+	tex->gui.background = tex2d("textures/gui/background.png", device);
+	tex->gui.gui = tex2d("textures/gui/gui.png", device);
+
+	[blit optimizeContentsForGPUAccess:tex->gui.background];
+	[blit optimizeContentsForGPUAccess:tex->gui.gui];
+
+	[blit generateMipmapsForTexture:tex->gui.background];
+	[blit generateMipmapsForTexture:tex->gui.gui];
+}
+
+/* TODO: make parallel */
+struct texture *tex_load(struct texture *tex, id c) {
+	id<MTLCommandQueue> cmdq = c;
+	id<MTLDevice> device = cmdq.device;
+
 	@autoreleasepool {
-		dispatch_queue_t queue = dispatch_get_global_queue(
-				DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-		dispatch_group_t group = dispatch_group_create();
-
-		dispatch_group_async(group, queue, ^(void) {
-				tex->background = tex2d(
-						"textures/gui/background.png",
-						device);
-				});
-
-		dispatch_group_async(group, queue, ^(void) {
-				tex->gui = tex2d("textures/gui/gui.png",
-						device);
-				});
-
 		id<MTLCommandBuffer> cmdb = [cmdq commandBuffer];
+		id<MTLBlitCommandEncoder> blit = [cmdb blitCommandEncoder];
 
-		id<MTLBlitCommandEncoder> enc = [cmdb blitCommandEncoder];
-		tex->text = tex2d_array("textures/font/default.png", 16, 16,
-				device, enc);
+		tex_load_font(tex, device, blit);
+		tex_load_gui(tex, device, blit);
 
-		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-		dispatch_release(group);
-
-		[enc optimizeContentsForGPUAccess:tex->background];
-		[enc generateMipmapsForTexture:tex->background];
-
-		[enc optimizeContentsForGPUAccess:tex->background];
-		[enc generateMipmapsForTexture:tex->background];
-
-		[enc endEncoding];
-
+		[blit endEncoding];
 		[cmdb commit];
+		[cmdb waitUntilCompleted];
 	}
 
 	return tex;
 }
 
-void tex_release(struct textures *tex) {
-	[tex->background release];
-	[tex->gui release];
-	[tex->text release];
+void tex_unload(struct texture *tex) {
+	id<MTLTexture> *texarray = (id<MTLTexture> *)tex;
+	const size_t count = sizeof(struct texture) / sizeof(id<MTLTexture>);
+	for (size_t i = 0; i < count; ++i)
+		[texarray[i] release];
 }
 
 static size_t expandalpha(unsigned char **data, size_t width, size_t height,
@@ -133,55 +134,53 @@ static MTLPixelFormat getswizzle(int channels, int bit_depth,
 static id<MTLTexture> tex2d(const char *path, id<MTLDevice> device) {
 	id<MTLTexture> tex;
 
-	@autoreleasepool {
-		uint32_t width, height;
-		int channels, bit_depth;
-		size_t bytesperrow;
-		unsigned char *data;
-		MTLPixelFormat fmt;
-		MTLTextureSwizzleChannels swizzle;
+	uint32_t width, height;
+	int channels, bit_depth;
+	size_t bytesperrow;
+	unsigned char *data;
+	MTLPixelFormat fmt;
+	MTLTextureSwizzleChannels swizzle;
 
-		NSURL *base = NSBundle.mainBundle.resourceURL;
-		NSURL *resources = [NSURL
-			fileURLWithFileSystemRepresentation:"resources"
-						isDirectory:true
-					      relativeToURL:base];
-		NSURL *pathurl = [NSURL
-			fileURLWithFileSystemRepresentation:path
-						isDirectory:false
-					      relativeToURL:resources];
-		FILE *file = fopen(pathurl.fileSystemRepresentation, "rb");
-		data = img_readpng(file, &width, &height, &channels, &bit_depth,
-				&bytesperrow);
-		fmt = getswizzle(channels, bit_depth, &swizzle);
+	NSURL *base = NSBundle.mainBundle.resourceURL;
+	NSURL *resources = [NSURL
+		fileURLWithFileSystemRepresentation:"resources"
+					isDirectory:true
+				      relativeToURL:base];
+	NSURL *pathurl = [NSURL
+		fileURLWithFileSystemRepresentation:path
+					isDirectory:false
+				      relativeToURL:resources];
+	FILE *file = fopen(pathurl.fileSystemRepresentation, "rb");
+	data = img_readpng(file, &width, &height, &channels, &bit_depth,
+			&bytesperrow);
+	fmt = getswizzle(channels, bit_depth, &swizzle);
 
-		if (channels == 3) {
-			bytesperrow = expandalpha(&data, width, height,
-					bytesperrow, bit_depth);
-			channels = 4;
-		}
-
-		MTLTextureDescriptor *desc = [MTLTextureDescriptor
-			texture2DDescriptorWithPixelFormat:fmt
-						     width:width
-						    height:height
-						 mipmapped:true];
-		desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-
-		if (channels < 4)
-			desc.swizzle = swizzle;
-
-		tex = [device newTextureWithDescriptor:desc];
-		tex.label = [NSString stringWithFormat:@"%s", path];
-
-		MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
-		[tex replaceRegion:replace
-		       mipmapLevel:0
-			 withBytes:data
-		       bytesPerRow:bytesperrow];
-
-		free(data);
+	if (channels == 3) {
+		bytesperrow = expandalpha(&data, width, height, bytesperrow,
+				bit_depth);
+		channels = 4;
 	}
+
+	MTLTextureDescriptor *desc = [MTLTextureDescriptor
+		texture2DDescriptorWithPixelFormat:fmt
+					     width:width
+					    height:height
+					 mipmapped:true];
+	desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+
+	if (channels < 4)
+		desc.swizzle = swizzle;
+
+	tex = [device newTextureWithDescriptor:desc];
+	tex.label = [NSString stringWithFormat:@"%s", path];
+
+	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
+	[tex replaceRegion:replace
+	       mipmapLevel:0
+		 withBytes:data
+	       bytesPerRow:bytesperrow];
+
+	free(data);
 
 	return tex;
 }
@@ -192,98 +191,43 @@ static id<MTLTexture> tex2d_array(const char *path, unsigned short tx, unsigned
 	if (arraylen > 2048)
 		return nil;
 
-	id<MTLTexture> tex;
+	id<MTLTexture> basetex = tex2d(path, device);
+	uint32_t width = basetex.width / tx;
+	uint32_t height = basetex.height / ty;
 
-	@autoreleasepool {
-		uint32_t totalw, totalh;
-		int channels, bit_depth;
-		size_t bytesperrow;
-		unsigned char *data;
-		MTLPixelFormat fmt;
-		MTLTextureSwizzleChannels swizzle;
+	MTLTextureDescriptor *desc = [MTLTextureDescriptor
+		texture2DDescriptorWithPixelFormat:basetex.pixelFormat
+					     width:width
+					    height:height
+					 mipmapped:true];
+	desc.textureType = MTLTextureType2DArray;
+	desc.arrayLength = arraylen;
+	desc.storageMode = MTLStorageModePrivate;
 
-		NSURL *base = NSBundle.mainBundle.resourceURL;
-		NSURL *resources = [NSURL
-			fileURLWithFileSystemRepresentation:"resources"
-						isDirectory:true
-					      relativeToURL:base];
-		NSURL *pathurl = [NSURL
-			fileURLWithFileSystemRepresentation:path
-						isDirectory:false
-					      relativeToURL:resources];
-		FILE *file = fopen(pathurl.fileSystemRepresentation, "rb");
-		data = img_readpng(file, &totalw, &totalh, &channels,
-				&bit_depth, &bytesperrow);
-		if (totalw % tx || totalh % ty) {
-			free(data);
-			return nil;
-		}
+	desc.swizzle = basetex.swizzle;
 
-		uint32_t width = totalw / tx;
-		uint32_t height = totalh / ty;
+	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
+	tex.label = [NSString stringWithFormat:@"%s", path];
 
-		fmt = getswizzle(channels, bit_depth, &swizzle);
+	[enc optimizeContentsForGPUAccess:basetex];
 
-		if (channels == 3) {
-			bytesperrow = expandalpha(&data, width, height,
-					bytesperrow, bit_depth);
-			channels = 4;
-		}
-
-		MTLTextureDescriptor *basedesc = [MTLTextureDescriptor
-			texture2DDescriptorWithPixelFormat:fmt
-						     width:totalw
-						    height:totalh
-						 mipmapped:false];
-		basedesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-		id<MTLTexture> basetex = [device
-			newTextureWithDescriptor:basedesc];
-
-		MTLTextureDescriptor *desc = [MTLTextureDescriptor
-			texture2DDescriptorWithPixelFormat:fmt
-						     width:width
-						    height:height
-						 mipmapped:true];
-		desc.textureType = MTLTextureType2DArray;
-		desc.arrayLength = arraylen;
-		desc.storageMode = MTLStorageModePrivate;
-
-		if (channels < 4)
-			desc.swizzle = swizzle;
-
-		tex = [device newTextureWithDescriptor:desc];
-		tex.label = [NSString stringWithFormat:@"%s", path];
-
-		MTLRegion baseregion = MTLRegionMake2D(0, 0, totalw, totalh);
-		[basetex replaceRegion:baseregion
-			   mipmapLevel:0
-			     withBytes:data
-			   bytesPerRow:bytesperrow];
-
-		free(data);
-
-		[enc optimizeContentsForGPUAccess:basetex];
-
-		MTLSize texsize = MTLSizeMake(width, height, 1);
-		MTLOrigin dstorigin = MTLOriginMake(0, 0, 0);
-		for (NSUInteger i = 0; i < arraylen; ++i) {
-			MTLOrigin srcorigin = MTLOriginMake((i % tx) * width,
-					(i / ty) * height, 0);
-			[enc copyFromTexture:basetex
-				 sourceSlice:0
-				 sourceLevel:0
-				sourceOrigin:srcorigin
-				  sourceSize:texsize
-				   toTexture:tex
-			    destinationSlice:i
-			    destinationLevel:0
-			   destinationOrigin:dstorigin];
-		}
-
-		[basetex release];
+	MTLSize texsize = MTLSizeMake(width, height, 1);
+	MTLOrigin dstorigin = MTLOriginMake(0, 0, 0);
+	for (NSUInteger i = 0; i < arraylen; ++i) {
+		MTLOrigin srcorigin = MTLOriginMake((i % tx) * width,
+				(i / ty) * height, 0);
+		[enc copyFromTexture:basetex
+			 sourceSlice:0
+			 sourceLevel:0
+			sourceOrigin:srcorigin
+			  sourceSize:texsize
+			   toTexture:tex
+		    destinationSlice:i
+		    destinationLevel:0
+		   destinationOrigin:dstorigin];
 	}
 
-	[enc generateMipmapsForTexture:tex];
+	[basetex release];
 
 	return tex;
 }

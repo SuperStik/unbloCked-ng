@@ -3,14 +3,18 @@
 
 #include <objc/objc.h>
 
-struct textures {
-	id background;
-	id gui;
-	id text;
+struct texture {
+	struct {
+		id font;
+	} font;
+
+	struct {
+		id background;
+		id gui;
+	} gui;
 };
 
-struct textures *tex_generate(struct textures *, id device, id commandqueue);
-
-void tex_release(struct textures *);
+struct texture *tex_load(struct texture *, id commandqueue);
+void tex_unload(struct texture *);
 
 #endif /* TEXTURES_H */
