@@ -2,6 +2,8 @@
 #define UBLC_SOUND 1
 
 #define MA_NO_ENCODING
+#define MA_NO_WAV
+#define MA_NO_FLAC
 #include <miniaudio.h>
 
 extern ma_engine engine;
