@@ -268,16 +268,9 @@ static void *MTL_render(void *l) {
 
 			[enc setRenderPipelineState:shdr.text];
 
-			[enc setVertexBuffer:textbuf offset:0 atIndex:16];
-
 			[enc setFragmentTexture:tex.font.font atIndex:0];
 
-			[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-					indexCount:textverts
-					 indexType:MTLIndexTypeUInt16
-				       indexBuffer:textind
-				 indexBufferOffset:0
-				     instanceCount:2];
+			gui_drawtext_draw(enc, textbuf, textind, textverts);
 
 			[enc endEncoding];
 

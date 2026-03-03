@@ -149,3 +149,17 @@ unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, const char *str) {
 
 	return vertcount;
 };
+
+void gui_drawtext_draw(id e, id b, id i, unsigned count) {
+	id<MTLRenderCommandEncoder> enc = e;
+	id<MTLBuffer> buffer = b;
+	id<MTLBuffer> indices = i;
+	[enc setVertexBuffer:buffer offset:0 atIndex:16];
+
+	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+			indexCount:count
+			 indexType:MTLIndexTypeUInt16
+		       indexBuffer:indices
+		 indexBufferOffset:0
+		     instanceCount:2];
+}

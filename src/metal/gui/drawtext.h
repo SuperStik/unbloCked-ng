@@ -14,4 +14,6 @@ struct gui_textvert {
 unsigned gui_drawtext_maketextbuf(id device, id *buffer, id *indices, const
 		char *string);
 
+void gui_drawtext_draw(id encoder, id buffer, id indices, unsigned count);
+
 #endif /* GUI_DRAWTEXT */
