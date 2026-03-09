@@ -4,7 +4,7 @@
 #include <SDL3/SDL_init.h>
 
 #include "gui/screen.h"
-#include "metal/main.h"
+#include "main.h"
 #include "sound/sound.h"
 
 #include <extras/decoders/libvorbis/miniaudio_libvorbis.c>
@@ -36,7 +36,7 @@ int main(void) {
 	sound_load(&engine);
 
 	warnx("Done!");
-	MTL_main();
+	gl_main();
 
 	sound_unload();
 

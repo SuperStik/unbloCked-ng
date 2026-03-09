@@ -15,7 +15,7 @@
 #include "gui/mainmenu.h"
 #include "gui/screen.h"
 #include <gutl.h>
-#include "main.h"
+#include <main.h>
 #include <math/vector.h>
 #include "shaders.h"
 #include "textures.h"
@@ -50,7 +50,7 @@ static void updatemats(float *matrices, float width, float height);
 
 static id<MTLDevice> getdevice(CAMetalLayer *);
 
-void MTL_main(void) {
+void gl_main(void) {
 	SDL_Window *window = SDL_CreateWindow("unbloCked", WIDTH, HEIGHT,
 			SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY |
 			SDL_WINDOW_METAL);

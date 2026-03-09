@@ -1,16 +1,29 @@
 CC ?= cc
 EXE := unbloCked
+
+GL ?= metal
+
+ifeq (${GL},metal)
+override CCFLAGS += -DGL_METAL
+else ifeq (${GL},vulkan)
+override CCFLAGS += -DGL_VULKAN
+else
+$(error Bad graphics library given, use 'vulkan' or 'metal')
+endif
+
 SRC_DIR := src
 SRC_DIRS := $(shell find ${SRC_DIR}/ -type d)
 # TODO: figure out how to make this one command
-SRC_C := $(shell find ${SRC_DIR}/ -type f -name '*.c')
-SRC_M := $(shell find ${SRC_DIR}/ -type f -name '*.m')
+SRC_C := $(shell find ${SRC_DIR}/shared ${SRC_DIR}/${GL} -type f -name '*.c')
+SRC_M := $(shell find ${SRC_DIR}/shared ${SRC_DIR}/${GL} -type f -name '*.m')
 RES := resources
 # TODO: make sure the base name has at least one character
 RES_SRC := $(shell find ${RES}/ -name '*.*')
 
-SHDR_SRC := ${SRC_DIR}/metal/shaders
+ifeq (${GL}, metal)
+SHDR_SRC := ${SRC_DIR}/${GL}/shaders
 SHDR_METAL := $(wildcard ${SHDR_SRC}/*.metal)
+endif
 
 OBJ_DIR = ${OUT_DIR}/objects
 OBJ_C = $(patsubst src/%.c,${OBJ_DIR}/%.c.o,${SRC_C})
@@ -19,11 +32,20 @@ OBJ_DIRS = $(patsubst ${SRC_DIR}/%,${OBJ_DIR}/%,${SRC_DIRS})
 RES_DIR = ${OUT_DIR}/resources
 RES_OUT = $(patsubst ${RES}/%,${RES_DIR}/%,${RES_SRC})
 
+ifeq (${GL}, metal)
 SHDR_AIR_OUT = $(patsubst ${SHDR_SRC}/%.metal,${OBJ_DIR}/%.air,${SHDR_METAL})
 SHDR_OUT = ${OUT_DIR}/default.metallib
+endif
 
 override LIB += m png pthread opus opusfile sdl3 vorbis vorbisfile
-override FRAMEWORK += Accelerate AudioToolbox CoreAudio Foundation Metal
+override FRAMEWORK += AudioToolbox CoreAudio
+ifeq (${GL}, metal)
+override FRAMEWORK += Accelerate Foundation Metal
+else ifeq (${GL}, vulkan)
+override LIB += MoltenVK
+override FRAMEWORK += CoreFoundation
+endif
+
 override LIB_PATH += /usr/local/lib
 override INCL_PATH += ${SRC_DIR} ${SRC_DIR}/shared miniaudio /usr/local/include /usr/local/include/opus
 
