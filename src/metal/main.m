@@ -9,14 +9,14 @@
 #include <SDL3/SDL_metal.h>
 #include <SDL3/SDL_video.h>
 
-#include "../gutl.h"
-#include "../math/vector.h"
 #include "gui/anchor.h"
 #include "gui/drawbutton.h"
 #include "gui/drawtext.h"
 #include "gui/mainmenu.h"
 #include "gui/screen.h"
+#include <gutl.h>
 #include "main.h"
+#include <math/vector.h>
 #include "shaders.h"
 #include "textures.h"
 

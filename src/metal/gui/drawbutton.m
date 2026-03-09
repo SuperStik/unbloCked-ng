@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
-#include "../../gui/anchor.h"
 #include "drawbutton.h"
+#include <gui/anchor.h>
 
 #define BUFFER_OPTIONS (MTLResourceCPUCacheModeWriteCombined|\
 		MTLResourceHazardTrackingModeUntracked)

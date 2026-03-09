@@ -7,7 +7,7 @@
 #include <Accelerate/Accelerate.h>
 #import <Metal/Metal.h>
 
-#include "../image/png.h"
+#include <image/png.h>
 #include "textures.h"
 
 static size_t expandalpha(unsigned char **data, size_t width, size_t height,
