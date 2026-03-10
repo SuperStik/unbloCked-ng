@@ -1,7 +1,10 @@
 #include <err.h>
+#include <stdint.h>
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
+#include <SDL3/SDL_vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include <main.h>
 
@@ -17,6 +20,18 @@ void gl_main(void) {
 	if (window == NULL)
 		errx(1, "%s", SDL_GetError());
 
+	uint32_t vk_extcount;
+	const char *const *vk_exts = SDL_Vulkan_GetInstanceExtensions(
+			&vk_extcount);
+
+	VkInstanceCreateInfo info = {
+		.enabledExtensionCount = vk_extcount,
+		.ppEnabledExtensionNames = vk_exts
+	};
+
+	VkInstance instance;
+	VkResult result = vkCreateInstance(&info, NULL, &instance);
+
 	SDL_Event ev;
 	while (!done && SDL_WaitEvent(&ev)) {
 		switch (ev.type) {
@@ -26,5 +41,6 @@ void gl_main(void) {
 		}
 	}
 
+	vkDestroyInstance(instance, NULL);
 	SDL_DestroyWindow(window);
 }
