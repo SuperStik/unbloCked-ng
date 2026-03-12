@@ -3,8 +3,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#include "gutl.h"
 #include "math/vector.h"
+#include "projection.h"
 
 float *GUTL_perspectivef(float matrix[16], float fovy, float aspect, float
 		zNear, float zFar) {

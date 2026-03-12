@@ -14,9 +14,9 @@
 #include "gui/drawtext.h"
 #include "gui/mainmenu.h"
 #include "gui/screen.h"
-#include <gutl.h>
 #include <main.h>
 #include <math/vector.h>
+#include <projection.h>
 #include "shaders.h"
 #include "textures.h"
 
