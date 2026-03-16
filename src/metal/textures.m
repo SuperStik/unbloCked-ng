@@ -273,8 +273,8 @@ static inline void tex_load_terrain(struct texture *tex, id<MTLDevice> device,
 		id<MTLBlitCommandEncoder> blit) {
 	tex->terrain.celestial = tex2d_array("textures/terrain/celestial.png",
 			2, 1, device, blit);
-	tex->terrain.terrain = tex2d_array_ex("textures/terrain/terrain.png",
-			16, 16, device, blit, TEX_FLAG_WRITE);
+	tex->terrain.terrain = tex2d_array("textures/terrain/terrain.png",
+			13, 12, device, blit);
 
 	[blit generateMipmapsForTexture:tex->terrain.celestial];
 	[blit generateMipmapsForTexture:tex->terrain.terrain];
