@@ -137,6 +137,15 @@ void gl_main(void) {
 				}
 
 				break;
+			case SDL_EVENT_WINDOW_RESIZED:
+				;
+				float w = (float)ev.window.data1;
+				float h = (float)ev.window.data2;
+				scaledreso(&w, &h);
+
+				gui_mainmenu_resize(&mainmenu, w, h);
+
+				break;
 		}
 	}
 

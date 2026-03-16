@@ -11,7 +11,7 @@ struct gui_mainmenu {
 
 struct gui_mainmenu *gui_mainmenu_init(struct gui_mainmenu *, float w, float h);
 
-struct gui_mainmenu *gui_mainmenu_rebuild(struct gui_mainmenu *, float w, float
+struct gui_mainmenu *gui_mainmenu_resize(struct gui_mainmenu *, float w, float
 		h);
 
 void gui_mainmenu_destroy(struct gui_mainmenu *);
