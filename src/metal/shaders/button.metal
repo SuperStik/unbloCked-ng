@@ -38,7 +38,7 @@ fragdata vertButton(constant matrices *mats, vertdata vert [[stage_in]]) {
 	float4 pos = mats->ortho[vert.anchor] * float4(vert.position +
 			vert.offset, 0.0f, 1.0f);
 
-	const float2 curstate = {0.0f, (float)vert.state * 0.078125};
+	const float2 curstate = {0.0f, (float)vert.state * 0.15625f};
 	fragdata data = {pos, vert.texcoords + curstate};
 
 	return data;

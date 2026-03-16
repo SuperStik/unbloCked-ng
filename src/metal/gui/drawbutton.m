@@ -15,15 +15,15 @@ id gui_drawbutton_getverts(id d, float width, float height) {
 	float ustart = 200.0f - wd2;
 
 	const struct gui_buttonverts verts[] = {
-		{{-wd2, -hd2}, {0.0f, 66.0f / 256.0f}},
-		{{0.0f, -hd2}, {wd2 / 256.0f, 66.0f / 256.0f}},
-		{{0.0f, hd2}, {wd2 / 256.0f, 46.0f / 256.0f}},
-		{{-wd2, hd2}, {0.0f, 46.0 / 256.0f}},
+		{{-wd2, -hd2}, {0.0f, 66.0f / 128.0f}},
+		{{0.0f, -hd2}, {wd2 / 256.0f, 66.0f / 128.0f}},
+		{{0.0f, hd2}, {wd2 / 256.0f, 46.0f / 128.0f}},
+		{{-wd2, hd2}, {0.0f, 46.0 / 128.0f}},
 
-		{{0.0f, -hd2}, {ustart / 256.0f, 66.0f / 256.0f}},
-		{{wd2, -hd2}, {200.0f / 256.0f, 66.0f / 256.0f}},
-		{{wd2, hd2}, {200.0f / 256.0f, 46.0f / 256.0f}},
-		{{0.0f, hd2}, {ustart / 256.0f, 46.0f / 256.0f}}
+		{{0.0f, -hd2}, {ustart / 256.0f, 66.0f / 128.0f}},
+		{{wd2, -hd2}, {200.0f / 256.0f, 66.0f / 128.0f}},
+		{{wd2, hd2}, {200.0f / 256.0f, 46.0f / 128.0f}},
+		{{0.0f, hd2}, {ustart / 256.0f, 46.0f / 128.0f}}
 	};
 
 	return [device newBufferWithBytes:verts
