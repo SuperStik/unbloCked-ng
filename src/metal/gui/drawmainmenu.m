@@ -26,7 +26,7 @@ void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_screen *
 	[menu->texture.gui retain];
 }
 
-void gui_drawmainmenu_draw_opaque(struct gui_drawmainmenu *menu, id r) {
+void gui_drawmainmenu_draw_opaque(const struct gui_drawmainmenu *menu, id r) {
 	id<MTLRenderCommandEncoder> enc = r;
 
 	[enc setRenderPipelineState:menu->pipeline.button];
@@ -37,7 +37,7 @@ void gui_drawmainmenu_draw_opaque(struct gui_drawmainmenu *menu, id r) {
 			menu->screen->ctrlinfo, menu->screen->ctrllistlen);
 }
 
-void gui_drawmainmenu_draw_blended(struct gui_drawmainmenu *menu, id r) {
+void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 	id<MTLRenderCommandEncoder> enc = r;
 
 	[enc setRenderPipelineState:menu->pipeline.text];

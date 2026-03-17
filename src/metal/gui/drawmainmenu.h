@@ -27,8 +27,9 @@ struct gui_drawmainmenu {
 void gui_drawmainmenu_init(struct gui_drawmainmenu *, struct gui_screen *, id
 		device);
 
-void gui_drawmainmenu_draw_opaque(struct gui_drawmainmenu *, id render_encoder);
-void gui_drawmainmenu_draw_blended(struct gui_drawmainmenu *, id
+void gui_drawmainmenu_draw_opaque(const struct gui_drawmainmenu *, id
+		render_encoder);
+void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *, id
 		render_encoder);
 
 void gui_drawmainmenu_release(const struct gui_drawmainmenu *);
