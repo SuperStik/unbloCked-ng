@@ -23,11 +23,6 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-struct resizedata {
-	id<MTLDevice> device;
-	float *matrices;
-};
-
 extern struct gui_screen *currentscreen;
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
@@ -95,15 +90,14 @@ void gl_main(void) {
 	currentscreen = &mainmenu.screen;
 
 	const NSRange matrange = NSMakeRange(0, sizeof(float) * 16 * 10);
-	if (![device hasUnifiedMemory])
+	if (matbuf.storageMode == MTLStorageModeManaged)
 		[matbuf didModifyRange:matrange];
 
 	int wid, hgt;
 	SDL_GetWindowSizeInPixels(window, &wid, &hgt);
 	rebuilddepth(device, wid, hgt);
 
-	struct resizedata resizedata = {device, matrices};
-	SDL_AddEventWatch(onwindowresize, &resizedata);
+	SDL_AddEventWatch(onwindowresize, matrices);
 
 	pthread_t rthread;
 	pthread_create(&rthread, NULL, MTL_render, layer);
@@ -322,7 +316,7 @@ static void scaledreso(float *w, float *h) {
 }
 
 static bool onwindowresize(void *userdata, SDL_Event *event) {
-	struct resizedata *resizedata = userdata;
+	float *matrices = userdata;
 	switch(event->type) {
 		case SDL_EVENT_WINDOW_RESIZED:
 			;
@@ -331,9 +325,9 @@ static bool onwindowresize(void *userdata, SDL_Event *event) {
 
 			scaledreso(&w, &h);
 
-			updatemats(resizedata->matrices, w, h);
+			updatemats(matrices, w, h);
 
-			if (![resizedata->device hasUnifiedMemory]) {
+			if (matbuf.storageMode == MTLStorageModeManaged) {
 				const NSRange matrange = NSMakeRange(0,
 						sizeof(float) * (16 * 10));
 				[matbuf didModifyRange:matrange];
@@ -341,7 +335,7 @@ static bool onwindowresize(void *userdata, SDL_Event *event) {
 
 			break;
 		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-			rebuilddepth(resizedata->device, event->window.data1,
+			rebuilddepth(matbuf.device, event->window.data1,
 					event->window.data2);
 			break;
 	}
