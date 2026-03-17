@@ -10,8 +10,7 @@
 #include <SDL3/SDL_video.h>
 
 #include "gui/anchor.h"
-#include "gui/drawbutton.h"
-#include "gui/drawtext.h"
+#include "gui/drawmainmenu.h"
 #include "gui/mainmenu.h"
 #include "gui/screen.h"
 #include <main.h>
@@ -178,10 +177,6 @@ static void *MTL_render(void *l) {
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
-	id<MTLBuffer> buttonverts = gui_drawbutton_getverts(device, 200.0f,
-			16.0f);
-	id<MTLBuffer> buttoninds = gui_drawbutton_getinds(device);
-
 	struct shaders shdr;
 	shdr_generate(&shdr, device);
 
@@ -197,21 +192,23 @@ static void *MTL_render(void *l) {
 		{-1.0f16, 1.0f16}
 	};
 
-	id <MTLBuffer> textbuf;
-	id <MTLBuffer> textind;
-	unsigned textverts = gui_drawtext_maketextbuf(device, &textbuf,
-			&textind, "Hello world!");
+	struct gui_drawmainmenu drawmainmenu;
+	drawmainmenu.pipeline.button = shdr.button;
+	drawmainmenu.pipeline.text = shdr.text;
+	drawmainmenu.texture.font = tex.font.font;
+	drawmainmenu.texture.gui = tex.gui.gui;
+	gui_drawmainmenu_init(&drawmainmenu, currentscreen, device);
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
 
 	depthdesc.depthCompareFunction = MTLCompareFunctionLessEqual;
 	depthdesc.label = @"depth.state.lex";
-	id<MTLDepthStencilState> d_nowrite = [device
+	id<MTLDepthStencilState> d_blended = [device
 		newDepthStencilStateWithDescriptor:depthdesc];
 
 	depthdesc.depthWriteEnabled = true;
 	depthdesc.label = @"depth.state.lew";
-	id<MTLDepthStencilState> d_default = [device
+	id<MTLDepthStencilState> d_opaque = [device
 		newDepthStencilStateWithDescriptor:depthdesc];
 
 	[depthdesc release];
@@ -241,20 +238,14 @@ static void *MTL_render(void *l) {
 				renderCommandEncoderWithDescriptor:rpd];
 
 			[enc setCullMode:MTLCullModeBack];
-			[enc setDepthStencilState:d_default];
 
 			[enc setVertexBuffer:matbuf offset:0 atIndex:0];
 
-			/* buttons */
-			[enc setRenderPipelineState:shdr.button];
+			/* opaque */
+			[enc setDepthStencilState:d_opaque];
 
-			[enc setFragmentTexture:tex.gui.gui atIndex:0];
+			gui_drawmainmenu_draw_opaque(&drawmainmenu, enc);
 
-			gui_drawbutton_draw(buttonverts, buttoninds, enc,
-					currentscreen->ctrlinfo,
-					currentscreen->ctrllistlen);
-
-			/* background */
 			[enc setRenderPipelineState:shdr.background];
 
 			[enc setVertexBytes:bgverts length:sizeof(bgverts)
@@ -266,14 +257,9 @@ static void *MTL_render(void *l) {
 				vertexStart:0
 				vertexCount:4];
 
-			/* text */
-			[enc setDepthStencilState:d_nowrite];
-
-			[enc setRenderPipelineState:shdr.text];
-
-			[enc setFragmentTexture:tex.font.font atIndex:0];
-
-			gui_drawtext_draw(enc, textbuf, textind, textverts);
+			/* blended */
+			[enc setDepthStencilState:d_blended];
+			gui_drawmainmenu_draw_blended(&drawmainmenu, enc);
 
 			[enc endEncoding];
 
@@ -282,14 +268,10 @@ static void *MTL_render(void *l) {
 		}
 	}
 
-	[d_default release];
-	[d_nowrite release];
+	[d_opaque release];
+	[d_blended release];
 
-	[buttonverts release];
-	[buttoninds release];
-
-	[textbuf release];
-	[textind release];
+	gui_drawmainmenu_release(&drawmainmenu);
 
 	shdr_release(&shdr);
 	tex_unload(&tex);
