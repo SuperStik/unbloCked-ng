@@ -4,6 +4,8 @@
 #include <string.h>
 
 #define MA_NO_ENCODING
+#define MA_NO_WAV
+#define MA_NO_FLAC
 #include <miniaudio.c>
 #include <SDL3/SDL_filesystem.h>
 
