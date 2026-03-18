@@ -34,6 +34,7 @@ static char occluded = 0;
 
 static void *MTL_render(void *c);
 
+static void setscaledreso(float w, float h);
 static void scaledreso(float *w, float *h);
 
 static bool onwindowresize(void *userdata, SDL_Event *);
@@ -79,6 +80,7 @@ void gl_main(void) {
 			    options:MTLResourceCPUCacheModeWriteCombined];
 	float *matrices = [matbuf contents];
 
+	setscaledreso((float)WIDTH, (float)HEIGHT);
 	float winwid = (float)WIDTH;
 	float winhgt = (float)HEIGHT;
 	scaledreso(&winwid, &winhgt);
@@ -134,6 +136,7 @@ void gl_main(void) {
 				;
 				float w = (float)ev.window.data1;
 				float h = (float)ev.window.data2;
+				setscaledreso(w, h);
 				scaledreso(&w, &h);
 
 				gui_mainmenu_resize(&mainmenu, w, h);
@@ -281,20 +284,18 @@ static void *MTL_render(void *l) {
 	return NULL;
 }
 
-static void scaledreso(float *w, float *h) {
-	float curwid = *w;
-	float curhgt = *h;
-
-	float ratiowid = curwid / ((float)WIDTH * 0.5f);
-	float ratiohgt = curhgt / ((float)HEIGHT * 0.5f);
+static void setscaledreso(float w, float h) {
+	float ratiowid = w / ((float)WIDTH * 0.5f);
+	float ratiohgt = h / ((float)HEIGHT * 0.5f);
 
 	float ratio = fminf(ratiowid, ratiohgt);
-	ratio = fmaxf(ratio, 1.0f);
+	resolutionscale = fmaxf(ratio, 1.0f);
+}
 
-	*w = curwid / ratio;
-	*h = curhgt / ratio;
-
-	resolutionscale = ratio;
+static void scaledreso(float *w, float *h) {
+	float ratio = resolutionscale;
+	*w /= ratio;
+	*h /= ratio;
 }
 
 static bool onwindowresize(void *userdata, SDL_Event *event) {
