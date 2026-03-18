@@ -9,6 +9,8 @@
 #define BUFFER_OPTIONS (MTLResourceCPUCacheModeWriteCombined | \
 		MTLResourceHazardTrackingModeUntracked)
 
+static inline unsigned char getcolor(unsigned char color);
+
 const static _Float16 fontwidth[256] = {
 	0.0f16, 1.0f16, 1.0f16, 1.0f16,
 	1.0f16, 1.0f16, 1.0f16, 1.0f16,
@@ -94,10 +96,17 @@ unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, const char *str) {
 	uint16_t indcount = 0;
 	float xpos = 0.0f;
 	unsigned vertcount = 0;
+	unsigned color = 0xF;
 	for (size_t i = 0; i < len; ++i) {
 		size_t bufind = vertcount * 4;
 		unsigned char character = str[i];
 		_Float16 width = fontwidth[character];
+
+		if (character == 0xFF) {
+			color = getcolor((unsigned char)str[i+1]);
+			++i;
+			continue;
+		}
 
 		if (character == ' ' || character == 0) {
 			xpos += (width * 8.0f);
@@ -107,20 +116,24 @@ unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, const char *str) {
 		array[bufind].pos = (gvec(float,2)){xpos, 8.0f};
 		array[bufind].uv = (gvec(_Float16,2)){0.0f16, 0.0f16};
 		array[bufind].character = character;
+		array[bufind].color = color;
 
 		array[bufind+1].pos = (gvec(float,2)){xpos, 0.0f};
 		array[bufind+1].uv = (gvec(_Float16,2)){0.0f16, 1.0f16};
 		array[bufind+1].character = character;
+		array[bufind+1].color = color;
 
 		xpos += (width * 8.0f);
 
 		array[bufind+2].pos = (gvec(float,2)){xpos, 8.0f};
 		array[bufind+2].uv = (gvec(_Float16,2)){width, 0.0f16};
 		array[bufind+2].character = character;
+		array[bufind+2].color = color;
 
 		array[bufind+3].pos = (gvec(float,2)){xpos, 0.0f};
 		array[bufind+3].uv = (gvec(_Float16,2)){width, 1.0f16};
 		array[bufind+3].character = character;
+		array[bufind+3].color = color;
 
 		indices[indcount] = bufind + 2;
 		indices[indcount+1] = bufind + 1;
@@ -162,4 +175,23 @@ void gui_drawtext_draw(id e, id b, id i, unsigned count) {
 		       indexBuffer:indices
 		 indexBufferOffset:0
 		     instanceCount:2];
+}
+
+static inline unsigned char getcolor(unsigned char character) {
+	unsigned char color;
+	switch (character) {
+		case '0' ... '9':
+			color = character - '0';
+			break;
+		case 'A' ... 'F':
+			color = character - '7';
+			break;
+		case 'a' ... 'f':
+			color = character - 'W';
+			break;
+		default:
+			color = 0xF;
+	}
+
+	return color;
 }

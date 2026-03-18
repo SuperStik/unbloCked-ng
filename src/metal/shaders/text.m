@@ -48,6 +48,11 @@ void shdr_text_new(id *pipe, id l, dispatch_group_t group) {
 		attr.offset = offsetof(struct gui_textvert, character);
 		attr.bufferIndex = 16;
 
+		attr = attrs[3];
+		attr.format = MTLVertexFormatUChar;
+		attr.offset = offsetof(struct gui_textvert, color);
+		attr.bufferIndex = 16;
+
 		vertexdesc.layouts[16].stride = sizeof(struct gui_textvert);
 
 		desc.vertexDescriptor = vertexdesc;
