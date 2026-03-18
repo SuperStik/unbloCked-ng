@@ -136,7 +136,6 @@ void gl_main(void) {
 				;
 				float w = (float)ev.window.data1;
 				float h = (float)ev.window.data2;
-				setscaledreso(w, h);
 				scaledreso(&w, &h);
 
 				gui_mainmenu_resize(&mainmenu, w, h);
@@ -306,6 +305,7 @@ static bool onwindowresize(void *userdata, SDL_Event *event) {
 			float w = (float)event->window.data1;
 			float h = (float)event->window.data2;
 
+			setscaledreso(w, h);
 			scaledreso(&w, &h);
 
 			updatemats(matrices, w, h);
