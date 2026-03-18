@@ -53,7 +53,7 @@ fragdata vertText(uint instanceID [[instance_id]], constant matrices *mats,
 [[early_fragment_tests]]
 fragment
 half4 fragText(fragdata frag [[stage_in]], texture2d_array<half> tex) {
-	constexpr sampler samp;
+	constexpr sampler samp(mip_filter::nearest);
 
 	half4 color = tex.sample(samp, frag.texcoords, frag.character);
 	color.rgb *= frag.color;

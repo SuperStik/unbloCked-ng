@@ -47,8 +47,7 @@ fragdata vertButton(constant matrices *mats, vertdata vert [[stage_in]]) {
 [[early_fragment_tests]]
 fragment
 half4 fragButton(struct fragdata frag [[stage_in]], texture2d<half> tex) {
-	constexpr sampler samp(filter::nearest, mip_filter::nearest,
-			address::repeat);
+	constexpr sampler samp(mip_filter::nearest, address::repeat);
 	return tex.sample(samp, frag.texcoords);
 }
 
