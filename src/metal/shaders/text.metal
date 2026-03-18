@@ -1,3 +1,4 @@
+#include <metal_integer>
 #include <metal_matrix>
 #include <metal_relational>
 #include <metal_texture>
@@ -38,7 +39,7 @@ enum anchor {
 #define ONE_THIRD (1.0h/3.0h)
 #define TWO_THIRDS (2.0h/3.0h)
 
-constant half3 colors[8] = {
+constant half3 colors[16] = {
 	half3(0.0h),
 	{0.0h, 0.0h, TWO_THIRDS},
 	{0.0h, TWO_THIRDS, 0.0h},
@@ -46,7 +47,15 @@ constant half3 colors[8] = {
 	{TWO_THIRDS, 0.0h, 0.0h},
 	{TWO_THIRDS, 0.0h, TWO_THIRDS},
 	{1.0h, TWO_THIRDS, 0.0h},
-	half3(TWO_THIRDS)
+	half3(TWO_THIRDS),
+	half3(ONE_THIRD),
+	{ONE_THIRD, ONE_THIRD, 1.0h},
+	{ONE_THIRD, 1.0h, ONE_THIRD},
+	{ONE_THIRD, 1.0h, 1.0h},
+	{1.0h, ONE_THIRD, ONE_THIRD},
+	{1.0h, ONE_THIRD, 1.0h},
+	{1.0h, 1.0h, ONE_THIRD},
+	half3(1.0h)
 };
 
 vertex
@@ -60,8 +69,7 @@ fragdata vertText(uint instanceID [[instance_id]], constant matrices *mats,
 
 	frag.position = mats->ortho[ANC_MIDDLE] * pos;
 	frag.texcoords = vert.texcoords;
-	half3 bright = select(half3(0.0h), half3(ONE_THIRD), vert.color > 7);
-	frag.color = (colors[vert.color % 8] + bright) * darken;
+	frag.color = colors[min((uchar)vert.color, (uchar)0xF)] * darken;
 	frag.character = vert.character;
 
 	return frag;
