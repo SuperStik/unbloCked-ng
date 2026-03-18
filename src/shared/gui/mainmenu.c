@@ -13,7 +13,7 @@ struct gui_mainmenu *gui_mainmenu_init(struct gui_mainmenu *screen, float w,
 	float hd2 = h / 2;
 	for (int i = 0; i < 5; ++i)
 		gui_button_init(&(screen->buttons[i]), &(screen->buttoninfo[i]),
-				i, 0.0f, i * -24, 200.0f, 16.0f, "\377eTEST");
+				i, 0.0f, i * -24, 200.0f, 16.0f, "TEST");
 
 	return screen;
 }
