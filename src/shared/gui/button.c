@@ -1,4 +1,3 @@
-#include <err.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,7 +44,7 @@ void gui_button_destroy(struct gui_button *button) {
 	free(button->displaystr);
 }
 
-int gui_button_mousepressed(struct gui_button *button, gvec(float,2) pos,
+int gui_button_inarea(struct gui_button *button, gvec(float,2) pos,
 		gvec(float,2) area) {
 	if (button->info->state) {
 		pos = anc_getoffset(button->info->anchor, area, pos);
@@ -56,9 +55,6 @@ int gui_button_mousepressed(struct gui_button *button, gvec(float,2) pos,
 
 		gvec(float,2) pos_lo = button_pos - button_size;
 		gvec(float,2) pos_hi = button_pos + button_size;
-
-		warnx("button: %p (%g, %g)", button, button_size[0],
-				button_size[1]);
 
 		return pos[0] >= pos_lo[0] && pos[1] >= pos_lo[1] && pos[0] <
 			pos_hi[0] && pos[1] < pos_hi[1];

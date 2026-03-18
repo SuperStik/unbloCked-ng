@@ -111,11 +111,21 @@ void gl_main(void) {
 				break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				if (ev.button.button == 1) {
-					float scale = resolutionscale;
-					float x = ev.button.x / scale;
-					float y = ev.button.y / scale;
+					float x = ev.button.x;
+					float y = ev.button.y;
+					scaledreso(&x, &y);
+
 					gui_screen_onclick(currentscreen, x, y);
 				}
+
+				break;
+			case SDL_EVENT_MOUSE_MOTION:
+				;
+				float cur_x = ev.motion.x;
+				float cur_y = ev.motion.y;
+				scaledreso(&cur_x, &cur_y);
+
+				gui_screen_onhover(currentscreen, cur_x, cur_y);
 
 				break;
 			case SDL_EVENT_WINDOW_EXPOSED:
