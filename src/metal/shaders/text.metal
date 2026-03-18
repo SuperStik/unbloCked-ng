@@ -60,14 +60,14 @@ constant half3 colors[16] = {
 
 vertex
 fragdata vertText(uint instanceID [[instance_id]], constant matrices *mats,
-		vertdata vert[[stage_in]]) {
+		constant float4x4 *trans, vertdata vert[[stage_in]]) {
 	uint shift = instanceID & 1;
 	half darken = select(0.25h, 1.0h, instanceID & 1);
 	float4 pos = float4(vert.position + float2((float)shift), 0.0f, 1.0f);
 
 	fragdata frag;
 
-	frag.position = mats->ortho[ANC_MIDDLE] * pos;
+	frag.position = mats->ortho[ANC_MIDDLE] * *trans * pos;
 	frag.texcoords = vert.texcoords;
 	frag.color = colors[min((uchar)vert.color, (uchar)0xF)] * darken;
 	frag.character = vert.character;

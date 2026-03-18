@@ -72,7 +72,8 @@ const static _Float16 fontwidth[256] = {
 	0.875f16, 0.75f16, 1.0f16, 0.0f16
 };
 
-unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, const char *str) {
+unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length, const
+		char *str) {
 	const size_t len = strlen(str);
 
 	if (__builtin_expect((len * 6) > UINT16_MAX, 0)) {
@@ -146,6 +147,9 @@ unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, const char *str) {
 		++vertcount;
 	}
 
+	if (length != NULL)
+		*length = xpos;
+
 	*vertbuf = [device
 		newBufferWithBytes:array
 			    length:sizeof(struct gui_textvert) * 4 * vertcount
@@ -163,10 +167,14 @@ unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, const char *str) {
 	return vertcount;
 };
 
-void gui_drawtext_draw(id e, id b, id i, unsigned count) {
+void gui_drawtext_draw(id e, id b, id i, const gvec(float,4) transform[4],
+		unsigned count) {
 	id<MTLRenderCommandEncoder> enc = e;
 	id<MTLBuffer> buffer = b;
 	id<MTLBuffer> indices = i;
+	[enc setVertexBytes:transform
+		     length:sizeof(gvec(float,4)) * 4
+		    atIndex:1];
 	[enc setVertexBuffer:buffer offset:0 atIndex:16];
 
 	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle

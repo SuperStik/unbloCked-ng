@@ -1,6 +1,7 @@
 #ifndef GUI_DRAWMAINMENU
 #define GUI_DRAWMAINMENU 1
 
+#include <math/vector.h>
 #include <objc/objc.h>
 
 struct gui_drawmainmenu {
@@ -21,6 +22,7 @@ struct gui_drawmainmenu {
 
 	id textbufs[5];
 	id textinds[5];
+	gvec(float,4) texttransforms[4 * 5];
 	unsigned textvertcounts[5];
 };
 

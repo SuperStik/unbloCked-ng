@@ -22,8 +22,8 @@ void shdr_text_new(id *pipe, id l, dispatch_group_t group) {
 
 	MTLPipelineBufferDescriptorArray *bufs = desc.vertexBuffers;
 	bufs[0].mutability = MTLMutabilityImmutable;
+	bufs[1].mutability = MTLMutabilityImmutable;
 	bufs[16].mutability = MTLMutabilityImmutable;
-	bufs[17].mutability = MTLMutabilityImmutable;
 
 	@autoreleasepool {
 		MTLVertexDescriptor *vertexdesc = [MTLVertexDescriptor

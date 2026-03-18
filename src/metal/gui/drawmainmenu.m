@@ -5,6 +5,7 @@
 #include "drawtext.h"
 #include <gui/button.h>
 #include <gui/screen.h>
+#include <math/matrix.h>
 
 void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_screen *
 		screen, id d) {
@@ -14,10 +15,19 @@ void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_screen *
 	menu->buttonverts = gui_drawbutton_getverts(device, 200.0f, 16.0f);
 	menu->buttoninds = gui_drawbutton_getinds(device);
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 5; ++i) {
+		float length;
 		menu->textvertcounts[i] = gui_drawtext_maketextbuf(device,
-				&menu->textbufs[i], &menu->textinds[i],
+				&menu->textbufs[i], &menu->textinds[i], &length,
 				screen->ctrllist[i].displaystr);
+
+		length /= 2.0f;
+		gvec(float,2) pos = screen->ctrllist[i].info->pos;
+		pos[0] -= length;
+
+		mat_gettranslate(&menu->texttransforms[i * 4], pos[0], pos[1] -
+				4.0f, 0.0f);
+	}
 
 	[menu->pipeline.button retain];
 	[menu->pipeline.text retain];
@@ -45,8 +55,9 @@ void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 	[enc setFragmentTexture:menu->texture.font atIndex:0];
 
 	for (int i = 0; i < 5; ++i)
-	gui_drawtext_draw(enc, menu->textbufs[i], menu->textinds[i],
-			menu->textvertcounts[i]);
+		gui_drawtext_draw(enc, menu->textbufs[i], menu->textinds[i],
+				&menu->texttransforms[i * 4],
+				menu->textvertcounts[i]);
 }
 
 void gui_drawmainmenu_release(const struct gui_drawmainmenu *menu) {
