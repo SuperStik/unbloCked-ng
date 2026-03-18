@@ -94,6 +94,12 @@ static inline void SINCOSvf3(gvec(float,4) x, gvec(float,4) *s, gvec(float,4)
 	simd_float3 xvals = {x[0], x[1], x[2]};
 	sincos(xvals, (simd_float3 *)s, (simd_float3 *)c);
 }
+__attribute__((always_inline))
+static inline void SINCOSvf2(gvec(float,2) x, gvec(float,2) *s, gvec(float,2)
+		*c) {
+	simd_float2 xvals = {x[0], x[1]};
+	sincos(xvals, (simd_float2 *)s, (simd_float2 *)c);
+}
 
 __attribute__((always_inline))
 static inline void SINCOSPIv2(gvec(double,2) x, gvec(double,2) *s,
@@ -112,6 +118,12 @@ static inline void SINCOSPIvf3(gvec(float,4) x, gvec(float,4) *s, gvec(float,4)
 		*c) {
 	simd_float3 xvals = {x[0], x[1], x[2]};
 	sincospi(xvals, (simd_float3 *)s, (simd_float3 *)c);
+}
+__attribute__((always_inline))
+static inline void SINCOSPIvf2(gvec(float,2) x, gvec(float,2) *s, gvec(float,2)
+		*c) {
+	simd_float2 xvals = {x[0], x[1]};
+	sincospi(xvals, (simd_float2 *)s, (simd_float2 *)c);
 }
 #else
 __attribute__((always_inline))
@@ -158,6 +170,18 @@ static inline void SINCOSvf3(gvec(float,4) x, gvec(float,4) *s, gvec(float,4)
 		(*c)[i] = coss[i];
 	}
 }
+__attribute__((always_inline))
+static inline void SINCOSvf2(gvec(float,2) x, gvec(float,2) *s, gvec(float,2)
+		*c) {
+	float sins[2], coss[2];
+	for (int i = 0; i < 2; ++i)
+		SINCOSf(x[i], &(sins[i]), &(coss[i]));
+
+	for (int i = 0; i < 2; ++i) {
+		(*s)[i] = sins[i];
+		(*c)[i] = coss[i];
+	}
+}
 
 __attribute__((always_inline))
 static inline void SINCOSPIv2(gvec(double,2) x, gvec(double,2) *s,
@@ -191,6 +215,18 @@ static inline void SINCOSPIvf3(gvec(float,4) x, gvec(float,4) *s, gvec(float,4)
 		SINCOSPIf(x[i], &(sins[i]), &(coss[i]));
 
 	for (int i = 0; i < 3; ++i) {
+		(*s)[i] = sins[i];
+		(*c)[i] = coss[i];
+	}
+}
+__attribute__((always_inline))
+static inline void SINCOSPIvf2(gvec(float,2) x, gvec(float,2) *s, gvec(float,2)
+		*c) {
+	float sins[2], coss[2];
+	for (int i = 0; i < 2; ++i)
+		SINCOSPIf(x[i], &(sins[i]), &(coss[i]));
+
+	for (int i = 0; i < 2; ++i) {
 		(*s)[i] = sins[i];
 		(*c)[i] = coss[i];
 	}
