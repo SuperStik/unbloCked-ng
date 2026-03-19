@@ -60,8 +60,10 @@ int gui_button_inarea(struct gui_button *button, gvec(float,2) pos,
 		gvec(float,2) pos_lo = button_pos - button_size;
 		gvec(float,2) pos_hi = button_pos + button_size;
 
-		return pos[0] >= pos_lo[0] && pos[1] >= pos_lo[1] && pos[0] <
-			pos_hi[0] && pos[1] < pos_hi[1];
+		gvec(int32_t,2) is_lo = pos >= pos_lo;
+		gvec(int32_t,2) is_hi = pos < pos_hi;
+
+		return is_lo[0] && is_lo[1] && is_hi[0] && is_hi[1];
 	}
 
 	return 0;
