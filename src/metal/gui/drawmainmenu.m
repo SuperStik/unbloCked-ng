@@ -7,9 +7,9 @@
 #include <gui/screen.h>
 #include <math/matrix.h>
 
-void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_screen *
+void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_mainmenu *
 		screen, id d) {
-	menu->screen = screen;
+	menu->buttoninfo = screen->buttoninfo;
 
 	id<MTLDevice> device = d;
 	menu->buttonverts = gui_drawbutton_getverts(device, 200.0f, 16.0f);
@@ -19,16 +19,16 @@ void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_screen *
 		float length;
 		menu->textvertcounts[i] = gui_drawtext_maketextbuf(device,
 				&menu->textbufs[i * 2], &menu->textinds[i],
-				&length, screen->ctrllist[i].displaystr);
+				&length, screen->buttons[i].displaystr);
 
 		id _;
 		gui_drawtext_maketextbuf_color(device, &menu->textbufs[i * 2 +
-				1], &_, NULL, screen->ctrllist[i].displaystr,
+				1], &_, NULL, screen->buttons[i].displaystr,
 				0xE);
 		[_ release];
 
 		length /= 2.0f;
-		gvec(float,2) pos = screen->ctrllist[i].info->pos;
+		gvec(float,2) pos = screen->buttoninfo[i].pos;
 		pos[0] -= length;
 
 		mat_gettranslate(&menu->texttransforms[i * 4], pos[0], pos[1] -
@@ -50,7 +50,7 @@ void gui_drawmainmenu_draw_opaque(const struct gui_drawmainmenu *menu, id r) {
 	[enc setFragmentTexture:menu->texture.gui atIndex:0];
 
 	gui_drawbutton_draw(menu->buttonverts, menu->buttoninds, enc,
-			menu->screen->ctrlinfo, menu->screen->ctrllistlen);
+			menu->buttoninfo, 5);
 }
 
 void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
@@ -61,7 +61,7 @@ void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 	[enc setFragmentTexture:menu->texture.font atIndex:0];
 
 	for (int i = 0; i < 5; ++i) {
-		int hovered = menu->screen->ctrllist[i].info->state ==
+		int hovered = menu->buttoninfo[i].state ==
 			GUI_BUTTON_STATE_HOVERED;
 		gui_drawtext_draw(enc, menu->textbufs[i * 2 + hovered],
 				menu->textinds[i], &menu->texttransforms[i * 4],

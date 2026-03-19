@@ -1,11 +1,12 @@
 #ifndef GUI_DRAWMAINMENU
 #define GUI_DRAWMAINMENU 1
 
+#include <gui/mainmenu.h>
 #include <math/vector.h>
 #include <objc/objc.h>
 
 struct gui_drawmainmenu {
-	struct gui_screen *screen;
+	struct gui_button_info *buttoninfo;
 
 	struct {
 		id button;
@@ -26,7 +27,7 @@ struct gui_drawmainmenu {
 	unsigned textvertcounts[5];
 };
 
-void gui_drawmainmenu_init(struct gui_drawmainmenu *, struct gui_screen *, id
+void gui_drawmainmenu_init(struct gui_drawmainmenu *, struct gui_mainmenu *, id
 		device);
 
 void gui_drawmainmenu_draw_opaque(const struct gui_drawmainmenu *, id

@@ -23,6 +23,7 @@
 #define HEIGHT 480
 
 extern struct gui_screen *currentscreen;
+static struct gui_mainmenu mainmenu;
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
@@ -86,7 +87,6 @@ void gl_main(void) {
 	scaledreso(&winwid, &winhgt);
 	updatemats(matrices, winwid, winhgt);
 
-	struct gui_mainmenu mainmenu;
 	gui_mainmenu_init(&mainmenu, winwid, winhgt);
 	currentscreen = &mainmenu.screen;
 
@@ -209,7 +209,7 @@ static void *MTL_render(void *l) {
 	drawmainmenu.pipeline.text = shdr.text;
 	drawmainmenu.texture.font = tex.font.font;
 	drawmainmenu.texture.gui = tex.gui.gui;
-	gui_drawmainmenu_init(&drawmainmenu, currentscreen, device);
+	gui_drawmainmenu_init(&drawmainmenu, &mainmenu, device);
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
 
