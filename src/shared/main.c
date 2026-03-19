@@ -3,6 +3,7 @@
 
 #include <SDL3/SDL_init.h>
 
+#include "cursor.h"
 #include "gui/screen.h"
 #include "main.h"
 #include "sound/sound.h"
@@ -42,6 +43,8 @@ int main(void) {
 
 	ma_engine_uninit(&engine);
 	ma_resource_manager_uninit(&resource_manager);
+
+	cursor_free();
 
 	SDL_Quit();
 	return 0;
