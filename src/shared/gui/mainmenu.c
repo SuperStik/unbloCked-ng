@@ -24,9 +24,6 @@ struct gui_mainmenu *gui_mainmenu_resize(struct gui_mainmenu *screen, float w,
 
 	float wd2 = w / 2;
 	float hd2 = h / 2;
-	for (int i = 0; i < 5; ++i)
-		gui_button_resize(&(screen->buttons[i]), 0.0f, i * -24, 50.0f,
-				16.0f);
 
 	return screen;
 }

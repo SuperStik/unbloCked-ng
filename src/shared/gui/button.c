@@ -37,6 +37,10 @@ struct gui_button *gui_button_init(struct gui_button *button, struct
 
 struct gui_button *gui_button_resize(struct gui_button *button, float x, float
 		y, float width, float height) {
+	button->info->pos = (gvec(float,2)){x, y};
+	button->width = width;
+	button->height = height;
+
 	return button;
 }
 
