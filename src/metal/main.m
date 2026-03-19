@@ -111,11 +111,7 @@ void gl_main(void) {
 				break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				if (ev.button.button == 1) {
-					float x = ev.button.x;
-					float y = ev.button.y;
-					scaledreso(&x, &y);
-
-					gui_screen_onclick(currentscreen, x, y);
+					gui_screen_onclick(currentscreen);
 				}
 
 				break;

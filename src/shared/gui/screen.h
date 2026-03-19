@@ -14,7 +14,7 @@ struct gui_screen {
 	float height;
 };
 
-void gui_screen_onclick(struct gui_screen *, float x, float y);
+void gui_screen_onclick(struct gui_screen *);
 
 void gui_screen_onhover(struct gui_screen *, float x, float y);
 

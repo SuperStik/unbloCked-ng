@@ -4,14 +4,12 @@
 
 #include "screen.h"
 
-void gui_screen_onclick(struct gui_screen *screen, float x, float y) {
+void gui_screen_onclick(struct gui_screen *screen) {
 	size_t len = screen->ctrllistlen;
-	struct gui_button *start = screen->ctrllist;
-	gvec(float,2) pos = {x, y};
-	gvec(float,2) area = {screen->width, screen->height};
+	struct gui_button_info *info = screen->ctrlinfo;
 
 	for (size_t i = 0; i < len; ++i) {
-		if (gui_button_inarea(start + i, pos, area)) {
+		if (info[i].state == GUI_BUTTON_STATE_HOVERED) {
 			sound_restart(&sound.ui.click);
 			break;
 		}
