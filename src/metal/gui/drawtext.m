@@ -72,8 +72,8 @@ const static _Float16 fontwidth[256] = {
 	0.875f16, 0.75f16, 1.0f16, 0.0f16
 };
 
-unsigned gui_drawtext_maketextbuf_color(id d, id *buf, id *ind, float *length,
-		const char *str, unsigned char color) {
+unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length, const
+		char *str) {
 	const size_t len = strlen(str);
 
 	if (__builtin_expect((len * 6) > UINT16_MAX, 0)) {
@@ -97,6 +97,8 @@ unsigned gui_drawtext_maketextbuf_color(id d, id *buf, id *ind, float *length,
 	uint16_t indcount = 0;
 	float xpos = 0.0f;
 	unsigned vertcount = 0;
+
+	unsigned char color = 17;
 	for (size_t i = 0; i < len; ++i) {
 		size_t bufind = vertcount * 4;
 		unsigned char character = str[i];
@@ -197,7 +199,7 @@ static inline unsigned char getcolor(unsigned char character) {
 			color = character - 'W';
 			break;
 		default:
-			color = 0xF;
+			color = 17;
 	}
 
 	return color;

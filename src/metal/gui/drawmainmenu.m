@@ -18,14 +18,8 @@ void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_mainmenu *
 	for (int i = 0; i < 5; ++i) {
 		float length;
 		menu->textvertcounts[i] = gui_drawtext_maketextbuf(device,
-				&menu->textbufs[i * 2], &menu->textinds[i],
-				&length, screen->buttons[i].displaystr);
-
-		id _;
-		gui_drawtext_maketextbuf_color(device, &menu->textbufs[i * 2 +
-				1], &_, NULL, screen->buttons[i].displaystr,
-				0xE);
-		[_ release];
+				&menu->textbufs[i], &menu->textinds[i], &length,
+				screen->buttons[i].displaystr);
 
 		length /= 2.0f;
 		gvec(float,2) pos = screen->buttoninfo[i].pos;
@@ -60,23 +54,20 @@ void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 
 	[enc setFragmentTexture:menu->texture.font atIndex:0];
 
-	for (int i = 0; i < 5; ++i) {
-		int hovered = menu->buttoninfo[i].state ==
-			GUI_BUTTON_STATE_HOVERED;
-		gui_drawtext_draw(enc, menu->textbufs[i * 2 + hovered],
-				menu->textinds[i], &menu->texttransforms[i * 4],
+	for (int i = 0; i < 5; ++i)
+		gui_drawtext_draw(enc, menu->textbufs[i], menu->textinds[i],
+				&menu->texttransforms[i * 4],
 				menu->textvertcounts[i]);
-	}
 }
 
 void gui_drawmainmenu_release(const struct gui_drawmainmenu *menu) {
 	[menu->buttonverts release];
 	[menu->buttoninds release];
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 5; ++i) {
 		[menu->textbufs[i] release];
-	for (int i = 0; i < 5; ++i)
 		[menu->textinds[i] release];
+	}
 
 	[menu->pipeline.button release];
 	[menu->pipeline.text release];
