@@ -12,7 +12,7 @@ struct gui_textvert {
 	unsigned char color;
 };
 
-unsigned gui_drawtext_maketextbuf(id device, id *buffer, id *indices,
+unsigned long gui_drawtext_maketextbuf(id device, id *buffer, id *indices,
 		float *length, const char *string);
 
 void gui_drawtext_draw(id encoder, id buffer, id indices, const gvec(float,4)

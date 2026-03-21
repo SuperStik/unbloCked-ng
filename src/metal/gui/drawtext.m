@@ -14,6 +14,9 @@ struct transcolor {
 	gvec(_Float16,4) color;
 };
 
+static unsigned filltextarray(struct gui_textvert *array, uint16_t *indices,
+		float *textlength, const unsigned char *str, size_t len);
+
 static inline unsigned char getcolor(unsigned char color);
 
 const static _Float16 fontwidth[256] = {
@@ -77,8 +80,8 @@ const static _Float16 fontwidth[256] = {
 	0.875f16, 0.75f16, 1.0f16, 0.0f16
 };
 
-unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length, const
-		char *str) {
+unsigned long gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length,
+		const char *str) {
 	const size_t len = strlen(str);
 
 	if (__builtin_expect((len * 6) > UINT16_MAX, 0)) {
@@ -99,13 +102,57 @@ unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length, const
 	struct gui_textvert *array = malloc(totalsize);
 	uint16_t *indices = (void *)array + vertsize;
 
-	uint16_t indcount = 0;
-	float xpos = 0.0f;
-	unsigned vertcount = 0;
+	unsigned count = filltextarray(array, indices, length, (const unsigned
+				char *)str, len);
 
+	*vertbuf = [device
+		newBufferWithBytes:array
+			    length:sizeof(struct gui_textvert) * 4 * count
+			   options:BUFFER_OPTIONS];
+	(*vertbuf).label = @"buffer.text.vertices";
+
+	unsigned long vertcount = count * 6ul;
+	*indexbuf = [device newBufferWithBytes:indices
+					length:sizeof(uint16_t) * vertcount
+				       options:BUFFER_OPTIONS];
+	(*indexbuf).label = @"buffer.text.indices";
+
+	free(array);
+
+	return vertcount;
+};
+
+void gui_drawtext_draw(id e, id b, id i, const gvec(float,4) transform[4],
+		gvec(_Float16,4) color, unsigned count) {
+	id<MTLRenderCommandEncoder> enc = e;
+	id<MTLBuffer> buffer = b;
+	id<MTLBuffer> indices = i;
+	struct transcolor transcolor;
+	memcpy(&transcolor.trans, transform, sizeof(transcolor.trans));
+	transcolor.color = color;
+
+	[enc setVertexBytes:&transcolor
+		     length:sizeof(transcolor)
+		    atIndex:1];
+	[enc setVertexBuffer:buffer offset:0 atIndex:16];
+
+	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+			indexCount:count
+			 indexType:MTLIndexTypeUInt16
+		       indexBuffer:indices
+		 indexBufferOffset:0
+		     instanceCount:2];
+}
+
+static unsigned filltextarray(struct gui_textvert *array, uint16_t *indices,
+		float *textlength, const unsigned char *str, size_t len) {
+	uint16_t indcount = 0;
+	unsigned count = 0;
+
+	float xpos = 0.0f;
 	unsigned char color = 17;
 	for (size_t i = 0; i < len; ++i) {
-		size_t bufind = vertcount * 4;
+		size_t bufind = count * 4;
 		unsigned char character = str[i];
 		_Float16 width = fontwidth[character];
 
@@ -150,49 +197,13 @@ unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length, const
 		indices[indcount+5] = bufind + 1;
 		indcount += 6;
 
-		++vertcount;
+		++count;
 	}
 
-	if (length != NULL)
-		*length = xpos;
+	if (textlength != NULL)
+		*textlength = xpos;
 
-	*vertbuf = [device
-		newBufferWithBytes:array
-			    length:sizeof(struct gui_textvert) * 4 * vertcount
-			   options:BUFFER_OPTIONS];
-	(*vertbuf).label = @"buffer.text.vertices";
-
-	vertcount *= 6;
-	*indexbuf = [device newBufferWithBytes:indices
-					length:sizeof(uint16_t) * vertcount
-				       options:BUFFER_OPTIONS];
-	(*indexbuf).label = @"buffer.text.indices";
-
-	free(array);
-
-	return vertcount;
-};
-
-void gui_drawtext_draw(id e, id b, id i, const gvec(float,4) transform[4],
-		gvec(_Float16,4) color, unsigned count) {
-	id<MTLRenderCommandEncoder> enc = e;
-	id<MTLBuffer> buffer = b;
-	id<MTLBuffer> indices = i;
-	struct transcolor transcolor;
-	memcpy(&transcolor.trans, transform, sizeof(transcolor.trans));
-	transcolor.color = color;
-
-	[enc setVertexBytes:&transcolor
-		     length:sizeof(transcolor)
-		    atIndex:1];
-	[enc setVertexBuffer:buffer offset:0 atIndex:16];
-
-	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-			indexCount:count
-			 indexType:MTLIndexTypeUInt16
-		       indexBuffer:indices
-		 indexBufferOffset:0
-		     instanceCount:2];
+	return count;
 }
 
 static inline unsigned char getcolor(unsigned char character) {

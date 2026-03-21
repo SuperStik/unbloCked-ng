@@ -24,7 +24,7 @@ struct gui_drawmainmenu {
 	id textbufs[5];
 	id textinds[5];
 	gvec(float,4) texttransforms[4 * 5];
-	unsigned textvertcounts[5];
+	unsigned long textvertcounts[5];
 };
 
 void gui_drawmainmenu_init(struct gui_drawmainmenu *, struct gui_mainmenu *, id
