@@ -9,6 +9,11 @@
 #define BUFFER_OPTIONS (MTLResourceCPUCacheModeWriteCombined | \
 		MTLResourceHazardTrackingModeUntracked)
 
+struct transcolor {
+	gvec(float,4) trans[4];
+	gvec(_Float16,4) color;
+};
+
 static inline unsigned char getcolor(unsigned char color);
 
 const static _Float16 fontwidth[256] = {
@@ -169,12 +174,16 @@ unsigned gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length, const
 };
 
 void gui_drawtext_draw(id e, id b, id i, const gvec(float,4) transform[4],
-		unsigned count) {
+		gvec(_Float16,4) color, unsigned count) {
 	id<MTLRenderCommandEncoder> enc = e;
 	id<MTLBuffer> buffer = b;
 	id<MTLBuffer> indices = i;
-	[enc setVertexBytes:transform
-		     length:sizeof(gvec(float,4)) * 4
+	struct transcolor transcolor;
+	memcpy(&transcolor.trans, transform, sizeof(transcolor.trans));
+	transcolor.color = color;
+
+	[enc setVertexBytes:&transcolor
+		     length:sizeof(transcolor)
 		    atIndex:1];
 	[enc setVertexBuffer:buffer offset:0 atIndex:16];
 

@@ -54,10 +54,38 @@ void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 
 	[enc setFragmentTexture:menu->texture.font atIndex:0];
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 5; ++i) {
+		gvec(_Float16,4) color;
+		switch(menu->buttoninfo[i].state) {
+			case GUI_BUTTON_STATE_DISABLED:
+				color = (gvec(_Float16,4)){
+					1.0f16 / 3.0f16,
+					1.0f16 / 3.0f16,
+					1.0f16 / 3.0f16,
+					1.0f16
+				};
+				break;
+			case GUI_BUTTON_STATE_HOVERED:
+				color = (gvec(_Float16,4)){
+					1.0f16,
+					1.0f16,
+					1.0f16 / 3.0f16,
+					1.0f16
+				};
+				break;
+			default:
+				color = (gvec(_Float16,4)){
+					1.0f16,
+					1.0f16,
+					1.0f16,
+					1.0f16
+				};
+		}
+
 		gui_drawtext_draw(enc, menu->textbufs[i], menu->textinds[i],
-				&menu->texttransforms[i * 4],
+				&menu->texttransforms[i * 4], color,
 				menu->textvertcounts[i]);
+	}
 }
 
 void gui_drawmainmenu_release(const struct gui_drawmainmenu *menu) {
