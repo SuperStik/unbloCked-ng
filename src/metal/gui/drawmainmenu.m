@@ -6,7 +6,7 @@
 #include <gui/button.h>
 #include <gui/screen.h>
 #include <math/matrix.h>
-#include <err.h>
+
 void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_mainmenu *
 		screen, id d) {
 	menu->buttoninfo = screen->buttoninfo;
