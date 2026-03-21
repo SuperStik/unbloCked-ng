@@ -21,8 +21,8 @@ struct gui_drawmainmenu {
 	id buttonverts;
 	id buttoninds;
 
-	id textbufs[5];
-	id textinds[5];
+	id textbuf;
+	id textind;
 	gvec(float,4) texttransforms[4 * 5];
 	unsigned long textvertcounts[5];
 };

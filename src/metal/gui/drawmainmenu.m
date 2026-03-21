@@ -6,7 +6,7 @@
 #include <gui/button.h>
 #include <gui/screen.h>
 #include <math/matrix.h>
-
+#include <err.h>
 void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_mainmenu *
 		screen, id d) {
 	menu->buttoninfo = screen->buttoninfo;
@@ -15,13 +15,16 @@ void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_mainmenu *
 	menu->buttonverts = gui_drawbutton_getverts(device, 200.0f, 16.0f);
 	menu->buttoninds = gui_drawbutton_getinds(device);
 
-	for (int i = 0; i < 5; ++i) {
-		float length;
-		menu->textvertcounts[i] = gui_drawtext_maketextbuf(device,
-				&menu->textbufs[i], &menu->textinds[i], &length,
-				screen->buttons[i].displaystr);
+	const char *strings[5];
+	for (int i = 0; i < 5; ++i)
+		strings[i] = screen->buttons[i].displaystr;
 
-		length /= 2.0f;
+	float lengths[5];
+	gui_drawtext_maketextbuf_multi(device, &menu->textbuf, &menu->textind,
+			lengths, strings, 5, menu->textvertcounts);
+
+	for (int i = 0; i < 5; ++i) {
+		float length = lengths[i] / 2.0f;
 		gvec(float,2) pos = screen->buttoninfo[i].pos;
 		pos[0] -= length;
 
@@ -54,11 +57,11 @@ void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 
 	[enc setFragmentTexture:menu->texture.font atIndex:0];
 
+	gvec(_Float16,4) colors[5];
 	for (int i = 0; i < 5; ++i) {
-		gvec(_Float16,4) color;
 		switch(menu->buttoninfo[i].state) {
 			case GUI_BUTTON_STATE_DISABLED:
-				color = (gvec(_Float16,4)){
+				colors[i] = (gvec(_Float16,4)){
 					1.0f16 / 3.0f16,
 					1.0f16 / 3.0f16,
 					1.0f16 / 3.0f16,
@@ -66,7 +69,7 @@ void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 				};
 				break;
 			case GUI_BUTTON_STATE_HOVERED:
-				color = (gvec(_Float16,4)){
+				colors[i] = (gvec(_Float16,4)){
 					1.0f16,
 					1.0f16,
 					1.0f16 / 3.0f16,
@@ -74,28 +77,25 @@ void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 				};
 				break;
 			default:
-				color = (gvec(_Float16,4)){
+				colors[i] = (gvec(_Float16,4)){
 					1.0f16,
 					1.0f16,
 					1.0f16,
 					1.0f16
 				};
 		}
-
-		gui_drawtext_draw(enc, menu->textbufs[i], menu->textinds[i],
-				&menu->texttransforms[i * 4], color,
-				menu->textvertcounts[i]);
 	}
+
+	gui_drawtext_draw_multi(enc, menu->textbuf, menu->textind,
+			menu->texttransforms, colors, menu->textvertcounts, 5);
 }
 
 void gui_drawmainmenu_release(const struct gui_drawmainmenu *menu) {
 	[menu->buttonverts release];
 	[menu->buttoninds release];
 
-	for (int i = 0; i < 5; ++i) {
-		[menu->textbufs[i] release];
-		[menu->textinds[i] release];
-	}
+	[menu->textbuf release];
+	[menu->textind release];
 
 	[menu->pipeline.button release];
 	[menu->pipeline.text release];

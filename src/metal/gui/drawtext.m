@@ -1,3 +1,4 @@
+#include <err.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -100,6 +101,9 @@ unsigned long gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length,
 	/* cursed LMAO */
 	const size_t totalsize = vertsize + indsize;
 	struct gui_textvert *array = malloc(totalsize);
+	if (array == NULL)
+		err(1, "malloc");
+
 	uint16_t *indices = (void *)array + vertsize;
 
 	unsigned count = filltextarray(array, indices, length, (const unsigned
@@ -122,18 +126,81 @@ unsigned long gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length,
 	return vertcount;
 };
 
+void gui_drawtext_maketextbuf_multi(id device, id *buf, id *ind, float *
+		lengths, const char *const *strings, unsigned strcount,
+		unsigned long *vertcounts) {
+	struct gui_textvert *vertdata = NULL;
+	size_t vertdata_size = 0;
+	uint16_t *inddata = NULL;
+	size_t inddata_size = 0;
+
+	unsigned long vertcount = 0;
+	size_t vertdata_off = 0;
+	size_t inddata_off = 0;
+	for (unsigned i = 0; i < strcount; ++i) {
+		size_t len = strlen(strings[i]);
+
+		const size_t vertsize = sizeof(struct gui_textvert) * 4 * len;
+		const size_t indsize = sizeof(uint16_t) * 6 * len;
+
+		vertdata_size += vertsize;
+		inddata_size += indsize;
+
+		vertdata = realloc(vertdata, vertdata_size);
+		if (vertdata == NULL)
+			err(1, "realloc");
+
+		inddata = realloc(inddata, inddata_size);
+		if (inddata == NULL)
+			err(1, "realloc");
+
+		struct gui_textvert *array = &vertdata[vertdata_off];
+		uint16_t *indices = &inddata[inddata_off];
+
+		vertcounts[i] = filltextarray(array, indices, &lengths[i],
+				(const unsigned char *)strings[i], len);
+		vertcount += vertcounts[i];
+
+		vertdata_off += 4 * vertcounts[i];
+		inddata_off += 6 * vertcounts[i];
+	}
+
+	id<MTLBuffer> *vertbuf = buf;
+	id<MTLBuffer> *indexbuf = ind;
+
+	unsigned long bufsize = sizeof(struct gui_textvert) * 4 * vertcount;
+	*vertbuf = [device newBufferWithBytes:vertdata
+				       length:bufsize
+				      options:BUFFER_OPTIONS];
+	(*vertbuf).label = @"buffer.text.vertices";
+
+	vertcount *= 6;
+	unsigned long indsize = sizeof(uint16_t) * vertcount;
+	*indexbuf = [device newBufferWithBytes:inddata
+					length:indsize
+				       options:BUFFER_OPTIONS];
+	(*indexbuf).label = @"buffer.text.indices";
+
+	free(vertdata);
+	free(inddata);
+
+	for (int i = 0; i < strcount; ++i)
+		vertcounts[i] *= 6;
+}
+
 void gui_drawtext_draw(id e, id b, id i, const gvec(float,4) transform[4],
-		gvec(_Float16,4) color, unsigned count) {
+		gvec(_Float16,4) color, unsigned long count) {
 	id<MTLRenderCommandEncoder> enc = e;
 	id<MTLBuffer> buffer = b;
 	id<MTLBuffer> indices = i;
+
 	struct transcolor transcolor;
 	memcpy(&transcolor.trans, transform, sizeof(transcolor.trans));
 	transcolor.color = color;
-
 	[enc setVertexBytes:&transcolor
 		     length:sizeof(transcolor)
 		    atIndex:1];
+
 	[enc setVertexBuffer:buffer offset:0 atIndex:16];
 
 	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
@@ -142,6 +209,40 @@ void gui_drawtext_draw(id e, id b, id i, const gvec(float,4) transform[4],
 		       indexBuffer:indices
 		 indexBufferOffset:0
 		     instanceCount:2];
+}
+
+void gui_drawtext_draw_multi(id e, id buf, id ind, const
+		gvec(float,4) *transform, const gvec(_Float16,4) *color, const
+		unsigned long *vertcount, unsigned textcount) {
+	id<MTLRenderCommandEncoder> enc = e;
+	id<MTLBuffer> buffer = buf;
+	id<MTLBuffer> indices = ind;
+
+	unsigned long bufoffset = 0;
+	unsigned long indoffset = 0;
+
+	struct transcolor transcolor;
+	for (unsigned i = 0; i < textcount; ++i) {
+		memcpy(&transcolor.trans, &transform[i * 4ul],
+				sizeof(transcolor.trans));
+		transcolor.color = color[i];
+		[enc setVertexBytes:&transcolor
+		     length:sizeof(transcolor)
+		    atIndex:1];
+
+		[enc setVertexBuffer:buffer offset:bufoffset atIndex:16];
+
+		const unsigned long count = vertcount[i];
+		[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+			indexCount:count
+			 indexType:MTLIndexTypeUInt16
+		       indexBuffer:indices
+		 indexBufferOffset:indoffset
+		     instanceCount:2];
+
+		bufoffset += (count / 6) * 4 * sizeof(struct gui_textvert);
+		indoffset += count * sizeof(uint16_t);
+	}
 }
 
 static unsigned filltextarray(struct gui_textvert *array, uint16_t *indices,
