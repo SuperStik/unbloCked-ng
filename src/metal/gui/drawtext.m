@@ -84,7 +84,7 @@ unsigned long gui_drawtext_maketextbuf(id d, id *buf, id *ind, float *length,
 		const char *str) {
 	const size_t len = strlen(str);
 
-	if (__builtin_expect((len * 6) > UINT16_MAX, 0)) {
+	if (__builtin_expect((len * 4) > UINT16_MAX, 0)) {
 		buf = nil;
 		ind = nil;
 		return 0ul;
