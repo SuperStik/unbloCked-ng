@@ -16,18 +16,15 @@ struct gui_button {
 	char *displaystr;
 	float width;
 	float height;
-	unsigned id;
 };
-
-#define GUI_BUTTON_INITDEFAULT(button, info, id, xpos, ypos, displaystr) gui_button_init(button, info, id, xpos, ypos, 200.0f, 20.0f, displaystr)
 
 #define GUI_BUTTON_STATE_DISABLED 0
 #define GUI_BUTTON_STATE_ENABLED 1
 #define GUI_BUTTON_STATE_HOVERED 2
 
 struct gui_button *gui_button_init(struct gui_button *, struct
-		gui_button_info *, unsigned id, float xpos, float ypos, float
-		width, float height, const char *displaystr);
+		gui_button_info *, float xpos, float ypos, float width, float
+		height, const char *displaystr);
 
 struct gui_button *gui_button_resize(struct gui_button *, float x, float y,
 		float width, float height);

@@ -11,9 +11,19 @@ struct gui_mainmenu *gui_mainmenu_init(struct gui_mainmenu *screen, float w,
 
 	float wd2 = w / 2;
 	float hd2 = h / 2;
-	for (int i = 0; i < 5; ++i)
-		gui_button_init(&(screen->buttons[i]), &(screen->buttoninfo[i]),
-				i, 0.0f, i * -24, 200.0f, 16.0f, "TEST");
+	gui_button_init(&screen->buttons[0], &screen->buttoninfo[0], 0.0f,
+			-12.0f, 200.0f, 16.0f, "Local Play");
+	gui_button_init(&screen->buttons[1], &screen->buttoninfo[1], 0.0f,
+			-32.0f, 200.0f, 16.0f, "Net Play");
+	gui_button_init(&screen->buttons[2], &screen->buttoninfo[2], 0.0f,
+			-52.0f, 200.0f, 16.0f, "Texture Packs");
+	gui_button_init(&screen->buttons[3], &screen->buttoninfo[3], 0.0f,
+			-72.0f, 200.0f, 16.0f, "Options");
+	gui_button_init(&screen->buttons[4], &screen->buttoninfo[4], 0.0f,
+			-92.0f, 200.0f, 16.0f, "Quit");
+
+	for (int i = 1; i < 4; ++i)
+		screen->buttoninfo[i].state = GUI_BUTTON_STATE_DISABLED;
 
 	return screen;
 }
