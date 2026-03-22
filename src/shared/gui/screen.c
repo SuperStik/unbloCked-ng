@@ -8,10 +8,16 @@
 void gui_screen_onclick(struct gui_screen *screen) {
 	size_t len = screen->ctrllistlen;
 	struct gui_button_info *info = screen->ctrlinfo;
+	struct gui_button *button = screen->ctrllist;
 
 	for (size_t i = 0; i < len; ++i) {
 		if (info[i].state == GUI_BUTTON_STATE_HOVERED) {
 			sound_restart(&sound.ui.click);
+
+			gui_button_onclick onclick = button[i].onclick;
+			if (onclick != NULL)
+				onclick();
+
 			break;
 		}
 	}

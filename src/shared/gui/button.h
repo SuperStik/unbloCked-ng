@@ -5,6 +5,8 @@
 
 #include <math/vector.h>
 
+typedef void (*gui_button_onclick)(void);
+
 struct gui_button_info {
 	gvec(float,2) pos;
 	uint8_t anchor;
@@ -13,6 +15,7 @@ struct gui_button_info {
 
 struct gui_button {
 	struct gui_button_info *info;
+	gui_button_onclick onclick;
 	char *displaystr;
 	float width;
 	float height;
@@ -23,8 +26,8 @@ struct gui_button {
 #define GUI_BUTTON_STATE_HOVERED 2
 
 struct gui_button *gui_button_init(struct gui_button *, struct
-		gui_button_info *, float xpos, float ypos, float width, float
-		height, const char *displaystr);
+		gui_button_info *, gui_button_onclick, float xpos, float ypos,
+		float width, float height, const char *displaystr);
 
 struct gui_button *gui_button_resize(struct gui_button *, float x, float y,
 		float width, float height);

@@ -5,14 +5,15 @@
 #include "button.h"
 
 struct gui_button *gui_button_init(struct gui_button *button, struct
-		gui_button_info *info, float xpos, float ypos, float width,
-		float height, const char *displaystr) {
+		gui_button_info *info, gui_button_onclick onclick, float xpos,
+		float ypos, float width, float height, const char *displaystr) {
 	info->pos = (gvec(float,2)){xpos, ypos};
 	info->anchor = ANC_MIDDLE;
 	info->state = 1;
 	button->info = info;
 	button->width = width;
 	button->height = height;
+	button->onclick = onclick;
 
 	if (displaystr[0] != '\0') {
 #ifdef UBLC_NO_STRDUP
