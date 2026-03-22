@@ -57,10 +57,11 @@ void gui_mainmenu_onhover(struct gui_mainmenu *screen, gvec(float,2) pos,
 			screen->buttoninfo[i].state = GUI_BUTTON_STATE_ENABLED;
 	}
 
+	SDL_SystemCursor id = SDL_SYSTEM_CURSOR_DEFAULT;
 	if (found)
-		cursor_set(SDL_SYSTEM_CURSOR_POINTER);
-	else
-		cursor_set(SDL_SYSTEM_CURSOR_DEFAULT);
+		id = SDL_SYSTEM_CURSOR_POINTER;
+
+	cursor_set(id);
 }
 
 static void hostworld(void) {
