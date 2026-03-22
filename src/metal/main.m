@@ -53,7 +53,7 @@ void gl_main(void) {
 	if (window == NULL)
 		errx(1, "%s", SDL_GetError());
 
-	if (!SDL_SetWindowMinimumSize(window, WIDTH, HEIGHT))
+	if (!SDL_SetWindowMinimumSize(window, WIDTH / 2, HEIGHT / 2))
 		warnx("%s", SDL_GetError());
 
 	SDL_MetalView view = SDL_Metal_CreateView(window);
