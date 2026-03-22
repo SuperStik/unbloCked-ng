@@ -22,8 +22,7 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-extern struct gui_screen *currentscreen;
-static struct gui_mainmenu mainmenu;
+struct gui_screen screen;
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
@@ -87,8 +86,7 @@ void gl_main(void) {
 	scaledreso(&winwid, &winhgt);
 	updatemats(matrices, winwid, winhgt);
 
-	gui_mainmenu_init(&mainmenu, winwid, winhgt);
-	currentscreen = &mainmenu.screen;
+	gui_screen_init(&screen, winwid, winhgt, GUI_SCREEN_MAINMENU);
 
 	const NSRange matrange = NSMakeRange(0, sizeof(float) * 16 * 10);
 	if (matbuf.storageMode == MTLStorageModeManaged)
@@ -111,7 +109,7 @@ void gl_main(void) {
 				break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				if (ev.button.button == 1) {
-					gui_screen_onclick(currentscreen);
+					gui_screen_onclick(&screen);
 				}
 
 				break;
@@ -121,7 +119,7 @@ void gl_main(void) {
 				float cur_y = ev.motion.y;
 				scaledreso(&cur_x, &cur_y);
 
-				gui_screen_onhover(currentscreen, cur_x, cur_y);
+				gui_screen_onhover(&screen, cur_x, cur_y);
 
 				break;
 			case SDL_EVENT_WINDOW_EXPOSED:
@@ -144,7 +142,7 @@ void gl_main(void) {
 				float h = (float)ev.window.data2;
 				scaledreso(&w, &h);
 
-				gui_mainmenu_resize(&mainmenu, w, h);
+				gui_screen_resize(&screen, w, h);
 
 				break;
 		}
@@ -159,7 +157,7 @@ void gl_main(void) {
 	[depthtex release];
 	[device release];
 
-	gui_mainmenu_destroy(&mainmenu);
+	gui_screen_destroy(&screen);
 
 	SDL_Metal_DestroyView(view);
 	SDL_DestroyWindow(window);
@@ -204,7 +202,7 @@ static void *MTL_render(void *l) {
 	drawmainmenu.pipeline.text = shdr.text;
 	drawmainmenu.texture.font = tex.font.font;
 	drawmainmenu.texture.gui = tex.gui.gui;
-	gui_drawmainmenu_init(&drawmainmenu, &mainmenu, device);
+	gui_drawmainmenu_init(&drawmainmenu, &screen.screens.mainmenu, device);
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
 

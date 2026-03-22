@@ -11,8 +11,6 @@
 #include <extras/decoders/libvorbis/miniaudio_libvorbis.c>
 #include <extras/decoders/libopus/miniaudio_libopus.c>
 
-struct gui_screen *currentscreen;
-
 static void getresourcemanager(ma_resource_manager *);
 
 int main(void) {

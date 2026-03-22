@@ -4,15 +4,28 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <gui/button.h>
+#include <gui/mainmenu.h>
+
+enum gui_screen_type {
+	GUI_SCREEN_MAINMENU,
+	GUI_SCREEN_MAX
+};
 
 struct gui_screen {
-	struct gui_button *ctrllist;
-	struct gui_button_info *ctrlinfo;
-	size_t ctrllistlen;
+	enum gui_screen_type type;
+	union {
+		struct gui_mainmenu mainmenu;
+	} screens;
 	float width;
 	float height;
 };
+
+struct gui_screen *gui_screen_init(struct gui_screen *, float width, float
+		height, enum gui_screen_type);
+
+void gui_screen_destroy(struct gui_screen *);
+
+void gui_screen_resize(struct gui_screen *, float width, float height);
 
 void gui_screen_onclick(struct gui_screen *);
 
