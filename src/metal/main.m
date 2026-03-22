@@ -354,25 +354,25 @@ static void updatemats(float *matrices, float width, float height) {
 	float wd2 = width * 0.5f;
 	float hd2 = height * 0.5f;
 
-	GUTL_orthof(&matrices[(ANC_TOPLEFT * 16) + 16], 0.0f, width, -height,
+	proj_ortho(&matrices[(ANC_TOPLEFT * 16) + 16], 0.0f, width, -height,
 			0.0f, 0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_TOPMIDDLE * 16) + 16], -wd2, wd2, -height,
+	proj_ortho(&matrices[(ANC_TOPMIDDLE * 16) + 16], -wd2, wd2, -height,
 			0.0f, 0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_TOPRIGHT * 16) + 16], -width, 0.0f, -height,
+	proj_ortho(&matrices[(ANC_TOPRIGHT * 16) + 16], -width, 0.0f, -height,
 			0.0f, 0.0f, 256.0f);
 
-	GUTL_orthof(&matrices[(ANC_MIDDLELEFT * 16) + 16], 0.0f, width, -hd2,
+	proj_ortho(&matrices[(ANC_MIDDLELEFT * 16) + 16], 0.0f, width, -hd2,
 			hd2, 0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_MIDDLE * 16) + 16], -wd2, wd2, -hd2, hd2,
+	proj_ortho(&matrices[(ANC_MIDDLE * 16) + 16], -wd2, wd2, -hd2, hd2,
 			0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_MIDDLERIGHT * 16) + 16], -width, 0.0f, -hd2,
+	proj_ortho(&matrices[(ANC_MIDDLERIGHT * 16) + 16], -width, 0.0f, -hd2,
 			hd2, 0.0f, 256.0f);
 
-	GUTL_orthof(&matrices[(ANC_BOTTOMLEFT * 16) + 16], 0.0f, width, 0.0f,
+	proj_ortho(&matrices[(ANC_BOTTOMLEFT * 16) + 16], 0.0f, width, 0.0f,
 			height, 0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_BOTTOMMIDDLE * 16) + 16], -wd2, wd2, 0.0f,
+	proj_ortho(&matrices[(ANC_BOTTOMMIDDLE * 16) + 16], -wd2, wd2, 0.0f,
 			height, 0.0f, 256.0f);
-	GUTL_orthof(&matrices[(ANC_BOTTOMRIGHT * 16) + 16], -width, 0.0f, 0.0f,
+	proj_ortho(&matrices[(ANC_BOTTOMRIGHT * 16) + 16], -width, 0.0f, 0.0f,
 			height, 0.0f, 256.0f); 
 }
 
