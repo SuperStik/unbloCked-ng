@@ -183,7 +183,6 @@ static void *MTL_render(void *l) {
 	/*color.clearColor = MTLClearColorMake(0.5, 0.8, 1.0, 1.0);*/
 
 	id<MTLCommandQueue> cmdq = [device newCommandQueue];
-	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
 	struct shaders shdr;
 	shdr_generate(&shdr, device);
