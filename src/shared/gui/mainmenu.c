@@ -5,13 +5,14 @@
 #include "mainmenu.h"
 #include <sound/sound.h>
 
+static void hostworld(void);
 static void quitgame(void);
 
 struct gui_mainmenu *gui_mainmenu_init(struct gui_mainmenu *screen) {
-	gui_button_init(&screen->buttons[0], &screen->buttoninfo[0], NULL, 0.0f,
-			-12.0f, 200.0f, 20.0f, "Local Play");
+	gui_button_init(&screen->buttons[0], &screen->buttoninfo[0], hostworld,
+			0.0f, -12.0f, 200.0f, 20.0f, "Host World");
 	gui_button_init(&screen->buttons[1], &screen->buttoninfo[1], NULL, 0.0f,
-			-36.0f, 200.0f, 20.0f, "Net Play");
+			-36.0f, 200.0f, 20.0f, "Join World");
 	gui_button_init(&screen->buttons[2], &screen->buttoninfo[2], NULL, 0.0f,
 			-60.0f, 200.0f, 20.0f, "Texture Packs");
 	gui_button_init(&screen->buttons[3], &screen->buttoninfo[3], NULL,
@@ -33,8 +34,6 @@ void gui_mainmenu_destroy(struct gui_mainmenu *screen) {
 void gui_mainmenu_onclick(struct gui_mainmenu *screen) {
 	for (size_t i = 0; i < 5; ++i) {
 		if (screen->buttoninfo[i].state == GUI_BUTTON_STATE_HOVERED) {
-			sound_restart(&sound.ui.click);
-
 			gui_button_onclick onclick = screen->buttons[i].onclick;
 			if (onclick != NULL)
 				onclick();
@@ -62,6 +61,10 @@ void gui_mainmenu_onhover(struct gui_mainmenu *screen, gvec(float,2) pos,
 		cursor_set(SDL_SYSTEM_CURSOR_POINTER);
 	else
 		cursor_set(SDL_SYSTEM_CURSOR_DEFAULT);
+}
+
+static void hostworld(void) {
+	sound_restart(&sound.ui.click);
 }
 
 static void quitgame(void) {

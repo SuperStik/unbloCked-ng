@@ -111,8 +111,8 @@ static void sound_load_mob(ma_engine *engine, ma_fence *fence) {
 static void sound_load_ui(ma_engine *engine, ma_fence *fence) {
 	sound_init_from_file_relative(engine, "resources/sound/ui/click.opus",
 			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE |
-			MA_SOUND_FLAG_NO_SPATIALIZATION, NULL, fence,
-			&sound.ui.click);
+			MA_SOUND_FLAG_NO_SPATIALIZATION |
+			MA_SOUND_FLAG_NO_PITCH, NULL, fence, &sound.ui.click);
 }
 
 ma_result sound_load(ma_engine *engine) {
