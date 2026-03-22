@@ -51,7 +51,7 @@ void gui_button_destroy(struct gui_button *button) {
 int gui_button_inarea(struct gui_button *button, gvec(float,2) pos,
 		gvec(float,2) area) {
 	if (button->info->state) {
-		pos = anc_getoffset(button->info->anchor, area, pos);
+		pos = anc_getoffset(button->info->anchor, pos, area);
 
 		gvec(float,2) button_pos = button->info->pos;
 		gvec(float,2) button_size = {button->width, button->height};

@@ -1,9 +1,9 @@
 #include "anchor.h"
 
-gvec(float,2) anc_getoffset(enum anchor anc, gvec(float,2) winsize,
-		gvec(float,2) pos){
+gvec(float,2) anc_getoffset(enum anchor anc, gvec(float,2) pos, gvec(float,2)
+		area) {
 	pos[1] = -pos[1];
-	winsize[1] = -winsize[1];
+	area[1] = -area[1];
 	gvec(float,2) offset;
 	
 	switch (anc) {
@@ -12,28 +12,28 @@ gvec(float,2) anc_getoffset(enum anchor anc, gvec(float,2) winsize,
 			offset = (gvec(float,2)){0.0f, 0.0f};
 			break;
 		case ANC_TOPMIDDLE:
-			offset = (gvec(float,2)){winsize[0] / 2.0f, 0.0f};
+			offset = (gvec(float,2)){area[0] / 2.0f, 0.0f};
 			break;
 		case ANC_TOPRIGHT:
-			offset = (gvec(float,2)){winsize[0] / 2.0f, 0.0f};
+			offset = (gvec(float,2)){area[0] / 2.0f, 0.0f};
 			break;
 		case ANC_MIDDLELEFT:
-			offset = (gvec(float,2)){0.0f, winsize[1] / 2.0f};
+			offset = (gvec(float,2)){0.0f, area[1] / 2.0f};
 			break;
 		case ANC_MIDDLE:
-			offset = winsize / 2.0f;
+			offset = area / 2.0f;
 			break;
 		case ANC_MIDDLERIGHT:
-			offset = (gvec(float,2)){winsize[0], winsize[1] / 2.0f};
+			offset = (gvec(float,2)){area[0], area[1] / 2.0f};
 			break;
 		case ANC_BOTTOMLEFT:
-			offset = (gvec(float,2)){0.0f, winsize[1]};
+			offset = (gvec(float,2)){0.0f, area[1]};
 			break;
 		case ANC_BOTTOMMIDDLE:
-			offset = (gvec(float,2)){winsize[0] / 2.0f, winsize[1]};
+			offset = (gvec(float,2)){area[0] / 2.0f, area[1]};
 			break;
 		case ANC_BOTTOMRIGHT:
-			offset = winsize;
+			offset = area;
 	}
 
 	return pos - offset;

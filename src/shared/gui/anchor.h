@@ -15,7 +15,7 @@ enum anchor {
 	ANC_BOTTOMRIGHT
 };
 
-gvec(float,2) anc_getoffset(enum anchor, gvec(float,2) window_size,
-		gvec(float,2) position);
+gvec(float,2) anc_getoffset(enum anchor, gvec(float,2) position, gvec(float,2)
+		area);
 
 #endif /* GUI_ANCHOR_H */
