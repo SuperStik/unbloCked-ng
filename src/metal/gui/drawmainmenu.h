@@ -18,7 +18,7 @@ struct gui_drawmainmenu {
 		id gui;
 	} texture;
 
-	id buttonverts;
+	id buttonverts[2];
 	id buttoninds;
 
 	id textbuf;

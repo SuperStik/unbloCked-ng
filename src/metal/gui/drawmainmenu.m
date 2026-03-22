@@ -12,7 +12,8 @@ void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_mainmenu *
 	menu->buttoninfo = screen->buttoninfo;
 
 	id<MTLDevice> device = d;
-	menu->buttonverts = gui_drawbutton_getverts(device, 200.0f, 16.0f);
+	menu->buttonverts[0] = gui_drawbutton_getverts(device, 200.0f, 20.0f);
+	menu->buttonverts[1] = gui_drawbutton_getverts(device, 98.0f, 20.0f);
 	menu->buttoninds = gui_drawbutton_getinds(device);
 
 	const char *strings[5];
@@ -46,8 +47,10 @@ void gui_drawmainmenu_draw_opaque(const struct gui_drawmainmenu *menu, id r) {
 
 	[enc setFragmentTexture:menu->texture.gui atIndex:0];
 
-	gui_drawbutton_draw(menu->buttonverts, menu->buttoninds, enc,
-			menu->buttoninfo, 5);
+	gui_drawbutton_draw(menu->buttonverts[0], menu->buttoninds, enc,
+			menu->buttoninfo, 3);
+	gui_drawbutton_draw(menu->buttonverts[1], menu->buttoninds, enc,
+			&menu->buttoninfo[3], 2);
 }
 
 void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
@@ -91,7 +94,8 @@ void gui_drawmainmenu_draw_blended(const struct gui_drawmainmenu *menu, id r) {
 }
 
 void gui_drawmainmenu_release(const struct gui_drawmainmenu *menu) {
-	[menu->buttonverts release];
+	for (int i = 0; i < 2; ++i)
+		[menu->buttonverts[i] release];
 	[menu->buttoninds release];
 
 	[menu->textbuf release];
