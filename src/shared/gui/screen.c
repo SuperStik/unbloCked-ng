@@ -1,5 +1,8 @@
 #include "screen.h"
 
+static void subscreen_init(struct gui_screen *, enum gui_screen_type type);
+static void subscreen_destroy(struct gui_screen *);
+
 struct gui_screen *gui_screen_init(struct gui_screen *screen, float w, float h,
 		enum gui_screen_type type) {
 	screen->type = type;
@@ -9,13 +12,7 @@ struct gui_screen *gui_screen_init(struct gui_screen *screen, float w, float h,
 	pthread_mutex_init(&screen->mutex, NULL);
 	gui_screen_lock(screen);
 
-	switch(type) {
-		case GUI_SCREEN_MAINMENU:
-			gui_mainmenu_init(&screen->screens.mainmenu);
-			break;
-		case GUI_SCREEN_MAX:
-			break;
-	}
+	subscreen_init(screen, type);
 
 	gui_screen_unlock(screen);
 
@@ -25,16 +22,20 @@ struct gui_screen *gui_screen_init(struct gui_screen *screen, float w, float h,
 void gui_screen_destroy(struct gui_screen *screen) {
 	gui_screen_lock(screen);
 
-	switch(screen->type) {
-		case GUI_SCREEN_MAINMENU:
-			gui_mainmenu_destroy(&screen->screens.mainmenu);
-			break;
-		case GUI_SCREEN_MAX:
-			break;
-	}
+	subscreen_destroy(screen);
 
 	gui_screen_unlock(screen);
 	pthread_mutex_destroy(&screen->mutex);
+}
+
+void gui_screen_switch(struct gui_screen *screen, enum gui_screen_type type) {
+	gui_screen_lock(screen);
+
+	subscreen_destroy(screen);
+	screen->type = type;
+	subscreen_init(screen, type);
+
+	gui_screen_unlock(screen);
 }
 
 void gui_screen_resize(struct gui_screen *screen, float w, float h) {
@@ -84,4 +85,26 @@ int gui_screen_lock(struct gui_screen *screen) {
 
 int gui_screen_unlock(struct gui_screen *screen) {
 	return pthread_mutex_unlock(&screen->mutex);
+}
+
+static void subscreen_init(struct gui_screen *screen, enum gui_screen_type
+		type) {
+	switch(type) {
+		case GUI_SCREEN_MAINMENU:
+			gui_mainmenu_init(&screen->screens.mainmenu);
+			break;
+		case GUI_SCREEN_MAX:
+			break;
+	}
+}
+
+static void subscreen_destroy(struct gui_screen *screen) {
+	switch(screen->type) {
+		case GUI_SCREEN_MAINMENU:
+			gui_mainmenu_destroy(&screen->screens.mainmenu);
+			break;
+		case GUI_SCREEN_MAX:
+			break;
+	}
+
 }
