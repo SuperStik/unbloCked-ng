@@ -82,7 +82,6 @@ struct texture {
 		id saddle;
 		id sheep_fur;
 		id sheep;
-		id silverfish;
 		id skeleton;
 		id slime;
 		id spider_eyes;

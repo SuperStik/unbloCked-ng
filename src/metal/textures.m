@@ -220,7 +220,6 @@ static inline void tex_load_mob(struct texture *tex, id<MTLDevice> device,
 	tex->mob.saddle = tex2d("textures/mob/saddle.png", device);
 	tex->mob.sheep_fur = tex2d("textures/mob/sheep_fur.png", device);
 	tex->mob.sheep = tex2d("textures/mob/sheep.png", device);
-	tex->mob.silverfish = tex2d("textures/mob/silverfish.png", device);
 	tex->mob.skeleton = tex2d("textures/mob/skeleton.png", device);
 	tex->mob.slime = tex2d("textures/mob/slime.png", device);
 	tex->mob.spider_eyes = tex2d("textures/mob/spider_eyes.png", device);
@@ -240,7 +239,6 @@ static inline void tex_load_mob(struct texture *tex, id<MTLDevice> device,
 	[blit optimizeContentsForGPUAccess:tex->mob.saddle];
 	[blit optimizeContentsForGPUAccess:tex->mob.sheep_fur];
 	[blit optimizeContentsForGPUAccess:tex->mob.sheep];
-	[blit optimizeContentsForGPUAccess:tex->mob.silverfish];
 	[blit optimizeContentsForGPUAccess:tex->mob.skeleton];
 	[blit optimizeContentsForGPUAccess:tex->mob.slime];
 	[blit optimizeContentsForGPUAccess:tex->mob.spider_eyes];
@@ -259,7 +257,6 @@ static inline void tex_load_mob(struct texture *tex, id<MTLDevice> device,
 	[blit generateMipmapsForTexture:tex->mob.saddle];
 	[blit generateMipmapsForTexture:tex->mob.sheep_fur];
 	[blit generateMipmapsForTexture:tex->mob.sheep];
-	[blit generateMipmapsForTexture:tex->mob.silverfish];
 	[blit generateMipmapsForTexture:tex->mob.skeleton];
 	[blit generateMipmapsForTexture:tex->mob.slime];
 	[blit generateMipmapsForTexture:tex->mob.spider_eyes];
