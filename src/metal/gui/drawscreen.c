@@ -21,6 +21,7 @@ void gui_drawscreen_release(struct gui_drawscreen *drawscreen) {
 		case GUI_SCREEN_MAINMENU:
 			gui_drawmainmenu_release(&drawscreen->screens.mainmenu);
 			break;
+		case GUI_SCREEN_HOSTWORLD:
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -45,6 +46,7 @@ void gui_drawscreen_draw_opaque(struct gui_drawscreen *screen, id
 			gui_drawmainmenu_draw_opaque(&screen->screens.mainmenu,
 					render_encoder);
 			break;
+		case GUI_SCREEN_HOSTWORLD:
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -57,6 +59,7 @@ void gui_drawscreen_draw_blended(struct gui_drawscreen *screen, id
 			gui_drawmainmenu_draw_blended(&screen->screens.mainmenu,
 					render_encoder);
 			break;
+		case GUI_SCREEN_HOSTWORLD:
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -77,6 +80,7 @@ static void drawsubscreen_init(struct gui_drawscreen *drawscreen, id device,
 			gui_drawmainmenu_init(&drawscreen->screens.mainmenu,
 					&screen.screens.mainmenu, device);
 			break;
+		case GUI_SCREEN_HOSTWORLD:
 		case GUI_SCREEN_MAX:
 			break;
 	}

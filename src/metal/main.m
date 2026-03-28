@@ -22,8 +22,6 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-struct gui_screen screen;
-
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
 static id<MTLBuffer> matbuf;
@@ -246,6 +244,8 @@ static void *MTL_render(void *l) {
 			[enc setDepthStencilState:d_opaque];
 
 			gui_screen_lock(&screen);
+			gui_drawscreen_switch(&drawscreen, device, &tex, &shdr);
+
 			gui_drawscreen_draw_opaque(&drawscreen, enc);
 
 			[enc setRenderPipelineState:shdr.background];

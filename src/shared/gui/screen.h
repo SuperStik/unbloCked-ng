@@ -9,6 +9,7 @@
 
 enum gui_screen_type {
 	GUI_SCREEN_MAINMENU,
+	GUI_SCREEN_HOSTWORLD,
 	GUI_SCREEN_MAX
 };
 
@@ -21,6 +22,8 @@ struct gui_screen {
 	float width;
 	float height;
 };
+
+extern struct gui_screen screen;
 
 struct gui_screen *gui_screen_init(struct gui_screen *, float width, float
 		height, enum gui_screen_type);

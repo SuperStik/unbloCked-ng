@@ -3,6 +3,7 @@
 
 #include <cursor.h>
 #include "mainmenu.h"
+#include "screen.h"
 #include <sound/sound.h>
 
 static void hostworld(void);
@@ -70,6 +71,8 @@ void gui_mainmenu_onhover(struct gui_mainmenu *screen, gvec(float,2) pos,
 
 static void hostworld(void) {
 	sound_restart(&sound.ui.click);
+	gui_screen_switch(&screen, GUI_SCREEN_HOSTWORLD);
+	cursor_set(SDL_SYSTEM_CURSOR_DEFAULT);
 }
 
 static void quitgame(void) {
