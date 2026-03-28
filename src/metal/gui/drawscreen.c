@@ -1,12 +1,10 @@
-#import <Metal/Metal.h>
-
 #include "../shaders.h"
 #include "../textures.h"
 #include "drawscreen.h"
 
 extern struct gui_screen screen;
 
-static void drawsubscreen_init(struct gui_drawscreen *, id<MTLDevice>, struct
+static void drawsubscreen_init(struct gui_drawscreen *, id device, struct
 		texture *, struct shaders *, enum gui_screen_type);
 
 struct gui_drawscreen *gui_drawscreen_init(struct gui_drawscreen *drawscreen, id
@@ -64,8 +62,8 @@ void gui_drawscreen_draw_blended(struct gui_drawscreen *screen, id
 	}
 }
 
-static void drawsubscreen_init(struct gui_drawscreen *drawscreen, id<MTLDevice>
-		device, struct texture *tex, struct shaders *shdr, enum
+static void drawsubscreen_init(struct gui_drawscreen *drawscreen, id device,
+		struct texture *tex, struct shaders *shdr, enum
 		gui_screen_type type) {
 	switch(type) {
 		case GUI_SCREEN_MAINMENU:
