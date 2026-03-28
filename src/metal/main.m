@@ -10,7 +10,7 @@
 #include <SDL3/SDL_video.h>
 
 #include "gui/anchor.h"
-#include "gui/drawmainmenu.h"
+#include "gui/drawscreen.h"
 #include "gui/mainmenu.h"
 #include "gui/screen.h"
 #include <main.h>
@@ -197,12 +197,8 @@ static void *MTL_render(void *l) {
 		{-1.0f16, 1.0f16}
 	};
 
-	struct gui_drawmainmenu drawmainmenu;
-	drawmainmenu.pipeline.button = shdr.button;
-	drawmainmenu.pipeline.text = shdr.text;
-	drawmainmenu.texture.font = tex.font.font;
-	drawmainmenu.texture.gui = tex.gui.gui;
-	gui_drawmainmenu_init(&drawmainmenu, &screen.screens.mainmenu, device);
+	struct gui_drawscreen drawscreen;
+	gui_drawscreen_init(&drawscreen, device, &tex, &shdr);
 
 	MTLDepthStencilDescriptor *depthdesc = [MTLDepthStencilDescriptor new];
 
@@ -249,7 +245,8 @@ static void *MTL_render(void *l) {
 			/* opaque */
 			[enc setDepthStencilState:d_opaque];
 
-			gui_drawmainmenu_draw_opaque(&drawmainmenu, enc);
+			gui_screen_lock(&screen);
+			gui_drawscreen_draw_opaque(&drawscreen, enc);
 
 			[enc setRenderPipelineState:shdr.background];
 
@@ -264,7 +261,8 @@ static void *MTL_render(void *l) {
 
 			/* blended */
 			[enc setDepthStencilState:d_blended];
-			gui_drawmainmenu_draw_blended(&drawmainmenu, enc);
+			gui_drawscreen_draw_blended(&drawscreen, enc);
+			gui_screen_unlock(&screen);
 
 			[enc endEncoding];
 
@@ -276,7 +274,7 @@ static void *MTL_render(void *l) {
 	[d_opaque release];
 	[d_blended release];
 
-	gui_drawmainmenu_release(&drawmainmenu);
+	gui_drawscreen_release(&drawscreen);
 
 	shdr_release(&shdr);
 	tex_unload(&tex);
