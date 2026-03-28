@@ -1,4 +1,5 @@
 # unbloCked-ng
+A recreation of a certain block game
 ## Sound credits
 - misc/bow1.opus -- [bow01.wav](https://freesound.org/people/Erdie/sounds/65733/) by [Erdie](https://freesound.org/people/Erdie/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 - misc/bow2.opus -- [bow02.wav](https://freesound.org/people/Erdie/sounds/65734/) by [Erdie](https://freesound.org/people/Erdie/) | License: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
