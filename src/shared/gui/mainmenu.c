@@ -50,11 +50,15 @@ void gui_mainmenu_onhover(struct gui_mainmenu *screen, gvec(float,2) pos,
 	for (size_t i = 0; i < 5; ++i) {
 		if (!found && gui_button_inarea(&screen->buttons[i], pos,
 					area)) {
-			screen->buttoninfo[i].state = GUI_BUTTON_STATE_HOVERED;
+			__atomic_store_n(&screen->buttoninfo[i].state,
+					GUI_BUTTON_STATE_HOVERED,
+					__ATOMIC_RELAXED);
 			found = 1;
 		} else if (screen->buttoninfo[i].state ==
 				GUI_BUTTON_STATE_HOVERED)
-			screen->buttoninfo[i].state = GUI_BUTTON_STATE_ENABLED;
+			__atomic_store_n(&screen->buttoninfo[i].state,
+					GUI_BUTTON_STATE_ENABLED,
+					__ATOMIC_RELAXED);
 	}
 
 	SDL_SystemCursor id = SDL_SYSTEM_CURSOR_DEFAULT;

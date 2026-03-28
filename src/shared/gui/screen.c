@@ -48,8 +48,6 @@ void gui_screen_resize(struct gui_screen *screen, float w, float h) {
 }
 
 void gui_screen_onclick(struct gui_screen *screen) {
-	gui_screen_lock(screen);
-
 	switch(screen->type) {
 		case GUI_SCREEN_MAINMENU:
 			gui_mainmenu_onclick(&screen->screens.mainmenu);
@@ -57,15 +55,11 @@ void gui_screen_onclick(struct gui_screen *screen) {
 		case GUI_SCREEN_MAX:
 			break;
 	}
-
-	gui_screen_unlock(screen);
 }
 
 void gui_screen_onhover(struct gui_screen *screen, float x, float y) {
 	gvec(float,2) pos = {x, y};
 	gvec(float,2) area = {screen->width, screen->height};
-
-	gui_screen_lock(screen);
 
 	switch(screen->type) {
 		case GUI_SCREEN_MAINMENU:
@@ -75,8 +69,6 @@ void gui_screen_onhover(struct gui_screen *screen, float x, float y) {
 		case GUI_SCREEN_MAX:
 			break;
 	}
-
-	gui_screen_unlock(screen);
 }
 
 int gui_screen_lock(struct gui_screen *screen) {
@@ -106,5 +98,4 @@ static void subscreen_destroy(struct gui_screen *screen) {
 		case GUI_SCREEN_MAX:
 			break;
 	}
-
 }
