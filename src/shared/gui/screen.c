@@ -55,6 +55,7 @@ void gui_screen_onclick(struct gui_screen *screen) {
 			gui_mainmenu_onclick(&screen->screens.mainmenu);
 			break;
 		case GUI_SCREEN_HOSTWORLD:
+			gui_hostworld_onclick(&screen->screens.hostworld);
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -70,6 +71,9 @@ void gui_screen_onhover(struct gui_screen *screen, float x, float y) {
 					area);
 			break;
 		case GUI_SCREEN_HOSTWORLD:
+			gui_hostworld_onhover(&screen->screens.hostworld, pos,
+					area);
+			break;
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -90,6 +94,8 @@ static void subscreen_init(struct gui_screen *screen, enum gui_screen_type
 			gui_mainmenu_init(&screen->screens.mainmenu);
 			break;
 		case GUI_SCREEN_HOSTWORLD:
+			gui_hostworld_init(&screen->screens.hostworld);
+			break;
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -101,6 +107,8 @@ static void subscreen_destroy(struct gui_screen *screen) {
 			gui_mainmenu_destroy(&screen->screens.mainmenu);
 			break;
 		case GUI_SCREEN_HOSTWORLD:
+			gui_hostworld_destroy(&screen->screens.hostworld);
+			break;
 		case GUI_SCREEN_MAX:
 			break;
 	}

@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <gui/hostworld.h>
 #include <gui/mainmenu.h>
 
 enum gui_screen_type {
@@ -18,6 +19,7 @@ struct gui_screen {
 	enum gui_screen_type type;
 	union {
 		struct gui_mainmenu mainmenu;
+		struct gui_hostworld hostworld;
 	} screens;
 	float width;
 	float height;
