@@ -3,8 +3,6 @@
 #include "drawbutton.h"
 #include "drawmainmenu.h"
 #include "drawtext.h"
-#include <gui/button.h>
-#include <gui/screen.h>
 #include <math/matrix.h>
 
 void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_mainmenu *
