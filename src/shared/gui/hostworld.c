@@ -3,15 +3,15 @@
 
 struct gui_hostworld *gui_hostworld_init(struct gui_hostworld *screen) {
 	gui_button_init(&screen->buttons[0], &screen->buttoninfo[0], NULL,
-			-154.0f, -28.0f, 70.0f, 20.0f, "Rename");
+			-119.0f, -92.0f, 70.0f, 20.0f, "Rename");
 	gui_button_init(&screen->buttons[1], &screen->buttoninfo[1], NULL,
-			-74.0f, -52.0f, 70.0f, 20.0f, "Delete");
+			-39.0f, -92.0f, 70.0f, 20.0f, "Delete");
 	gui_button_init(&screen->buttons[2], &screen->buttoninfo[2], NULL,
-			-154.0f, -52.0f, 150.0f, 20.0f, "Play");
+			-79.0f, -68.0f, 150.0f, 20.0f, "Play");
 	gui_button_init(&screen->buttons[3], &screen->buttoninfo[3], NULL,
-			4.0f, -52.0f, 150.0f, 20.0f, "Create New World");
+			79.0f, -68.0f, 150.0f, 20.0f, "Create");
 	gui_button_init(&screen->buttons[4], &screen->buttoninfo[4], NULL,
-			4.0f, 28.0f, 150.0f, 20.0f, "Cancel");
+			79.0f, -92.0f, 150.0f, 20.0f, "Cancel");
 	return screen;
 }
 
