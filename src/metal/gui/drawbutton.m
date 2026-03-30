@@ -7,6 +7,8 @@
 #define BUFFER_OPTIONS (MTLResourceCPUCacheModeWriteCombined|\
 		MTLResourceHazardTrackingModeUntracked)
 
+static inline void setvertbuf(id<MTLBuffer>, id<MTLRenderCommandEncoder>);
+
 id gui_drawbutton_getverts(id d, float width, float height) {
 	id<MTLDevice> device = d;
 
@@ -47,14 +49,30 @@ id gui_drawbutton_getinds(id d) {
 				  options:BUFFER_OPTIONS];
 }
 
-void gui_drawbutton_draw(id vertbuf, id indbuf, id e, struct gui_button_info *
-		buttons, unsigned long count) {
+void gui_drawbutton_prepare(id e, const struct gui_button_info *buttons,
+		unsigned long count) {
 	id<MTLRenderCommandEncoder> enc = e;
 
-	[enc setVertexBuffer:vertbuf offset:0 atIndex:16];
-	[enc setVertexBytes:buttons
-		     length:sizeof(struct gui_button_info) * count
-		    atIndex:4];
+	[enc setVertexBytes:buttons length:sizeof(*buttons) * count atIndex:4];
+}
+
+void gui_drawbutton_draw(id e, id vertbuf, id indbuf) {
+	id<MTLRenderCommandEncoder> enc = e;
+
+	setvertbuf(vertbuf, enc);
+
+	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+			indexCount:12
+			 indexType:MTLIndexTypeUInt16
+		       indexBuffer:indbuf
+		 indexBufferOffset:0];
+}
+
+void gui_drawbutton_draw_inst(id e, id vertbuf, id indbuf, unsigned long
+		count) {
+	id<MTLRenderCommandEncoder> enc = e;
+
+	setvertbuf(vertbuf, enc);
 
 	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 			indexCount:12
@@ -62,4 +80,25 @@ void gui_drawbutton_draw(id vertbuf, id indbuf, id e, struct gui_button_info *
 		       indexBuffer:indbuf
 		 indexBufferOffset:0
 		     instanceCount:count];
+}
+
+void gui_drawbutton_draw_instbase(id e, id vertbuf, id indbuf, unsigned long
+		count, unsigned long base) {
+	id<MTLRenderCommandEncoder> enc = e;
+
+	setvertbuf(vertbuf, enc);
+
+	[enc drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+			indexCount:12
+			 indexType:MTLIndexTypeUInt16
+		       indexBuffer:indbuf
+		 indexBufferOffset:0
+		     instanceCount:count
+			baseVertex:0
+		      baseInstance:base];
+}
+
+static inline void setvertbuf(id<MTLBuffer> vertbuf, id<MTLRenderCommandEncoder>
+		enc) {
+	[enc setVertexBuffer:vertbuf offset:0 atIndex:16];
 }

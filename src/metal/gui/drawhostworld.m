@@ -60,10 +60,12 @@ void gui_drawhostworld_draw_opaque(const struct gui_drawhostworld *menu, id r) {
 
 	[enc setFragmentTexture:menu->texture.gui atIndex:0];
 
-	gui_drawbutton_draw(menu->buttonverts[0], menu->buttoninds, enc,
-			menu->buttoninfo, 2);
-	gui_drawbutton_draw(menu->buttonverts[1], menu->buttoninds, enc,
-			&menu->buttoninfo[2], 3);
+	gui_drawbutton_prepare(enc, menu->buttoninfo, 5);
+
+	id buttoninds = menu->buttoninds;
+	gui_drawbutton_draw_inst(enc, menu->buttonverts[0], buttoninds, 2);
+	gui_drawbutton_draw_instbase(enc, menu->buttonverts[1], buttoninds, 3,
+			2);
 }
 
 void gui_drawhostworld_draw_blended(const struct gui_drawhostworld *menu, id

@@ -13,7 +13,13 @@ struct gui_buttonverts {
 id gui_drawbutton_getverts(id device, float width, float height);
 id gui_drawbutton_getinds(id device);
 
-void gui_drawbutton_draw(id vertbuf, id indbuf, id encoder, struct
-		gui_button_info *buttons, unsigned long count);
+void gui_drawbutton_prepare(id encoder, const struct gui_button_info *, unsigned
+		long count);
+
+void gui_drawbutton_draw(id encoder, id vertbuf, id indbuf);
+void gui_drawbutton_draw_inst(id encoder, id vertbuf, id indbuf, unsigned long
+		count);
+void gui_drawbutton_draw_instbase(id encoder, id vertbuf, id indbuf, unsigned
+		long count, unsigned long base);
 
 #endif /* GUI_DRAWBUTTON */
