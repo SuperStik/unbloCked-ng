@@ -11,4 +11,6 @@ void xoroshiro256_seed(struct xoroshiro256 *, uint64_t seed);
 
 uint64_t xoroshiro256pp_next(struct xoroshiro256 *);
 
+double xoroshiro256pp_nextdouble(struct xoroshiro256 *state);
+
 #endif /* XOROSHIRO_H */

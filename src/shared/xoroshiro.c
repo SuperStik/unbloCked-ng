@@ -39,3 +39,15 @@ uint64_t xoroshiro256pp_next(struct xoroshiro256 *state) {
 
 	return result;
 }
+
+double xoroshiro256pp_nextdouble(struct xoroshiro256 *state) {
+	union {
+		double d;
+		uint64_t i;
+	} result;
+
+	result.i = xoroshiro256pp_next(state) & 0xFFFFFFFFFFFFF;
+	result.i |= 0x3FF0000000000000;
+
+	return result.d - 1.0;
+}
