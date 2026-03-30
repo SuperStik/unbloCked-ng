@@ -1,5 +1,9 @@
 #include <cursor.h>
 #include "hostworld.h"
+#include "screen.h"
+#include <sound/sound.h>
+
+static void button_cancel(void);
 
 struct gui_hostworld *gui_hostworld_init(struct gui_hostworld *screen) {
 	gui_button_init(&screen->buttons[0], &screen->buttoninfo[0], NULL,
@@ -10,8 +14,11 @@ struct gui_hostworld *gui_hostworld_init(struct gui_hostworld *screen) {
 			-79.0f, -68.0f, 150.0f, 20.0f, "Play");
 	gui_button_init(&screen->buttons[3], &screen->buttoninfo[3], NULL,
 			79.0f, -68.0f, 150.0f, 20.0f, "Create");
-	gui_button_init(&screen->buttons[4], &screen->buttoninfo[4], NULL,
-			79.0f, -92.0f, 150.0f, 20.0f, "Cancel");
+	gui_button_init(&screen->buttons[4], &screen->buttoninfo[4],
+			button_cancel, 79.0f, -92.0f, 150.0f, 20.0f, "Cancel");
+	for (int i = 0; i < 4; ++i)
+		screen->buttoninfo[i].state = GUI_BUTTON_STATE_DISABLED;
+
 	return screen;
 }
 
@@ -54,4 +61,10 @@ void gui_hostworld_onhover(struct gui_hostworld *screen, gvec(float,2) pos,
 		id = SDL_SYSTEM_CURSOR_POINTER;
 
 	cursor_set(id);
+}
+
+static void button_cancel(void) {
+	sound_restart(&sound.ui.click);
+	gui_screen_switch(&screen, GUI_SCREEN_MAINMENU);
+	cursor_set(SDL_SYSTEM_CURSOR_DEFAULT);
 }
