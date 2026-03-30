@@ -15,13 +15,6 @@ ma_engine engine;
 
 struct sound sound;
 
-void sound_restart(ma_sound *sound) {
-	if (ma_sound_is_playing(sound))
-		ma_sound_seek_to_pcm_frame(sound, 0);
-	else
-		ma_sound_start(sound);
-}
-
 ma_result sound_init_from_file_relative(ma_engine *engine, const char *path,
 		ma_uint32 flags, ma_sound_group *group, ma_fence *fence,
 		ma_sound *sound) {

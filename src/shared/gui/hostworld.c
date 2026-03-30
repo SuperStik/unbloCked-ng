@@ -64,7 +64,7 @@ void gui_hostworld_onhover(struct gui_hostworld *screen, gvec(float,2) pos,
 }
 
 static void button_cancel(void) {
-	sound_restart(&sound.ui.click);
+	ma_sound_start(&sound.ui.click);
 	gui_screen_switch(&screen, GUI_SCREEN_MAINMENU);
 	cursor_set(SDL_SYSTEM_CURSOR_DEFAULT);
 }

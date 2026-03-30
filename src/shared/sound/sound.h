@@ -40,8 +40,6 @@ struct sound {
 
 extern struct sound sound;
 
-void sound_restart(ma_sound *);
-
 ma_result sound_init_from_file_relative(ma_engine *, const char *path, ma_uint32
 		flags, ma_sound_group *, ma_fence *, ma_sound *);
 
