@@ -46,8 +46,20 @@ double xoroshiro256pp_nextdouble(struct xoroshiro256 *state) {
 		uint64_t i;
 	} result;
 
-	result.i = xoroshiro256pp_next(state) & 0xFFFFFFFFFFFFF;
+	result.i = xoroshiro256pp_next(state) >> 12;
 	result.i |= 0x3FF0000000000000;
 
 	return result.d - 1.0;
+}
+
+gvec(float,2) xoroshiro256pp_nextfloats(struct xoroshiro256 *state) {
+	union {
+		gvec(float,2) f;
+		uint64_t i;
+	} result;
+
+	result.i = xoroshiro256pp_next(state) & 0x7FFFFF007FFFFF;
+	result.i |= 0x3F8000003F800000;
+
+	return result.f - (gvec(float,2)){1.0f, 1.0f};
 }
