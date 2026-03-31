@@ -11,29 +11,22 @@
 
 #include "gui/anchor.h"
 #include "gui/drawscreen.h"
-#include "gui/mainmenu.h"
 #include "gui/screen.h"
 #include <main.h>
 #include <math/vector.h>
 #include <projection.h>
+#include <scaledreso.h>
 #include "shaders.h"
 #include "textures.h"
-
-#define WIDTH 640
-#define HEIGHT 480
 
 static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
 static id<MTLBuffer> matbuf;
 static id<MTLTexture> depthtex = nil;
-static float resolutionscale = 1.0f;
 static char done = 0;
 static char occluded = 0;
 
 static void *MTL_render(void *c);
-
-static void setscaledreso(float w, float h);
-static void scaledreso(float *w, float *h);
 
 static bool onwindowresize(void *userdata, SDL_Event *);
 
@@ -282,20 +275,6 @@ static void *MTL_render(void *l) {
 	[cmdq release];
 
 	return NULL;
-}
-
-static void setscaledreso(float w, float h) {
-	float ratiowid = w / ((float)WIDTH * 0.5f);
-	float ratiohgt = h / ((float)HEIGHT * 0.5f);
-
-	float ratio = fminf(ratiowid, ratiohgt);
-	resolutionscale = fmaxf(ratio, 1.0f);
-}
-
-static void scaledreso(float *w, float *h) {
-	float ratio = resolutionscale;
-	*w /= ratio;
-	*h /= ratio;
 }
 
 static bool onwindowresize(void *userdata, SDL_Event *event) {
