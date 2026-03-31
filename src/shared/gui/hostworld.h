@@ -13,7 +13,7 @@ struct gui_hostworld *gui_hostworld_init(struct gui_hostworld *);
 
 void gui_hostworld_destroy(struct gui_hostworld *);
 
-void gui_hostworld_onclick(struct gui_hostworld *);
+void gui_hostworld_onclick(struct gui_hostworld *, float x, float y);
 
 void gui_hostworld_onhover(struct gui_hostworld *, gvec(float,2) pos,
 		gvec(float,2) area);

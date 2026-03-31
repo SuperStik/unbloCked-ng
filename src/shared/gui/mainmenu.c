@@ -6,8 +6,8 @@
 #include "screen.h"
 #include <sound/sound.h>
 
-static void hostworld(void);
-static void quitgame(void);
+static void hostworld(float x, float y);
+static void quitgame(float x, float y);
 
 struct gui_mainmenu *gui_mainmenu_init(struct gui_mainmenu *screen) {
 	gui_button_init(&screen->buttons[0], &screen->buttoninfo[0], hostworld,
@@ -32,12 +32,12 @@ void gui_mainmenu_destroy(struct gui_mainmenu *screen) {
 		gui_button_destroy(&(screen->buttons[i]));
 }
 
-void gui_mainmenu_onclick(struct gui_mainmenu *screen) {
+void gui_mainmenu_onclick(struct gui_mainmenu *screen, float x, float y) {
 	for (size_t i = 0; i < 5; ++i) {
 		if (screen->buttoninfo[i].state == GUI_BUTTON_STATE_HOVERED) {
 			gui_button_onclick onclick = screen->buttons[i].onclick;
 			if (onclick != NULL)
-				onclick();
+				onclick(x, y);
 
 			break;
 		}
@@ -69,13 +69,14 @@ void gui_mainmenu_onhover(struct gui_mainmenu *screen, gvec(float,2) pos,
 	cursor_set(id);
 }
 
-static void hostworld(void) {
+static void hostworld(float x, float y) {
 	ma_sound_start(&sound.ui.click);
 	gui_screen_switch(&screen, GUI_SCREEN_HOSTWORLD);
-	cursor_set(SDL_SYSTEM_CURSOR_DEFAULT);
+	gui_screen_onhover(&screen, x, y);
 }
 
-static void quitgame(void) {
+static void quitgame(float x, float y) {
+	(void)x, (void)y;
 	SDL_Event event;
 	event.type = SDL_EVENT_QUIT;
 	event.quit.reserved = 0;

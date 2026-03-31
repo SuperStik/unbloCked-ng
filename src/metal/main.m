@@ -100,7 +100,12 @@ void gl_main(void) {
 				break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				if (ev.button.button == 1) {
-					gui_screen_onclick(&screen);
+					float cur_x = ev.button.x;
+					float cur_y = ev.button.y;
+					scaledreso(&cur_x, &cur_y);
+
+					gui_screen_onclick(&screen, cur_x,
+							cur_y);
 				}
 
 				break;

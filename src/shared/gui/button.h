@@ -5,7 +5,7 @@
 
 #include <math/vector.h>
 
-typedef void (*gui_button_onclick)(void);
+typedef void (*gui_button_onclick)(float, float);
 
 struct gui_button_info {
 	gvec(float,2) pos;

@@ -49,13 +49,14 @@ void gui_screen_resize(struct gui_screen *screen, float w, float h) {
 	gui_screen_unlock(screen);
 }
 
-void gui_screen_onclick(struct gui_screen *screen) {
+void gui_screen_onclick(struct gui_screen *screen, float x, float y) {
 	switch(screen->type) {
 		case GUI_SCREEN_MAINMENU:
-			gui_mainmenu_onclick(&screen->screens.mainmenu);
+			gui_mainmenu_onclick(&screen->screens.mainmenu, x, y);
 			break;
 		case GUI_SCREEN_HOSTWORLD:
-			gui_hostworld_onclick(&screen->screens.hostworld);
+			gui_hostworld_onclick(&screen->screens.hostworld, x, y);
+			break;
 		case GUI_SCREEN_MAX:
 			break;
 	}

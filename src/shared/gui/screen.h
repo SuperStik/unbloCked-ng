@@ -36,7 +36,7 @@ void gui_screen_switch(struct gui_screen *, enum gui_screen_type);
 
 void gui_screen_resize(struct gui_screen *, float width, float height);
 
-void gui_screen_onclick(struct gui_screen *);
+void gui_screen_onclick(struct gui_screen *, float x, float y);
 
 void gui_screen_onhover(struct gui_screen *, float x, float y);
 

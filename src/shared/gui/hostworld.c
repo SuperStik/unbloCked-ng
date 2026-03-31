@@ -3,7 +3,7 @@
 #include "screen.h"
 #include <sound/sound.h>
 
-static void button_cancel(void);
+static void button_cancel(float x, float y);
 
 struct gui_hostworld *gui_hostworld_init(struct gui_hostworld *screen) {
 	gui_button_init(&screen->buttons[0], &screen->buttoninfo[0], NULL,
@@ -27,12 +27,12 @@ void gui_hostworld_destroy(struct gui_hostworld *screen) {
 		gui_button_destroy(&screen->buttons[i]);
 }
 
-void gui_hostworld_onclick(struct gui_hostworld *screen) {
+void gui_hostworld_onclick(struct gui_hostworld *screen, float x, float y) {
 	for (size_t i = 0; i < 5; ++i) {
 		if (screen->buttoninfo[i].state == GUI_BUTTON_STATE_HOVERED) {
 			gui_button_onclick onclick = screen->buttons[i].onclick;
 			if (onclick != NULL)
-				onclick();
+				onclick(x, y);
 
 			break;
 		}
@@ -63,8 +63,8 @@ void gui_hostworld_onhover(struct gui_hostworld *screen, gvec(float,2) pos,
 	cursor_set(id);
 }
 
-static void button_cancel(void) {
+static void button_cancel(float x, float y) {
 	ma_sound_start(&sound.ui.click);
 	gui_screen_switch(&screen, GUI_SCREEN_MAINMENU);
-	cursor_set(SDL_SYSTEM_CURSOR_DEFAULT);
+	gui_screen_onhover(&screen, x, y);
 }
