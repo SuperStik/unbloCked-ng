@@ -40,6 +40,17 @@ uint64_t xoroshiro256pp_next(struct xoroshiro256 *state) {
 	return result;
 }
 
+uint64_t xoroshiro256pp_nextmax(struct xoroshiro256 *state, uint64_t max) {
+	uint64_t mask = (1 << (64 - __builtin_clzg(max - 1))) - 1;
+
+	uint64_t result;
+	do {
+		result = xoroshiro256pp_next(state) & mask;
+	} while (result >= max);
+
+	return result;
+}
+
 double xoroshiro256pp_nextdouble(struct xoroshiro256 *state) {
 	union {
 		double d;

@@ -11,6 +11,7 @@ struct xoroshiro256 {
 void xoroshiro256_seed(struct xoroshiro256 *, uint64_t seed);
 
 uint64_t xoroshiro256pp_next(struct xoroshiro256 *);
+uint64_t xoroshiro256pp_nextmax(struct xoroshiro256 *, uint64_t max);
 
 double xoroshiro256pp_nextdouble(struct xoroshiro256 *state);
 
