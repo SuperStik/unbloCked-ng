@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "perlin.h"
 
 /* https://gist.github.com/Flafla2/f0260a861be0ebdeef76 */
@@ -78,18 +80,16 @@ double noise_perlin_get(const struct noise_perlin *noise, double x, double y,
 double noise_perlin_octaves(const struct noise_perlin *noise, double x, double
 		y, double z, unsigned octaves, double persistence) {
 	double total = 0.0;
-	double frequency = 1.0;
 	double amplitude = 1.0;
 	double max = 0.0;
 
 	for (unsigned i = 0; i < octaves; ++i) {
-		total += noise_perlin_get(noise, x * frequency, y * frequency,
-				z * frequency) * amplitude;
+		total += noise_perlin_get(noise, scalbn(x, i), scalbn(y, i),
+				scalbn(z, i)) * amplitude;
 
 		max += amplitude;
 
 		amplitude *= persistence;
-		frequency += frequency;
 	}
 
 	return total / max;
