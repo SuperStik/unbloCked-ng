@@ -84,8 +84,8 @@ double noise_perlin_octaves(const struct noise_perlin *noise, double x, double
 	double max = 0.0;
 
 	for (unsigned i = 0; i < octaves; ++i) {
-		total += noise_perlin_get(noise, scalbn(x, i), scalbn(y, i),
-				scalbn(z, i)) * amplitude;
+		total += noise_perlin_get(noise, scalbln(x, i), scalbln(y, i),
+				scalbln(z, i)) * amplitude;
 
 		max += amplitude;
 
