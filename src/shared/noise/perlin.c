@@ -75,6 +75,26 @@ double noise_perlin_get(const struct noise_perlin *noise, double x, double y,
 	return (p_lerp(y1, y2, w) + 1.0) * 0.5;
 }
 
+double noise_perlin_octaves(const struct noise_perlin *noise, double x, double
+		y, double z, unsigned octaves, double persistence) {
+	double total = 0.0;
+	double frequency = 1.0;
+	double amplitude = 1.0;
+	double max = 0.0;
+
+	for (unsigned i = 0; i < octaves; ++i) {
+		total += noise_perlin_get(noise, x * frequency, y * frequency,
+				z * frequency) * amplitude;
+
+		max += amplitude;
+
+		amplitude *= persistence;
+		frequency += frequency;
+	}
+
+	return total / max;
+}
+
 static double p_grad(unsigned char hash, double x, double y, double z) {
 	int h = hash & 15;
 	double u = h << 8 ? x : y;
