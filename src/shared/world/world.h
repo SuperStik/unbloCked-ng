@@ -2,7 +2,7 @@
 #define WORLD_WORLD_H 1
 
 struct ublc_world {
-	struct ublc_chunk *chunks;
+	struct ublc_chunklist *chunklist;
 };
 
 #endif /* WORLD_WORLD_H */
