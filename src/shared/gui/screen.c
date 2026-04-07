@@ -11,22 +11,16 @@ struct gui_screen *gui_screen_init(struct gui_screen *screen, float w, float h,
 	screen->width = w;
 	screen->height = h;
 
-	pthread_mutex_init(&screen->mutex, NULL);
-	gui_screen_lock(screen);
-
 	subscreen_init(screen, type);
 
-	gui_screen_unlock(screen);
+	pthread_mutex_init(&screen->mutex, NULL);
 
 	return screen;
 }
 
 void gui_screen_destroy(struct gui_screen *screen) {
-	gui_screen_lock(screen);
-
 	subscreen_destroy(screen);
 
-	gui_screen_unlock(screen);
 	pthread_mutex_destroy(&screen->mutex);
 }
 
