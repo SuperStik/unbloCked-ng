@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "anchor.h"
 #include "button.h"
@@ -17,15 +16,7 @@ struct gui_button *gui_button_init(struct gui_button *button, struct
 	button->onclick = onclick;
 
 	if (displaystr[0] != '\0') {
-#if (defined(_POSIX_VERSION) && _POSIX_VERSION >= 200809L) || \
-		(defined(_XOPEN_VERSION) && _XOPEN_VERSION >= 600)
 		char *str = strdup(displaystr);
-#else
-		size_t len = strlen(displaystr) + 1;
-		char *str = (char *)malloc(len);
-
-		memcpy(str, displaystr, len);
-#endif /* POSIX version checking */
 
 		if (str == NULL)
 			return NULL;
