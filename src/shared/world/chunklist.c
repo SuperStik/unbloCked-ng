@@ -145,12 +145,16 @@ static void chunklist_contract(struct ublc_chunklist *chunklist) {
 	struct ublc_chunklist_node *chunks;
 	if (NULL == (void *)0) {
 		chunks = calloc(size, sizeof(*chunks));
-		if (chunks == NULL)
-			err(1, "calloc");
+		if (chunks == NULL) {
+			warn("calloc");
+			return;
+		}
 	} else {
 		chunks = malloc(size * sizeof(*chunks));
-		if (chunks == NULL)
-			err(1, "malloc");
+		if (chunks == NULL) {
+			warn("malloc");
+			return;
+		}
 
 		for (size_t i = 0; i < size; ++i)
 			chunks[i].state = 0;
