@@ -52,6 +52,27 @@ void ublc_chunklist_delete(const struct ublc_chunklist *chunklist) {
 	free(chunklist->chunks);
 }
 
+struct ublc_chunk *ublc_chunklist_get(const struct ublc_chunklist *chunklist,
+		long long x, long long z) {
+	struct ublc_chunklist_node *chunks = chunklist->chunks;
+	size_t index = pairing_szudzik(x, z) % chunklist->size;
+
+	for (size_t i = 0; i < chunklist->size; ++i) {
+		switch (chunklist->chunks[index].state) {
+			case 0:
+				return NULL;
+			case 1:
+				if (chunks[index].chunk.xpos == x &&
+						chunks[index].chunk.zpos == z)
+					return &(chunks[index].chunk);
+			case 2:
+				index = (index + 1) % chunklist->size;
+		}
+	}
+
+	return NULL;
+}
+
 struct ublc_chunklist *ublc_chunklist_insert(struct ublc_chunklist *chunklist,
 		const struct ublc_chunk *chunk) {
 	if (chunklist->size == chunklist->count)
@@ -77,7 +98,7 @@ struct ublc_chunklist *ublc_chunklist_remove(struct ublc_chunklist *chunklist,
 			case 1:
 				if (chunks[index].chunk.xpos == x &&
 						chunks[index].chunk.zpos == z) {
-					chunklist->chunks[index].state = 2;
+					chunks[index].state = 2;
 					return chunklist;
 				}
 			case 2:
@@ -165,7 +186,6 @@ static void chunklist_contract(struct ublc_chunklist *chunklist) {
 	chunklist->chunks = chunks;
 	chunklist->size = size;
 }
-
 
 /* http://szudzik.com/ElegantPairing.pdf */
 static size_t pairing_szudzik(long long a, long long b) {
