@@ -6,8 +6,8 @@
 
 #define CHUNKLIST_ALLOC_COUNT 32
 
-static void chunk_insert(struct ublc_chunk *dst, size_t dst_size, const struct
-		ublc_chunk *src);
+static void chunk_insert(struct ublc_chunklist_node *dst, size_t dst_size, const
+		struct ublc_chunk *src);
 
 static void chunklist_expand(struct ublc_chunklist *chunklist);
 static void chunklist_contract(struct ublc_chunklist *chunklist);
@@ -25,16 +25,19 @@ struct ublc_chunklist *ublc_chunklist_init(struct ublc_chunklist *chunklist,
 		void *chunks;
 		/* NULL may not be 0 on esoteric systems */
 		if (NULL == (void *)0) {
-			chunks = calloc(start_size, sizeof(struct ublc_chunk));
+			chunks = calloc(start_size, sizeof(struct
+						ublc_chunklist_node));
 			if (chunks == NULL)
 				err(1, "calloc");
 		} else {
-			chunks = malloc(sizeof(struct ublc_chunk) * start_size);
+			chunks = malloc(sizeof(struct ublc_chunklist_node) *
+					start_size);
 			if (chunks == NULL)
 				err(1, "malloc");
 
 			for (size_t i = 0; i < start_size; ++i)
-				((struct ublc_chunk *)chunks)[i].world = NULL;
+				((struct ublc_chunklist_node *)chunks)[i]
+					.state = 0;
 		}
 
 		chunklist->chunks = chunks;
@@ -66,28 +69,29 @@ struct ublc_chunklist *ublc_chunklist_remove(struct ublc_chunklist *chunklist,
 
 	/* TODO: actually check if it's the right chunk */
 	size_t index = pairing_szudzik(x, z) % chunklist->size;
-	chunklist->chunks[index].world = NULL;
+	chunklist->chunks[index].state = 2;
 
 	return chunklist;
 }
 
-static void chunk_insert(struct ublc_chunk *dst, size_t dst_size, const struct
-		ublc_chunk *src) {
+static void chunk_insert(struct ublc_chunklist_node *dst, size_t dst_size, const
+		struct ublc_chunk *src) {
 	size_t index = pairing_szudzik(src->xpos, src->zpos) % dst_size;
-	while (dst[index].world != NULL)
+	while (dst[index].state == 1)
 		index = (index + 1) % dst_size;
 
-	memcpy(dst + index, src, sizeof(*src));
+	memcpy(&(dst[index].chunk), src, sizeof(*src));
 }
 
-static void chunk_move(struct ublc_chunk *dst, size_t dst_size, const struct
-		ublc_chunk *src, size_t src_size, size_t src_count) {
+static void chunk_move(struct ublc_chunklist_node *dst, size_t dst_size, const
+		struct ublc_chunklist_node *src, size_t src_size, size_t
+		src_count) {
 	size_t j = 0;
 	for (size_t i = 0; i < src_size && j < src_count; ++i) {
-		if (src[i].world == NULL)
+		if (src[i].state != 1)
 			continue;
 
-		chunk_insert(dst, dst_size, src + i);
+		chunk_insert(dst, dst_size, &(src[i].chunk));
 
 		++j;
 	}
@@ -98,7 +102,7 @@ static void chunklist_expand(struct ublc_chunklist *chunklist) {
 	if (chunklist->size != 0)
 		size = chunklist->size * 2;
 
-	struct ublc_chunk *chunks;
+	struct ublc_chunklist_node *chunks;
 	if (NULL == (void *)0) {
 		chunks = calloc(size, sizeof(*chunks));
 		if (chunks == NULL)
@@ -109,7 +113,7 @@ static void chunklist_expand(struct ublc_chunklist *chunklist) {
 			err(1, "malloc");
 
 		for (size_t i = 0; i < size; ++i)
-			chunks[i].world = NULL;
+			chunks[i].state = 0;
 	}
 	chunk_move(chunks, size, chunklist->chunks, chunklist->size,
 			chunklist->count);
@@ -123,7 +127,7 @@ static void chunklist_contract(struct ublc_chunklist *chunklist) {
 	if (chunklist->size != 0)
 		size = chunklist->size / 2;
 
-	struct ublc_chunk *chunks;
+	struct ublc_chunklist_node *chunks;
 	if (NULL == (void *)0) {
 		chunks = calloc(size, sizeof(*chunks));
 		if (chunks == NULL)
@@ -134,7 +138,7 @@ static void chunklist_contract(struct ublc_chunklist *chunklist) {
 			err(1, "malloc");
 
 		for (size_t i = 0; i < size; ++i)
-			chunks[i].world = NULL;
+			chunks[i].state = 0;
 	}
 	chunk_move(chunks, size, chunklist->chunks, chunklist->size,
 			chunklist->count);

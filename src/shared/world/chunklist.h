@@ -3,8 +3,13 @@
 
 #include <world/chunk.h>
 
+struct ublc_chunklist_node {
+	struct ublc_chunk chunk;
+	char state;
+};
+
 struct ublc_chunklist {
-	struct ublc_chunk *chunks;
+	struct ublc_chunklist_node *chunks;
 	size_t size;
 	size_t count;
 };
