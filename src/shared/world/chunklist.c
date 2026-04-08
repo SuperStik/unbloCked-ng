@@ -1,12 +1,11 @@
 #include <err.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "chunklist.h"
 
 #define CHUNKLIST_ALLOC_COUNT 32
 
-static void chunk_insert(struct ublc_chunklist_node *dst, size_t dst_size, const
+static void chunk_insert(struct ublc_chunklist_node *dst, size_t dst_size,
 		struct ublc_chunk *src);
 
 static void chunklist_expand(struct ublc_chunklist *chunklist);
@@ -62,9 +61,9 @@ struct ublc_chunk *ublc_chunklist_get(const struct ublc_chunklist *chunklist,
 			case 0:
 				return NULL;
 			case 1:
-				if (chunks[index].chunk.xpos == x &&
-						chunks[index].chunk.zpos == z)
-					return &(chunks[index].chunk);
+				if (chunks[index].chunk->xpos == x &&
+						chunks[index].chunk->zpos == z)
+					return chunks[index].chunk;
 			case 2:
 				index = (index + 1) % chunklist->size;
 		}
@@ -74,7 +73,7 @@ struct ublc_chunk *ublc_chunklist_get(const struct ublc_chunklist *chunklist,
 }
 
 struct ublc_chunklist *ublc_chunklist_insert(struct ublc_chunklist *chunklist,
-		const struct ublc_chunk *chunk) {
+		struct ublc_chunk *chunk) {
 	if (chunklist->size == chunklist->count)
 		chunklist_expand(chunklist);
 
@@ -96,8 +95,9 @@ struct ublc_chunklist *ublc_chunklist_remove(struct ublc_chunklist *chunklist,
 			case 0:
 				return NULL;
 			case 1:
-				if (chunks[index].chunk.xpos == x &&
-						chunks[index].chunk.zpos == z) {
+				if (chunks[index].chunk->xpos == x &&
+						chunks[index].chunk->zpos == z)
+				{
 					chunks[index].state = 2;
 					return chunklist;
 				}
@@ -109,13 +109,13 @@ struct ublc_chunklist *ublc_chunklist_remove(struct ublc_chunklist *chunklist,
 	return NULL;
 }
 
-static void chunk_insert(struct ublc_chunklist_node *dst, size_t dst_size, const
+static void chunk_insert(struct ublc_chunklist_node *dst, size_t dst_size,
 		struct ublc_chunk *src) {
 	size_t index = pairing_szudzik(src->xpos, src->zpos) % dst_size;
 	while (dst[index].state == 1)
 		index = (index + 1) % dst_size;
 
-	memcpy(&(dst[index].chunk), src, sizeof(*src));
+	dst[index].chunk = src;
 	dst[index].state = 1;
 }
 
@@ -127,7 +127,7 @@ static void chunk_move(struct ublc_chunklist_node *dst, size_t dst_size, const
 		if (src[i].state != 1)
 			continue;
 
-		chunk_insert(dst, dst_size, &(src[i].chunk));
+		chunk_insert(dst, dst_size, src[i].chunk);
 
 		++j;
 	}
