@@ -67,11 +67,25 @@ struct ublc_chunklist *ublc_chunklist_remove(struct ublc_chunklist *chunklist,
 	if (chunklist->count <= chunklist->size / 2)
 		chunklist_contract(chunklist);
 
-	/* TODO: actually check if it's the right chunk */
+	struct ublc_chunklist_node *chunks = chunklist->chunks;
 	size_t index = pairing_szudzik(x, z) % chunklist->size;
-	chunklist->chunks[index].state = 2;
 
-	return chunklist;
+	for (size_t i = 0; i < chunklist->size; ++i) {
+		switch (chunklist->chunks[index].state) {
+			case 0:
+				return NULL;
+			case 1:
+				if (chunks[index].chunk.xpos == x &&
+						chunks[index].chunk.zpos == z) {
+					chunklist->chunks[index].state = 2;
+					return chunklist;
+				}
+			case 2:
+				index = (index + 1) % chunklist->size;
+		}
+	}
+
+	return NULL;
 }
 
 static void chunk_insert(struct ublc_chunklist_node *dst, size_t dst_size, const
@@ -81,6 +95,7 @@ static void chunk_insert(struct ublc_chunklist_node *dst, size_t dst_size, const
 		index = (index + 1) % dst_size;
 
 	memcpy(&(dst[index].chunk), src, sizeof(*src));
+	dst[index].state = 1;
 }
 
 static void chunk_move(struct ublc_chunklist_node *dst, size_t dst_size, const
