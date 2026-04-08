@@ -7,7 +7,7 @@
 
 #define CHUNKLIST_ALLOC_COUNT 32
 
-static void chunk_insert(struct ublc_chunk **dst, size_t dst_size, struct
+static int chunk_insert(struct ublc_chunk **dst, size_t dst_size, struct
 		ublc_chunk *src);
 
 static void chunklist_expand(struct ublc_chunklist *chunklist);
@@ -76,9 +76,9 @@ struct ublc_chunk *ublc_chunklist_insert(struct ublc_chunklist *chunklist,
 	if (chunklist->size == chunklist->count)
 		chunklist_expand(chunklist);
 
-	chunk_insert(chunklist->chunks, chunklist->size, chunk);
+	int fail = chunk_insert(chunklist->chunks, chunklist->size, chunk);
 
-	return chunk;
+	return fail ? NULL : chunk;
 }
 
 struct ublc_chunk *ublc_chunklist_remove(struct ublc_chunklist *chunklist, long
@@ -109,13 +109,19 @@ struct ublc_chunk *ublc_chunklist_remove(struct ublc_chunklist *chunklist, long
 	return NULL;
 }
 
-static void chunk_insert(struct ublc_chunk **dst, size_t dst_size, struct
+static int chunk_insert(struct ublc_chunk **dst, size_t dst_size, struct
 		ublc_chunk *src) {
 	size_t index = pairing_szudzik(src->xpos, src->zpos) % dst_size;
-	while (dst[index] != NULL && dst[index] != MAP_FAILED)
+	while (dst[index] != NULL && dst[index] != MAP_FAILED) {
+		if (__builtin_expect(dst[index]->xpos == src->xpos && dst[index]
+					->zpos == src->zpos, 0))
+			return -1;
+
 		index = (index + 1) % dst_size;
+	}
 
 	dst[index] = src;
+	return 0;
 }
 
 static void chunk_move(struct ublc_chunk **dst, size_t dst_size, struct
