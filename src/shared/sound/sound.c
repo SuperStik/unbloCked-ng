@@ -178,6 +178,13 @@ static void sound_unload_mob(void) {
 	/* slime */
 	for (int i = 0; i < 2; ++i)
 		ma_sound_uninit(&sound.mob.slime.attack[i]);
+
+	/* wolf */
+	for (int i = 0; i < 3; ++i) {
+		ma_sound_uninit(&sound.mob.wolf.bark[i]);
+		ma_sound_uninit(&sound.mob.wolf.hurt[i]);
+	}
+	ma_sound_uninit(&sound.mob.wolf.death);
 }
 
 static void sound_unload_ui(void) {
