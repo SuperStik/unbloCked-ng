@@ -3,13 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <SDL3/SDL_filesystem.h>
+
+#include "sound.h"
+
+/* hack to get miniaudio to stop using select(), do not move */
+#define _POSIX_C_SOURCE 999999L
+
 #define MA_NO_ENCODING
 #define MA_NO_WAV
 #define MA_NO_FLAC
 #include <miniaudio.c>
-#include <SDL3/SDL_filesystem.h>
-
-#include "sound.h"
 
 ma_engine engine;
 
