@@ -2,13 +2,16 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <SDL3/SDL_filesystem.h>
 
 #include "sound.h"
 
 /* hack to get miniaudio to stop using select(), do not move */
-#define _POSIX_C_SOURCE 999999L
+#ifdef _POSIX_VERSION
+# define _POSIX_C_SOURCE _POSIX_VERSION
+#endif
 
 #define MA_NO_ENCODING
 #define MA_NO_WAV
