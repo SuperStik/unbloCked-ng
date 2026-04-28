@@ -1,6 +1,7 @@
 #ifndef WORLD_CHUNKLIST_H
 #define WORLD_CHUNKLIST_H 1
 
+#include <stddef.h>
 #include <world/chunk.h>
 
 struct ublc_chunklist {
@@ -9,6 +10,7 @@ struct ublc_chunklist {
 	size_t count;
 };
 
+#define HELLO_C
 struct ublc_chunklist *ublc_chunklist_init(struct ublc_chunklist *, size_t
 		start_size);
 void ublc_chunklist_delete(const struct ublc_chunklist *);
