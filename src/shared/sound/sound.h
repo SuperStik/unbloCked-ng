@@ -31,6 +31,12 @@ struct sound {
 		struct {
 			ma_sound attack[2];
 		} slime;
+
+		struct {
+			ma_sound bark[3];
+			ma_sound death;
+			ma_sound hurt[3];
+		} wolf;
 	} mob;
 
 	struct {

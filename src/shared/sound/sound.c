@@ -100,6 +100,36 @@ static void sound_load_mob(ma_engine *engine, ma_fence *fence) {
 			"resources/sound/mob/slime/attack2.opus",
 			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
 			&sound.mob.slime.attack[1]);
+
+	/* wolf */
+	sound_init_from_file_relative(engine,
+			"resources/sound/mob/wolf/bark1.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.mob.wolf.bark[0]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/mob/wolf/bark2.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.mob.wolf.bark[1]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/mob/wolf/bark3.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.mob.wolf.bark[2]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/mob/wolf/death.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.mob.wolf.death);
+	sound_init_from_file_relative(engine,
+			"resources/sound/mob/wolf/hurt1.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.mob.wolf.hurt[0]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/mob/wolf/hurt2.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.mob.wolf.hurt[1]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/mob/wolf/hurt3.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.mob.wolf.hurt[2]);
 }
 
 static void sound_load_ui(ma_engine *engine, ma_fence *fence) {
