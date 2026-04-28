@@ -132,6 +132,70 @@ static void sound_load_mob(ma_engine *engine, ma_fence *fence) {
 			&sound.mob.wolf.hurt[2]);
 }
 
+static void sound_load_tile(ma_engine *engine, ma_fence *fence) {
+	/* door */
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/door/close.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.door.close);
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/door/open.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.door.open);
+
+	/* fire */
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/fire/ambient1.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.fire.ambient[0]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/fire/ambient2.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.fire.ambient[1]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/fire/ignite.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.fire.ignite);
+
+	/* glass */
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/glass/shatter1.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.glass.shatter[0]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/glass/shatter2.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.glass.shatter[1]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/glass/shatter3.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.glass.shatter[2]);
+
+	/* grass */
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/grass/step1.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.grass.step[0]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/grass/step2.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.grass.step[1]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/grass/step3.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.grass.step[2]);
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/grass/step4.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.grass.step[3]);
+
+	/* note */
+	sound_init_from_file_relative(engine,
+			"resources/sound/tile/note/basedrum.opus",
+			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE, NULL, fence,
+			&sound.tile.note.basedrum);
+}
+
 static void sound_load_ui(ma_engine *engine, ma_fence *fence) {
 	sound_init_from_file_relative(engine, "resources/sound/ui/click.opus",
 			MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_DECODE |
@@ -147,6 +211,7 @@ ma_result sound_load(ma_engine *engine) {
 
 	sound_load_misc(engine, &fence);
 	sound_load_mob(engine, &fence);
+	sound_load_tile(engine, &fence);
 	sound_load_ui(engine, &fence);
 
 	ma_fence_wait(&fence);
@@ -187,6 +252,23 @@ static void sound_unload_mob(void) {
 	ma_sound_uninit(&sound.mob.wolf.death);
 }
 
+static void sound_unload_tile(void) {
+	ma_sound_uninit(&sound.tile.door.close);
+	ma_sound_uninit(&sound.tile.door.open);
+
+	for (int i = 0; i < 2; ++i)
+		ma_sound_uninit(&sound.tile.fire.ambient[i]);
+	ma_sound_uninit(&sound.tile.fire.ignite);
+
+	for (int i = 0; i < 3; ++i)
+		ma_sound_uninit(&sound.tile.glass.shatter[i]);
+
+	for (int i = 0; i < 4; ++i)
+		ma_sound_uninit(&sound.tile.grass.step[i]);
+
+	ma_sound_uninit(&sound.tile.note.basedrum);
+}
+
 static void sound_unload_ui(void) {
 	ma_sound_uninit(&sound.ui.click);
 }
@@ -194,5 +276,6 @@ static void sound_unload_ui(void) {
 void sound_unload(void) {
 	sound_unload_misc();
 	sound_unload_mob();
+	sound_unload_tile();
 	sound_unload_ui();
 }

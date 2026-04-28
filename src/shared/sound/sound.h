@@ -40,6 +40,30 @@ struct sound {
 	} mob;
 
 	struct {
+		struct {
+			ma_sound close;
+			ma_sound open;
+		} door;
+
+		struct {
+			ma_sound ambient[2];
+			ma_sound ignite;
+		} fire;
+
+		struct {
+			ma_sound shatter[3];
+		} glass;
+
+		struct {
+			ma_sound step[4];
+		} grass;
+
+		struct {
+			ma_sound basedrum;
+		} note;
+	} tile;
+
+	struct {
 		ma_sound click;
 	} ui;
 };
