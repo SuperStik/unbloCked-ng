@@ -13,105 +13,105 @@
 #include "matrix.h"
 #include "vector.h"
 
-const gvec(float,4) mat_identity[4] = {
+const gvec(float,4) mtx_identity[4] = {
 	{1.0f, 0.0f, 0.0f, 0.0f},
 	{0.0f, 1.0f, 0.0f, 0.0f},
 	{0.0f, 0.0f, 1.0f, 0.0f},
 	{0.0f, 0.0f, 0.0f, 1.0f}
 };
 
-gvec(float,4) *mat_gettranslate(gvec(float,4) mat[4], float x, float y, float
+gvec(float,4) *mtx_gettranslate(gvec(float,4) mtx[4], float x, float y, float
 		z) {
-	mat[0] = (gvec(float,4)){1.0f, 0.0f, 0.0f, 0.0f};
+	mtx[0] = (gvec(float,4)){1.0f, 0.0f, 0.0f, 0.0f};
 
-	mat[1] = (gvec(float,4)){0.0f, 1.0f, 0.0f, 0.0f};
+	mtx[1] = (gvec(float,4)){0.0f, 1.0f, 0.0f, 0.0f};
 
-	mat[2] = (gvec(float,4)){0.0f, 0.0f, 1.0f, 0.0f};
+	mtx[2] = (gvec(float,4)){0.0f, 0.0f, 1.0f, 0.0f};
 
-	mat[3] = (gvec(float,4)){x, y, z, 1.0f};
+	mtx[3] = (gvec(float,4)){x, y, z, 1.0f};
 
-	return mat;
+	return mtx;
 }
 
-gvec(float,4) *mat_getscale(gvec(float,4) mat[4], float x, float y, float z) {
-	mat[0] = (gvec(float,4)){x, 0.0f, 0.0f, 0.0f};
+gvec(float,4) *mtx_getscale(gvec(float,4) mtx[4], float x, float y, float z) {
+	mtx[0] = (gvec(float,4)){x, 0.0f, 0.0f, 0.0f};
 
-	mat[1] = (gvec(float,4)){0.0f, y, 0.0f, 0.0f};
+	mtx[1] = (gvec(float,4)){0.0f, y, 0.0f, 0.0f};
 
-	mat[2] = (gvec(float,4)){0.0f, 0.0f, z, 0.0f};
+	mtx[2] = (gvec(float,4)){0.0f, 0.0f, z, 0.0f};
 
-	mat[3] = (gvec(float,4)){0.0f, 0.0f, 0.0f, 1.0f};
+	mtx[3] = (gvec(float,4)){0.0f, 0.0f, 0.0f, 1.0f};
 
-	return mat;
+	return mtx;
 }
 
-gvec(float,4) *mat_getrotate(gvec(float,4) mat[4], gvec(float,4) q) {
+gvec(float,4) *mtx_getrotate(gvec(float,4) mtx[4], gvec(float,4) q) {
 	gvec(float,4) qsqr = q * q;
 
 	/* these have their transpose pre-computed */
-	mat[0] = (gvec(float,4)){
+	mtx[0] = (gvec(float,4)){
 		qsqr[0] + qsqr[1] - qsqr[2] - qsqr[3],
 		2.0f * (q[1] * q[2] + q[0] * q[3]),
 		2.0f * (q[1] * q[3] - q[0] * q[2]),
 		0.0f
 	};
 
-	mat[1] = (gvec(float,4)) {
+	mtx[1] = (gvec(float,4)) {
 		2.0f * (q[1] * q[2] - q[0] * q[3]),
 		qsqr[0] - qsqr[1] + qsqr[2] - qsqr[3],
 		2.0f * (q[2] * q[3] + q[0] * q[1]),
 		0.0f
 	};
 
-	mat[2] = (gvec(float,4)){
+	mtx[2] = (gvec(float,4)){
 		2.0f * (q[1] * q[3] + q[0] * q[2]),
 		2.0f * (q[2] * q[3] - q[0] * q[1]),
 		qsqr[0] - qsqr[1] - qsqr[2] + qsqr[3],
 		0.0f
 	};
 
-	mat[3] = (gvec(float,4)){0.0f, 0.0f, 0.0f, 1.0f};
+	mtx[3] = (gvec(float,4)){0.0f, 0.0f, 0.0f, 1.0f};
 
-	return mat;
+	return mtx;
 }
 
-gvec(float,4) *mat_translate(gvec(float,4) mat[4], float x, float y, float z) {
+gvec(float,4) *mtx_translate(gvec(float,4) mtx[4], float x, float y, float z) {
 	gvec(float,4) trans[4];
 	gvec(float,4) ret[4];
 
-	mat_gettranslate(trans, x, y, z);
-	mat_mul(trans, mat, ret);
+	mtx_gettranslate(trans, x, y, z);
+	mtx_mul(trans, mtx, ret);
 
-	memcpy(mat, ret, sizeof(ret));
+	memcpy(mtx, ret, sizeof(ret));
 
-	return mat;
+	return mtx;
 }
 
-gvec(float,4) *mat_scale(gvec(float,4) mat[4], float x, float y, float z) {
+gvec(float,4) *mtx_scale(gvec(float,4) mtx[4], float x, float y, float z) {
 	gvec(float,4) scale[4];
 	gvec(float,4) ret[4];
 
-	mat_getscale(scale, x, y, z);
-	mat_mul(scale, mat, ret);
+	mtx_getscale(scale, x, y, z);
+	mtx_mul(scale, mtx, ret);
 
-	memcpy(mat, ret, sizeof(ret));
+	memcpy(mtx, ret, sizeof(ret));
 
-	return mat;
+	return mtx;
 }
 
-gvec(float,4) *mat_rotate(gvec(float,4) mat[4], gvec(float,4) q) {
+gvec(float,4) *mtx_rotate(gvec(float,4) mtx[4], gvec(float,4) q) {
 	gvec(float,4) rot[4];
 	gvec(float,4) ret[4];
 
-	mat_getrotate(rot, q);
-	mat_mul(rot, mat, ret);
+	mtx_getrotate(rot, q);
+	mtx_mul(rot, mtx, ret);
 
-	memcpy(mat, ret, sizeof(ret));
+	memcpy(mtx, ret, sizeof(ret));
 
-	return mat;
+	return mtx;
 }
 
-gvec(float,4) *mat_mul(const gvec(float,4) a[4], const gvec(float,4) b[4],
+gvec(float,4) *mtx_mul(const gvec(float,4) a[4], const gvec(float,4) b[4],
 		gvec(float,4) *restrict c) {
 	__builtin_prefetch(a);
 	__builtin_prefetch(b);
@@ -147,7 +147,7 @@ gvec(float,4) *mat_mul(const gvec(float,4) a[4], const gvec(float,4) b[4],
 	return c;
 }
 
-gvec(float,4) *mat_transpose(const gvec(float,4) a[4], gvec(float,4) b[4]) {
+gvec(float,4) *mtx_transpose(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 	#ifdef __SSE__
 	union {
 		gvec(float,4) vec[4];
@@ -170,7 +170,7 @@ gvec(float,4) *mat_transpose(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 }
 
 /* this is awful */
-gvec(float,4) *mat_inverse(const gvec(float,4) a[4], gvec(float,4) b[4]) {
+gvec(float,4) *mtx_inverse(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 	__builtin_prefetch(a);
 	__builtin_prefetch(b, 1, 2);
 	gvec(float,4) inv[4], detvec;
@@ -299,7 +299,7 @@ gvec(float,4) *mat_inverse(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 	return b;
 }
 
-gvec(float,4) *mat_inverse_t(const gvec(float,4) a[4], gvec(float,4) b[4]) {
+gvec(float,4) *mtx_inverse_t(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 	__builtin_prefetch(a);
 	__builtin_prefetch(b, 1, 2);
 	gvec(float,4) inv[4], detvec;
@@ -428,7 +428,7 @@ gvec(float,4) *mat_inverse_t(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 	return b;
 }
 
-gvec(float,4) *mat_add(const gvec(float,4) a[4], const gvec(float,4) b[4],
+gvec(float,4) *mtx_add(const gvec(float,4) a[4], const gvec(float,4) b[4],
 		gvec(float,4) *restrict c) {
 	for (int i = 0; i < 4; ++i)
 		c[i] = a[i] + b[i];
@@ -436,7 +436,7 @@ gvec(float,4) *mat_add(const gvec(float,4) a[4], const gvec(float,4) b[4],
 	return c;
 }
 
-gvec(float,4) *mat_smul(const gvec(float,4) a[4], float s, gvec(float,4) *
+gvec(float,4) *mtx_smul(const gvec(float,4) a[4], float s, gvec(float,4) *
 		restrict b) {
 	for (int i = 0; i < 4; ++i)
 		b[i] = s * a[i];
@@ -444,7 +444,7 @@ gvec(float,4) *mat_smul(const gvec(float,4) a[4], float s, gvec(float,4) *
 	return b;
 }
 
-float *mat_trunc3(const gvec(float,4) a[4], float b[9]) {
+float *mtx_trunc3(const gvec(float,4) a[4], float b[9]) {
 	for (int i = 0; i < 3; ++i)
 		memcpy(&(b[i * 3]), &(a[i]), sizeof(float) * 3);
 

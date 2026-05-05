@@ -27,7 +27,7 @@ void gui_drawmainmenu_init(struct gui_drawmainmenu *menu, struct gui_mainmenu *
 		gvec(float,2) pos = screen->buttoninfo[i].pos;
 		pos[0] -= length;
 
-		mat_gettranslate(&menu->texttransforms[i * 4], pos[0], pos[1] -
+		mtx_gettranslate(&menu->texttransforms[i * 4], pos[0], pos[1] -
 				4.0f, 0.0f);
 	}
 

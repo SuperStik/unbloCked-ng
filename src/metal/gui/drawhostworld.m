@@ -27,7 +27,7 @@ void gui_drawhostworld_init(struct gui_drawhostworld *menu, struct gui_hostworld
 		gvec(float,2) pos = screen->buttoninfo[i].pos;
 		pos[0] -= length;
 
-		mat_gettranslate(&menu->texttransforms[i * 4], pos[0], pos[1] -
+		mtx_gettranslate(&menu->texttransforms[i * 4], pos[0], pos[1] -
 				4.0f, 0.0f);
 	}
 
