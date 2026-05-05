@@ -336,6 +336,8 @@ static void updatemats(float *matrices, float width, float height) {
 	float wd2 = width * 0.5f;
 	float hd2 = height * 0.5f;
 
+	proj_perspective(matrices, 70.0f, width / height, 0.01f, 512.0f);
+
 	proj_ortho(&matrices[(ANC_TOPLEFT * 16) + 16], 0.0f, width, -height,
 			0.0f, 0.0f, 256.0f);
 	proj_ortho(&matrices[(ANC_TOPMIDDLE * 16) + 16], -wd2, wd2, -height,
