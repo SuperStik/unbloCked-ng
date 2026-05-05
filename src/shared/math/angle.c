@@ -106,23 +106,7 @@ gvec(float,4) ang_quatmul(gvec(float,4) r, gvec(float,4) s) {
 		r[0] * s[2] + r[1] * s[3],
 		r[0] * s[3] - r[1] * s[2]
 	};
-#elif defined(__SSE3__)
-	gvec(float,4) t = {
-		r[0] * s[0] - r[1] * s[1] - r[2] * s[2],
-		r[0] * s[1] + r[1] * s[0] - r[2] * s[3],
-		r[0] * s[2] + r[1] * s[3] + r[2] * s[0],
-		r[0] * s[3] - r[1] * s[2] + r[2] * s[1]
-	};
-#else
-	gvec(float,4) t = {
-		r[0] * s[0] - r[1] * s[1] - r[2] * s[2] - r[3] * s[3],
-		r[0] * s[1] + r[1] * s[0] - r[2] * s[3] + r[3] * s[2],
-		r[0] * s[2] + r[1] * s[3] + r[2] * s[0] - r[3] * s[1],
-		r[0] * s[3] - r[1] * s[2] + r[2] * s[1] + r[3] * s[0]
-	};
-#endif
 
-#ifdef __FMA__
 	union {
 		gvec(float,4) vec;
 		__m128 mm;
@@ -142,6 +126,13 @@ gvec(float,4) ang_quatmul(gvec(float,4) r, gvec(float,4) s) {
 	t[2] += rs3.vec[2];
 	t[3] += rs3.vec[3];
 #elif defined(__SSE3__)
+	gvec(float,4) t = {
+		r[0] * s[0] - r[1] * s[1] - r[2] * s[2],
+		r[0] * s[1] + r[1] * s[0] - r[2] * s[3],
+		r[0] * s[2] + r[1] * s[3] + r[2] * s[0],
+		r[0] * s[3] - r[1] * s[2] + r[2] * s[1]
+	};
+
 	union {
 		gvec(float,4) vec;
 		__m128 mm;
@@ -156,6 +147,13 @@ gvec(float,4) ang_quatmul(gvec(float,4) r, gvec(float,4) s) {
 
 	t_un.mm = _mm_addsub_ps(t_un.mm, rs3.mm);
 	t = t_un.vec;
+#else
+	gvec(float,4) t = {
+		r[0] * s[0] - r[1] * s[1] - r[2] * s[2] - r[3] * s[3],
+		r[0] * s[1] + r[1] * s[0] - r[2] * s[3] + r[3] * s[2],
+		r[0] * s[2] + r[1] * s[3] + r[2] * s[0] - r[3] * s[1],
+		r[0] * s[3] - r[1] * s[2] + r[2] * s[1] + r[3] * s[0]
+	};
 #endif
 
 	return t;
