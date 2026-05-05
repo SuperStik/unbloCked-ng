@@ -10,4 +10,6 @@ gvec(float,4) ang_axisang2quat(gvec(float,4));
 
 gvec(float,4) ang_quat2axisang(gvec(float,4));
 
+gvec(float,4) ang_quatmul(gvec(float,4) r, gvec(float,4) s);
+
 #endif /* ANGLE_H */

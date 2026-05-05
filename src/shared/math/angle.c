@@ -97,3 +97,14 @@ gvec(float,4) ang_quat2axisang(gvec(float,4) q) {
 	} else
 		return (gvec(float,4)){0.0f, 1.0f, 0.0f, 0.0f};
 }
+
+gvec(float,4) ang_quatmul(gvec(float,4) r, gvec(float,4) s) {
+	gvec(float,4) t = {
+		r[0] * s[0] - r[1] * s[1] - r[2] * s[2] - r[3] * s[3],
+		r[0] * s[1] + r[1] * s[0] - r[2] * s[3] + r[3] * s[2],
+		r[0] * s[2] + r[1] * s[3] + r[0] * s[0] - r[3] * s[1],
+		r[0] * s[3] - r[1] * s[2] + r[2] * s[1] + r[3] * s[0]
+	};
+
+	return t;
+}
