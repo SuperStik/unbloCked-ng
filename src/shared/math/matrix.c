@@ -113,10 +113,6 @@ gvec(float,4) *mtx_rotate(gvec(float,4) mtx[4], gvec(float,4) q) {
 
 gvec(float,4) *mtx_mul(const gvec(float,4) a[4], const gvec(float,4) b[4],
 		gvec(float,4) *restrict c) {
-	__builtin_prefetch(a);
-	__builtin_prefetch(b);
-	__builtin_prefetch(c, 1, 2);
-
 #ifdef __AVX2__
 	const __m128i index = _mm_set_epi32(12, 8, 4, 0);
 #endif
@@ -171,8 +167,6 @@ gvec(float,4) *mtx_transpose(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 
 /* this is awful */
 gvec(float,4) *mtx_inverse(const gvec(float,4) a[4], gvec(float,4) b[4]) {
-	__builtin_prefetch(a);
-	__builtin_prefetch(b, 1, 2);
 	gvec(float,4) inv[4], detvec;
 	float det;
 
@@ -300,8 +294,6 @@ gvec(float,4) *mtx_inverse(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 }
 
 gvec(float,4) *mtx_inverse_t(const gvec(float,4) a[4], gvec(float,4) b[4]) {
-	__builtin_prefetch(a);
-	__builtin_prefetch(b, 1, 2);
 	gvec(float,4) inv[4], detvec;
 	float det;
 
