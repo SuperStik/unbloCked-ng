@@ -13,6 +13,10 @@
 #include "matrix.h"
 #include "vector.h"
 
+#ifdef CLANG_MATRIX
+typedef float float4x4 __attribute__((matrix_type(4,4)));
+#endif
+
 const gvec(float,4) mtx_identity[4] = {
 	{1.0f, 0.0f, 0.0f, 0.0f},
 	{0.0f, 1.0f, 0.0f, 0.0f},
@@ -113,15 +117,22 @@ gvec(float,4) *mtx_rotate(gvec(float,4) mtx[4], gvec(float,4) q) {
 
 gvec(float,4) *mtx_mul(const gvec(float,4) a[4], const gvec(float,4) b[4],
 		gvec(float,4) *restrict c) {
-#ifdef __AVX2__
+#ifdef CLANG_MATRIX
+	const float4x4 *mtx_a = (float4x4 *)a;
+	const float4x4 *mtx_b = (float4x4 *)b;
+	float4x4 *mtx_c = (float4x4 *)c;
+
+	*mtx_c = *mtx_a * *mtx_b;
+#else
+# ifdef __AVX2__
 	const __m128i index = _mm_set_epi32(12, 8, 4, 0);
-#endif
+# endif /* __AVX2__ */
 
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
 			gvec(float,4) rowvec = a[i];
 			gvec(float,4) colvec;
-#ifdef __AVX2__
+# ifdef __AVX2__
 			union {
 				gvec(float,4) vec;
 				__m128 mm;
@@ -130,21 +141,24 @@ gvec(float,4) *mtx_mul(const gvec(float,4) a[4], const gvec(float,4) b[4],
 			swap.mm = _mm_i32gather_ps((float *)b + j, index, 4);
 
 			colvec = swap.vec;
-#else
+# else
 			colvec = (gvec(float,4)){b[0][j], b[1][j], b[2][j],
 					b[3][j]};
-#endif /* __AVX2__ */
+# endif /* __AVX2__ */
 
 			gvec(float,4) dot = rowvec * colvec;
 			c[i][j] = (dot[0] + dot[1]) + (dot[2] + dot[3]);
 		}
 	}
+#endif /* CLANG_MATRIX */
 
 	return c;
 }
 
 gvec(float,4) *mtx_transpose(const gvec(float,4) a[4], gvec(float,4) b[4]) {
-	#ifdef __SSE__
+#ifdef CLANG_MATRIX
+	*(float4x4 *)b = __builtin_matrix_transpose(*(float4x4 *)a);
+#elif defined(__SSE__)
 	union {
 		gvec(float,4) vec[4];
 		__m128 mm[4];
@@ -156,12 +170,13 @@ gvec(float,4) *mtx_transpose(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 
 	for (int i = 0; i < 4; ++i)
 		b[i] = temp.vec[i];
-	#else
+#else
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j)
 			b[j][i] = a[i][j];
 	}
-	#endif
+#endif
+
 	return b;
 }
 
@@ -422,16 +437,29 @@ gvec(float,4) *mtx_inverse_t(const gvec(float,4) a[4], gvec(float,4) b[4]) {
 
 gvec(float,4) *mtx_add(const gvec(float,4) a[4], const gvec(float,4) b[4],
 		gvec(float,4) *restrict c) {
+#ifdef CLANG_MATRIX
+	const float4x4 *mtx_a = (float4x4 *)a;
+	const float4x4 *mtx_b = (float4x4 *)b;
+
+	*(float4x4 *)c = *mtx_a + *mtx_b;
+#else
 	for (int i = 0; i < 4; ++i)
 		c[i] = a[i] + b[i];
+#endif /* CLANG_MATRIX */
 
 	return c;
 }
 
 gvec(float,4) *mtx_smul(const gvec(float,4) a[4], float s, gvec(float,4) *
 		restrict b) {
+#ifdef CLANG_MATRIX
+	const float4x4 *mtx_a = (float4x4 *)a;
+
+	*(float4x4 *)b = *mtx_a * s;
+#else
 	for (int i = 0; i < 4; ++i)
 		b[i] = s * a[i];
+#endif /* CLANG_MATRIX */
 
 	return b;
 }

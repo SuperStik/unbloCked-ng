@@ -11,6 +11,11 @@ else
 $(error Bad graphics library given, use 'vulkan' or 'metal')
 endif
 
+CLANG_MATRIX ?= 0
+ifneq (${CLANG_MATRIX},0)
+override CCFLAGS += -DCLANG_MATRIX -fenable-matrix
+endif
+
 SRC_DIR := src
 SRC_DIRS := $(shell find ${SRC_DIR}/ -type d)
 # TODO: figure out how to make this one command
