@@ -463,10 +463,3 @@ gvec(float,4) *mtx_smul(const gvec(float,4) a[4], float s, gvec(float,4) *
 
 	return b;
 }
-
-float *mtx_trunc3(const gvec(float,4) a[4], float b[9]) {
-	for (int i = 0; i < 3; ++i)
-		memcpy(&(b[i * 3]), &(a[i]), sizeof(float) * 3);
-
-	return b;
-}

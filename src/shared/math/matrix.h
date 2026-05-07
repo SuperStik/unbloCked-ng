@@ -38,6 +38,4 @@ gvec(float,4) *mtx_add(const gvec(float,4) a[4], const gvec(float,4) b[4],
 gvec(float,4) *mtx_smul(const gvec(float,4) a[4], float s, gvec(float,4) *
 		restrict b);
 
-float *mtx_trunc3(const gvec(float,4) a[4], float b[9]);
-
 #endif /* MATRIX_H */
