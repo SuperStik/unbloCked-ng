@@ -55,9 +55,9 @@ override LIB_PATH += /usr/local/lib
 override INCL_PATH += ${SRC_DIR} ${SRC_DIR}/shared miniaudio /usr/local/include /usr/local/include/opus
 
 LIB_FL := $(patsubst %,-l%,${LIB})
-FRAMEWORK_FL := $(patsubst %, -framework %, ${FRAMEWORK})
-LIB_PATH_FL := $(patsubst %, -L%, ${LIB_PATH})
-INCL_PATH_FL := $(patsubst %, -I%, ${INCL_PATH})
+FRAMEWORK_FL := $(patsubst %,-framework %, ${FRAMEWORK})
+LIB_PATH_FL := $(patsubst %,-L%, ${LIB_PATH})
+INCL_PATH_FL := $(patsubst %,-I%, ${INCL_PATH})
 
 .PHONY: all clean
 
