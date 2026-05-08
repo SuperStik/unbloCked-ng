@@ -122,7 +122,7 @@ gvec(float,4) *mtx_mul(const gvec(float,4) a[4], const gvec(float,4) b[4],
 	const float4x4 *mtx_b = (float4x4 *)b;
 	float4x4 *mtx_c = (float4x4 *)c;
 
-	*mtx_c = *mtx_a * *mtx_b;
+	*mtx_c = *mtx_b * *mtx_a;
 #else
 # ifdef __AVX2__
 	const __m128i index = _mm_set_epi32(12, 8, 4, 0);
