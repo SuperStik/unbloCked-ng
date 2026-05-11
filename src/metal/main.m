@@ -71,7 +71,7 @@ void gl_main(void) {
 			    options:MTLResourceCPUCacheModeWriteCombined];
 	float *matrices = [matbuf contents];
 
-	setscaledreso((float)WIDTH, (float)HEIGHT);
+	setscaledreso(WIDTH, HEIGHT);
 	float winwid = (float)WIDTH;
 	float winhgt = (float)HEIGHT;
 	scaledreso(&winwid, &winhgt);
@@ -286,11 +286,10 @@ static bool onwindowresize(void *userdata, SDL_Event *event) {
 	float *matrices = userdata;
 	switch(event->type) {
 		case SDL_EVENT_WINDOW_RESIZED:
-			;
+			setscaledreso(event->window.data1, event->window.data2);
+
 			float w = (float)event->window.data1;
 			float h = (float)event->window.data2;
-
-			setscaledreso(w, h);
 			scaledreso(&w, &h);
 
 			updatemats(matrices, w, h);
