@@ -79,22 +79,27 @@ static VkInstance getinstance(void) {
 static VkDevice getdevice(VkInstance instance, VkSurfaceKHR surface) {
 	VkResult res;
 
+	/* count number of physical devices on system */
 	uint32_t count;
 	res = vkEnumeratePhysicalDevices(instance, &count, NULL);
 	if (res != VK_SUCCESS || count == 0)
-		errx(1, "Failed to get physical device");
+		errx(1, "Failed to get physical device count!");
 
 	VkPhysicalDevice *devices = malloc(sizeof(VkPhysicalDevice) * count);
 	if (devices == NULL)
 		err(1, "malloc");
 
+	/* store the physical devices in an array */
 	res = vkEnumeratePhysicalDevices(instance, &count, devices);
+	if (res != VK_SUCCESS || count == 0)
+		errx(1, "Failed to get physical device");
 
 	uint32_t device_ind = 0;
 	uint32_t queue_faml = 0;
 
+	/* start off with a property array of size 0 */
 	VkQueueFamilyProperties *family_props = NULL;
-	uint32_t family_prop_count_max = 0;
+	uint32_t family_prop_array_size = 0;
 	for (uint32_t i = 0; i < count; ++i) {
 		VkPhysicalDeviceProperties props;
 		vkGetPhysicalDeviceProperties(devices[i], &props);
@@ -104,15 +109,18 @@ static VkDevice getdevice(VkInstance instance, VkSurfaceKHR surface) {
 		vkGetPhysicalDeviceQueueFamilyProperties(devices[i],
 				&family_prop_count, NULL);
 
-		if (family_prop_count_max < family_prop_count) {
-			family_prop_count_max = family_prop_count;
+		/* check if the current array is big enough */
+		if (family_prop_array_size < family_prop_count) {
+			/* it's not, so make it bigger */
+			family_prop_array_size = family_prop_count;
 			family_props = realloc(family_props, sizeof(
 						*family_props) *
-					family_prop_count_max);
+					family_prop_array_size);
 			if (family_props == NULL)
 				err(1, "realloc");
 		} else
-			family_prop_count = family_prop_count_max;
+			/* give Vulkan the actual array size just in case */
+			family_prop_count = family_prop_array_size;
 
 		vkGetPhysicalDeviceQueueFamilyProperties(devices[i],
 				&family_prop_count, family_props);
@@ -121,16 +129,19 @@ static VkDevice getdevice(VkInstance instance, VkSurfaceKHR surface) {
 			VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT;
 		uint32_t j = 0;
 		for(; j < family_prop_count; ++j) {
+			/* if device doesn't support needed features, skip */
 			VkQueueFlags flags = family_props[j].queueFlags;
 			if ((flags & needed) != needed)
 				continue;
 
+			/* check if we can actually draw to a window */
 			VkBool32 supported = VK_FALSE;
 			vkGetPhysicalDeviceSurfaceSupportKHR(devices[i], j,
 					surface, &supported);
 			if (supported == VK_FALSE)
 				continue;
 
+			/* store indices for device and family */
 			device_ind = i;
 			queue_faml = j;
 			goto found_device;
@@ -150,6 +161,7 @@ found_device:
 		.pQueuePriorities = &q_priorities
 	};
 
+	/* get extension count for malloc */
 	uint32_t extn_count;
 	vkEnumerateDeviceExtensionProperties(devices[device_ind], NULL,
 			&extn_count, NULL);
@@ -159,13 +171,17 @@ found_device:
 	if (extn_props == NULL)
 		err(1, "malloc");
 
+	/* store the extension array */
 	vkEnumerateDeviceExtensionProperties(devices[device_ind], NULL,
 			&extn_count, extn_props);
 
+	/* Vulkan gives us shit we don't need, so we need a separate array */
 	char **extn_names = malloc(extn_count * sizeof(char **));
 	if (extn_names == NULL)
 		err(1, "malloc");
 
+	/* we only want the raw extension name, so store that */
+	/* TODO: only store extensions we use */
 	for (uint32_t i = 0; i < extn_count; ++i)
 		extn_names[i] = extn_props[i].extensionName;
 
