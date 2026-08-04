@@ -1,5 +1,6 @@
 #include <err.h>
-#include <stdint.h>
+#include <inttypes.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <SDL3/SDL_events.h>
@@ -55,7 +56,8 @@ static VkInstance getinstance(void) {
 
 	VkApplicationInfo app_info = {
 		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-		.pApplicationName = "unbloCked"
+		.pApplicationName = "unbloCked",
+		.apiVersion = VK_MAKE_API_VERSION(0, 1, 0, 0)
 	};
 
 	VkInstanceCreateInfo inst_info = {
@@ -65,13 +67,26 @@ static VkInstance getinstance(void) {
 		.ppEnabledExtensionNames = vk_exts
 	};
 
-	if (vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion") != NULL)
-		vkEnumerateInstanceVersion(&app_info.apiVersion);
+	VkResult (*vkpEnumerateInstanceVersion)(uint32_t *) = (void *)
+		vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion");
+	if (vkpEnumerateInstanceVersion != NULL)
+		vkpEnumerateInstanceVersion(&app_info.apiVersion);
 
 	VkInstance instance;
 	VkResult result = vkCreateInstance(&inst_info, NULL, &instance);
 	if (result != VK_SUCCESS)
 		errx(1, "Failed to create Vulkan instance");
+
+	fprintf(stderr, "Vulkan %" PRIu32 ".%" PRIu32 ".%" PRIu32,
+			VK_API_VERSION_MAJOR(app_info.apiVersion),
+			VK_API_VERSION_MINOR(app_info.apiVersion),
+			VK_API_VERSION_PATCH(app_info.apiVersion)
+	       );
+	uint32_t variant = VK_API_VERSION_VARIANT(app_info.apiVersion);
+	if (__builtin_expect(variant != 0, 0))
+		fprintf(stderr, " (variant %" PRIu32 ")\n", variant);
+	else
+		putc('\n', stderr);
 
 	return instance;
 }
