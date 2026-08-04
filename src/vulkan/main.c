@@ -1,5 +1,5 @@
 #include <err.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -77,14 +77,14 @@ static VkInstance getinstance(void) {
 	if (result != VK_SUCCESS)
 		errx(1, "Failed to create Vulkan instance");
 
-	fprintf(stderr, "Vulkan %" PRIu32 ".%" PRIu32 ".%" PRIu32,
+	fprintf(stderr, "Vulkan %u.%u.%u",
 			VK_API_VERSION_MAJOR(app_info.apiVersion),
 			VK_API_VERSION_MINOR(app_info.apiVersion),
 			VK_API_VERSION_PATCH(app_info.apiVersion)
 	       );
-	uint32_t variant = VK_API_VERSION_VARIANT(app_info.apiVersion);
+	unsigned variant = VK_API_VERSION_VARIANT(app_info.apiVersion);
 	if (__builtin_expect(variant != 0, 0))
-		fprintf(stderr, " (variant %" PRIu32 ")\n", variant);
+		fprintf(stderr, " (variant %u)\n", variant);
 	else
 		putc('\n', stderr);
 
