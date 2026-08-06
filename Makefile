@@ -14,6 +14,11 @@ RES_OUT = $(patsubst ${RES}/%,${RES_DIR}/%,${RES_SRC})
 
 O ?= 2
 
+CLANG_MATRIX ?= 0
+ifneq (${CLANG_MATRIX},0)
+override CCFLAGS += -DCLANG_MATRIX -fenable-matrix
+endif
+
 override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibility=hidden -DMA_NO_RUNTIME_LINKING -O$O
 export CCFLAGS
 

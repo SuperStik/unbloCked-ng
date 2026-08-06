@@ -8,11 +8,6 @@ else
 $(error Bad graphics library given, use 'vulkan' or 'metal')
 endif
 
-CLANG_MATRIX ?= 0
-ifneq (${CLANG_MATRIX},0)
-override CCFLAGS += -DCLANG_MATRIX -fenable-matrix
-endif
-
 SRC_DIRS := $(shell find ${SRC}/ -type d)
 # TODO: figure out how to make this one command
 SRC_C := $(shell find ${SRC}/shared ${SRC}/${GL} -type f -name '*.c')
