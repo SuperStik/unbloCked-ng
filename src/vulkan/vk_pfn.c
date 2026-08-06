@@ -1,0 +1,48 @@
+#include "vk_pfn.h"
+
+/* global functions */
+PFN_vkCreateInstance vkCreateInstance VK_PFN_ALIAS(vkCreateInstance);
+PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion VK_PFN_ALIAS(vkEnumerateInstanceVersion);
+
+/* instance functions */
+PFN_vkCreateDevice vkCreateDevice VK_PFN_ALIAS(vkCreateDevice);
+PFN_vkDestroyInstance vkDestroyInstance VK_PFN_ALIAS(vkDestroyInstance);
+PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices VK_PFN_ALIAS(vkEnumeratePhysicalDevices);
+PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties VK_PFN_ALIAS(vkEnumerateDeviceExtensionProperties);
+PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr VK_PFN_ALIAS(vkGetDeviceProcAddr);
+PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties VK_PFN_ALIAS(vkGetPhysicalDeviceProperties);
+PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFamilyProperties VK_PFN_ALIAS(vkGetPhysicalDeviceQueueFamilyProperties);
+PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR VK_PFN_ALIAS(vkGetPhysicalDeviceSurfaceSupportKHR);
+
+/* device functions */
+PFN_vkDestroyDevice vkDestroyDevice VK_PFN_ALIAS(vkDestroyDevice);
+
+void vkpfn_load_global(void) {
+	vkCreateInstance = (void *)vkGetInstanceProcAddr(NULL,
+			"vkCreateInstance");
+	vkEnumerateInstanceVersion = (void *)vkGetInstanceProcAddr(NULL,
+			"vkEnumerateInstanceVersion");
+}
+
+void vkpfn_load_instance(VkInstance i) {
+	vkCreateDevice = (void *)vkGetInstanceProcAddr(i, "vkCreateDevice");
+	vkDestroyInstance = (void *)vkGetInstanceProcAddr(i,
+			"vkDestroyInstance");
+	vkEnumeratePhysicalDevices = (void *)vkGetInstanceProcAddr(i,
+			"vkEnumeratePhysicalDevices");
+	vkEnumerateDeviceExtensionProperties = (void *)vkGetInstanceProcAddr(i,
+			"vkEnumerateDeviceExtensionProperties");
+	vkGetDeviceProcAddr = (void *)vkGetInstanceProcAddr(i,
+			"vkGetDeviceProcAddr");
+	vkGetPhysicalDeviceProperties = (void *)vkGetInstanceProcAddr(i,
+			"vkGetPhysicalDeviceProperties");
+	vkGetPhysicalDeviceQueueFamilyProperties = (void *)
+		vkGetInstanceProcAddr(i,
+				"vkGetPhysicalDeviceQueueFamilyProperties");
+	vkGetPhysicalDeviceSurfaceSupportKHR = (void *)vkGetInstanceProcAddr(i,
+			"vkGetPhysicalDeviceSurfaceSupportKHR");
+}
+
+void vkpfn_load_device(VkDevice d) {
+	vkDestroyDevice = (void *)vkGetDeviceProcAddr(d, "vkDestroyDevice");
+}

@@ -7,8 +7,7 @@
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_vulkan.h>
 
-#include <vulkan/vk_enum_string_helper.h>
-#include <vulkan/vulkan.h>
+#include "vk_pfn.h"
 
 #include <main.h>
 
@@ -26,6 +25,8 @@ void gl_main(void) {
 			SDL_WINDOW_VULKAN);
 	if (window == NULL)
 		errx(1, "%s", SDL_GetError());
+
+	vkpfn_load_global();
 
 	VkInstance instance = getinstance();
 
@@ -51,18 +52,14 @@ void gl_main(void) {
 }
 
 static VkInstance getinstance(void) {
-
-
 	VkApplicationInfo app_info = {
 		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		.pApplicationName = "unbloCked",
 		.apiVersion = VK_MAKE_API_VERSION(0, 1, 0, 0)
 	};
 
-	PFN_vkEnumerateInstanceVersion vkpEnumerateInstanceVersion = (void *)
-		vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion");
-	if (vkpEnumerateInstanceVersion != NULL)
-		vkpEnumerateInstanceVersion(&app_info.apiVersion);
+	if (vkEnumerateInstanceVersion != NULL)
+		vkEnumerateInstanceVersion(&app_info.apiVersion);
 
 	uint32_t vk_extcount;
 	const char *const *vk_exts_sdl = SDL_Vulkan_GetInstanceExtensions(
@@ -101,6 +98,8 @@ static VkInstance getinstance(void) {
 		fprintf(stderr, " (variant %u)\n", variant);
 	else
 		putc('\n', stderr);
+
+	vkpfn_load_instance(instance);
 
 	return instance;
 }
@@ -232,6 +231,8 @@ found_device:
 	free(extn_names);
 	free(extn_props);
 	free(devices);
+
+	vkpfn_load_device(device);
 
 	return device;
 }
