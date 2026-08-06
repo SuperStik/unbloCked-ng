@@ -6,6 +6,8 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_vulkan.h>
+
+#include <vulkan/vk_enum_string_helper.h>
 #include <vulkan/vulkan.h>
 
 #include <main.h>
@@ -85,7 +87,7 @@ static VkInstance getinstance(void) {
 	VkInstance instance;
 	VkResult result = vkCreateInstance(&inst_info, NULL, &instance);
 	if (result != VK_SUCCESS)
-		errx(1, "vkCreateInstance: %i", result);
+		errx(1, "vkCreateInstance: %s", string_VkResult(result));
 
 	free(vk_exts);
 
@@ -104,22 +106,24 @@ static VkInstance getinstance(void) {
 }
 
 static VkDevice getdevice(VkInstance instance, VkSurfaceKHR surface) {
-	VkResult res;
+	VkResult result;
 
 	/* count number of physical devices on system */
 	uint32_t count;
-	res = vkEnumeratePhysicalDevices(instance, &count, NULL);
-	if (res != VK_SUCCESS || count == 0)
-		errx(1, "Failed to get physical device count!");
+	result = vkEnumeratePhysicalDevices(instance, &count, NULL);
+	if (result != VK_SUCCESS || count == 0)
+		errx(1, "vkEnumeratePhysicalDevices: %s",
+				string_VkResult(result));
 
 	VkPhysicalDevice *devices = malloc(sizeof(VkPhysicalDevice) * count);
 	if (devices == NULL)
 		err(1, "malloc");
 
 	/* store the physical devices in an array */
-	res = vkEnumeratePhysicalDevices(instance, &count, devices);
-	if (res != VK_SUCCESS || count == 0)
-		errx(1, "Failed to get physical device");
+	result = vkEnumeratePhysicalDevices(instance, &count, devices);
+	if (result != VK_SUCCESS || count == 0)
+		errx(1, "vkEnumeratePhysicalDevices: %s",
+				string_VkResult(result));
 
 	uint32_t device_ind = 0;
 	uint32_t queue_faml = 0;
@@ -221,9 +225,9 @@ found_device:
 	};
 
 	VkDevice device;
-	res = vkCreateDevice(devices[device_ind], &dev_info, NULL, &device);
-	if (res != VK_SUCCESS)
-		errx(1, "Failed to get logial device");
+	result = vkCreateDevice(devices[device_ind], &dev_info, NULL, &device);
+	if (result != VK_SUCCESS)
+		errx(1, "vkCreateDevice: %s", string_VkResult(result));
 
 	free(extn_names);
 	free(extn_props);
