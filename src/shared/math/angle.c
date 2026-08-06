@@ -1,3 +1,9 @@
+#ifdef __FMA__
+# include <immintrin.h>
+#elif defined(__SSE3__)
+# include <pmmintrin.h>
+#endif /* __FMA__ */
+
 #include "angle.h"
 
 gvec(float,4) ang_eul2quat(float p, float y, float r) {
