@@ -25,7 +25,7 @@ export CCFLAGS
 .PHONY: all clean
 
 all: ${RES_OUT}
-	$(MAKE) -f $(shell uname).make
+	$(MAKE) -f scripts/$(shell uname).make
 
 ${RES_DIR}/%: ${RES}/% ${RES_DIR}
 	@mkdir -p `dirname $@`
