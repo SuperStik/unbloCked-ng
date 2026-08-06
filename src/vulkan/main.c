@@ -49,9 +49,6 @@ void gl_main(void) {
 }
 
 static VkInstance getinstance(void) {
-	uint32_t vk_extcount;
-	const char *const *vk_exts = SDL_Vulkan_GetInstanceExtensions(
-			&vk_extcount);
 
 
 	VkApplicationInfo app_info = {
@@ -60,22 +57,37 @@ static VkInstance getinstance(void) {
 		.apiVersion = VK_MAKE_API_VERSION(0, 1, 0, 0)
 	};
 
+	PFN_vkEnumerateInstanceVersion vkpEnumerateInstanceVersion = (void *)
+		vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion");
+	if (vkpEnumerateInstanceVersion != NULL)
+		vkpEnumerateInstanceVersion(&app_info.apiVersion);
+
+	uint32_t vk_extcount;
+	const char *const *vk_exts_sdl = SDL_Vulkan_GetInstanceExtensions(
+			&vk_extcount);
+
+	/* vulkan-loader gets very angry without portability ext */
+	const char **vk_exts = malloc(sizeof(char *) * vk_extcount + 1);
+	if (vk_exts == NULL)
+		err(1, "malloc");
+
+	memcpy(vk_exts, vk_exts_sdl, sizeof(char *) * vk_extcount);
+	vk_exts[vk_extcount++] = "VK_KHR_portability_enumeration";
+
 	VkInstanceCreateInfo inst_info = {
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+		.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
 		.pApplicationInfo = &app_info,
 		.enabledExtensionCount = vk_extcount,
 		.ppEnabledExtensionNames = vk_exts
 	};
 
-	VkResult (*vkpEnumerateInstanceVersion)(uint32_t *) = (void *)
-		vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion");
-	if (vkpEnumerateInstanceVersion != NULL)
-		vkpEnumerateInstanceVersion(&app_info.apiVersion);
-
 	VkInstance instance;
 	VkResult result = vkCreateInstance(&inst_info, NULL, &instance);
 	if (result != VK_SUCCESS)
-		errx(1, "Failed to create Vulkan instance");
+		errx(1, "vkCreateInstance: %i", result);
+
+	free(vk_exts);
 
 	fprintf(stderr, "Vulkan %u.%u.%u",
 			VK_API_VERSION_MAJOR(app_info.apiVersion),

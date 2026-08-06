@@ -47,7 +47,7 @@ override FRAMEWORK += AudioToolbox CoreAudio
 ifeq (${GL}, metal)
 override FRAMEWORK += Accelerate Foundation Metal
 else ifeq (${GL}, vulkan)
-override LIB += MoltenVK
+override LIB += vulkan
 override FRAMEWORK += CoreFoundation
 endif
 
