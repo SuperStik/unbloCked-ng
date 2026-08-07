@@ -1,0 +1,14 @@
+$GLOBAL$
+vkCreateInstance
+vkEnumerateInstanceVersion
+$INSTANCE$
+vkCreateDevice
+vkDestroyInstance
+vkEnumeratePhysicalDevices
+vkEnumerateDeviceExtensionProperties
+vkGetDeviceProcAddr
+vkGetPhysicalDeviceProperties
+vkGetPhysicalDeviceQueueFamilyProperties
+vkGetPhysicalDeviceSurfaceSupportKHR
+$DEVICE$
+vkDestroyDevice
