@@ -9,12 +9,12 @@
 
 #include "vk_pfn.h"
 
+#include <gui/screen.h>
 #include <main.h>
+#include <scaledreso.h>
 
 #define WIDTH 640
 #define HEIGHT 480
-
-static char done = 0;
 
 static VkInstance getinstance(void);
 static VkDevice getdevice(VkInstance, VkSurfaceKHR);
@@ -26,6 +26,13 @@ void gl_main(void) {
 	if (window == NULL)
 		errx(1, "%s", SDL_GetError());
 
+	setscaledreso(WIDTH, HEIGHT);
+	float winwid = (float)WIDTH;
+	float winhgt = (float)HEIGHT;
+	scaledreso(&winwid, &winhgt);
+
+	gui_screen_init(&screen, winwid, winhgt, GUI_SCREEN_MAINMENU);
+
 	vkpfn_load_global();
 
 	VkInstance instance = getinstance();
@@ -36,14 +43,9 @@ void gl_main(void) {
 
 	VkDevice device = getdevice(instance, surface);
 
-	SDL_Event ev;
-	while (!done && SDL_WaitEvent(&ev)) {
-		switch (ev.type) {
-			case SDL_EVENT_QUIT:
-				done = 1;
-				break;
-		}
-	}
+	ev_loop();
+
+	gui_screen_destroy(&screen);
 
 	vkDestroyDevice(device, NULL);
 	SDL_Vulkan_DestroySurface(instance, surface, NULL);

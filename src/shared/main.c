@@ -6,10 +6,16 @@
 #include "cursor.h"
 #include "gui/screen.h"
 #include "main.h"
+#include "scaledreso.h"
 #include "sound/sound.h"
 
 #include <extras/decoders/libvorbis/miniaudio_libvorbis.c>
 #include <extras/decoders/libopus/miniaudio_libopus.c>
+
+char done = 0;
+
+char occluded;
+pthread_mutex_t occlusionlock = PTHREAD_MUTEX_INITIALIZER;
 
 static void getresourcemanager(ma_resource_manager *);
 
@@ -46,6 +52,64 @@ int main(void) {
 
 	SDL_Quit();
 	return 0;
+}
+
+void ev_loop(void) {
+	SDL_Event ev;
+	while (!done && SDL_WaitEvent(&ev)) {
+		switch (ev.type) {
+			case SDL_EVENT_QUIT:
+				done = 1;
+
+				break;
+			case SDL_EVENT_WINDOW_EXPOSED:
+				if (occluded) {
+					occluded = 0;
+					pthread_mutex_unlock(&occlusionlock);
+				}
+
+				break;
+			case SDL_EVENT_WINDOW_RESIZED:
+				;
+				float w = (float)ev.window.data1;
+				float h = (float)ev.window.data2;
+				scaledreso(&w, &h);
+
+				gui_screen_resize(&screen, w, h);
+
+				break;
+			case SDL_EVENT_WINDOW_OCCLUDED:
+				if (!occluded) {
+					occluded = 1;
+					pthread_mutex_lock(&occlusionlock);
+				}
+
+				break;
+			case SDL_EVENT_MOUSE_MOTION:
+				;
+				float cur_x = ev.motion.x;
+				float cur_y = ev.motion.y;
+				scaledreso(&cur_x, &cur_y);
+
+				gui_screen_onhover(&screen, cur_x, cur_y);
+
+				break;
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+				if (ev.button.button == 1) {
+					float cur_x = ev.button.x;
+					float cur_y = ev.button.y;
+					scaledreso(&cur_x, &cur_y);
+
+					gui_screen_onclick(&screen, cur_x,
+							cur_y);
+				}
+
+				break;
+		}
+	}
+
+	if (occluded)
+		pthread_mutex_unlock(&occlusionlock);
 }
 
 static void getresourcemanager(ma_resource_manager *manager) {

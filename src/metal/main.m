@@ -9,9 +9,9 @@
 #include <SDL3/SDL_metal.h>
 #include <SDL3/SDL_video.h>
 
-#include "gui/anchor.h"
+#include <gui/anchor.h>
 #include "gui/drawscreen.h"
-#include "gui/screen.h"
+#include <gui/screen.h>
 #include <main.h>
 #include <math/vector.h>
 #include <projection.h>
@@ -19,12 +19,9 @@
 #include "shaders.h"
 #include "textures.h"
 
-static pthread_mutex_t occllock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t depthlock = PTHREAD_MUTEX_INITIALIZER;
 static id<MTLBuffer> matbuf;
 static id<MTLTexture> depthtex = nil;
-static char done = 0;
-static char occluded = 0;
 
 static void *MTL_render(void *c);
 
@@ -92,60 +89,7 @@ void gl_main(void) {
 	pthread_t rthread;
 	pthread_create(&rthread, NULL, MTL_render, layer);
 
-	SDL_Event ev;
-	while (!done && SDL_WaitEvent(&ev)) {
-		switch (ev.type) {
-			case SDL_EVENT_QUIT:
-				done = 1;
-				break;
-			case SDL_EVENT_MOUSE_BUTTON_DOWN:
-				if (ev.button.button == 1) {
-					float cur_x = ev.button.x;
-					float cur_y = ev.button.y;
-					scaledreso(&cur_x, &cur_y);
-
-					gui_screen_onclick(&screen, cur_x,
-							cur_y);
-				}
-
-				break;
-			case SDL_EVENT_MOUSE_MOTION:
-				;
-				float cur_x = ev.motion.x;
-				float cur_y = ev.motion.y;
-				scaledreso(&cur_x, &cur_y);
-
-				gui_screen_onhover(&screen, cur_x, cur_y);
-
-				break;
-			case SDL_EVENT_WINDOW_EXPOSED:
-				if (occluded) {
-					occluded = 0;
-					pthread_mutex_unlock(&occllock);
-				}
-
-				break;
-			case SDL_EVENT_WINDOW_OCCLUDED:
-				if (!occluded) {
-					occluded = 1;
-					pthread_mutex_lock(&occllock);
-				}
-
-				break;
-			case SDL_EVENT_WINDOW_RESIZED:
-				;
-				float w = (float)ev.window.data1;
-				float h = (float)ev.window.data2;
-				scaledreso(&w, &h);
-
-				gui_screen_resize(&screen, w, h);
-
-				break;
-		}
-	}
-
-	if (occluded)
-		pthread_mutex_unlock(&occllock);
+	ev_loop();
 
 	pthread_join(rthread, NULL);
 
@@ -215,8 +159,8 @@ static void *MTL_render(void *l) {
 	while (__builtin_expect(!done, 1)) {
 		/* freeze render thread when not visible */
 		if (occluded) {
-			pthread_mutex_lock(&occllock);
-			pthread_mutex_unlock(&occllock);
+			pthread_mutex_lock(&occlusionlock);
+			pthread_mutex_unlock(&occlusionlock);
 		}
 
 		@autoreleasepool {
