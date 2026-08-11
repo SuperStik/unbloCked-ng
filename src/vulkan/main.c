@@ -13,9 +13,6 @@
 #include <main.h>
 #include <scaledreso.h>
 
-#define WIDTH 640
-#define HEIGHT 480
-
 static VkInstance getinstance(void);
 static VkDevice getdevice(VkInstance, VkSurfaceKHR);
 
@@ -25,6 +22,9 @@ void gl_main(void) {
 			SDL_WINDOW_VULKAN);
 	if (window == NULL)
 		errx(1, "%s", SDL_GetError());
+
+	if (!SDL_SetWindowMinimumSize(window, WIDTH / 2, HEIGHT / 2))
+		warnx("%s", SDL_GetError());
 
 	setscaledreso(WIDTH, HEIGHT);
 	float winwid = (float)WIDTH;
