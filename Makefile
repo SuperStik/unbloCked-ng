@@ -20,12 +20,11 @@ override CCFLAGS += -DCLANG_MATRIX -fenable-matrix
 endif
 
 override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibility=hidden -DMA_NO_RUNTIME_LINKING -O$O
-export CCFLAGS
 
 .PHONY: all clean
 
 all: ${RES_OUT}
-	$(MAKE) -f scripts/$(shell uname).make
+	$(MAKE) -f scripts/$(shell uname).make CCFLAGS="${CCFLAGS}"
 
 ${RES_DIR}/%: ${RES}/% ${RES_DIR}
 	@mkdir -p `dirname $@`
