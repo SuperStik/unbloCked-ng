@@ -31,6 +31,10 @@ extern PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFami
 extern PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR VK_PFN_ALIAS(vkGetPhysicalDeviceSurfaceSupportKHR);
 
 /* device functions */
+extern PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines VK_PFN_ALIAS(vkCreateGraphicsPipelines);
+extern PFN_vkCreateShaderModule vkCreateShaderModule VK_PFN_ALIAS(vkCreateShaderModule);
 extern PFN_vkDestroyDevice vkDestroyDevice VK_PFN_ALIAS(vkDestroyDevice);
+extern PFN_vkDestroyPipeline vkDestroyPipeline VK_PFN_ALIAS(vkDestroyPipeline);
+extern PFN_vkDestroyShaderModule vkDestroyShaderModule VK_PFN_ALIAS(vkDestroyShaderModule);
 
 #endif /* UBLC_VK_PFN */

@@ -5,7 +5,7 @@ use strict;
 use feature 'say';
 use List::Util qw(uniq);
 
-open SYMBOLS, "<", "vkpfn_sym.txt";
+open SYMBOLS, "<", "vk_pfn_sym.txt";
 
 use constant {
 	GLOBAL => '$GLOBAL$',

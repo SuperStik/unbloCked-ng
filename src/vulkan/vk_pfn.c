@@ -17,7 +17,11 @@ PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFamilyPrope
 PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR VK_PFN_ALIAS(vkGetPhysicalDeviceSurfaceSupportKHR);
 
 /* device functions */
+PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines VK_PFN_ALIAS(vkCreateGraphicsPipelines);
+PFN_vkCreateShaderModule vkCreateShaderModule VK_PFN_ALIAS(vkCreateShaderModule);
 PFN_vkDestroyDevice vkDestroyDevice VK_PFN_ALIAS(vkDestroyDevice);
+PFN_vkDestroyPipeline vkDestroyPipeline VK_PFN_ALIAS(vkDestroyPipeline);
+PFN_vkDestroyShaderModule vkDestroyShaderModule VK_PFN_ALIAS(vkDestroyShaderModule);
 
 void vkpfn_load_global(void) {
 	vkCreateInstance = (void *)vkGetInstanceProcAddr(NULL, "vkCreateInstance");
@@ -36,5 +40,9 @@ void vkpfn_load_instance(VkInstance i) {
 }
 
 void vkpfn_load_device(VkDevice d) {
+	vkCreateGraphicsPipelines = (void *)vkGetDeviceProcAddr(d, "vkCreateGraphicsPipelines");
+	vkCreateShaderModule = (void *)vkGetDeviceProcAddr(d, "vkCreateShaderModule");
 	vkDestroyDevice = (void *)vkGetDeviceProcAddr(d, "vkDestroyDevice");
+	vkDestroyPipeline = (void *)vkGetDeviceProcAddr(d, "vkDestroyPipeline");
+	vkDestroyShaderModule = (void *)vkGetDeviceProcAddr(d, "vkDestroyShaderModule");
 }

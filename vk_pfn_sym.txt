@@ -11,4 +11,8 @@ vkGetPhysicalDeviceProperties
 vkGetPhysicalDeviceQueueFamilyProperties
 vkGetPhysicalDeviceSurfaceSupportKHR
 $DEVICE$
+vkCreateGraphicsPipelines
+vkCreateShaderModule
 vkDestroyDevice
+vkDestroyPipeline
+vkDestroyShaderModule
