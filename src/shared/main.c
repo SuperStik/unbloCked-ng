@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include <SDL3/SDL_init.h>
+#include <SDL3/SDL_platform.h>
 
 #include "cursor.h"
 #include "gui/screen.h"
@@ -18,6 +19,18 @@ char occluded;
 pthread_mutex_t occlusionlock = PTHREAD_MUTEX_INITIALIZER;
 
 static void getresourcemanager(ma_resource_manager *);
+
+#ifdef SDL_PLATFORM_APPLE
+/* allow game mode to be used, thank apple for this shit */
+char EMBED_INFO_PLIST[] __attribute__((used, section("__TEXT,__info_plist,regular,no_dead_strip"))) = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+"<plist version=\"1.0\">"
+	"<dict>"
+		"<key>LSSupportsGameMode</key>"
+		"<true/>"
+	"</dict>"
+"</plist>";
+#endif /* SDL_PLATFORM_APPLE */
 
 int main(void) {
 	warnx("Hello unbloCked!");
