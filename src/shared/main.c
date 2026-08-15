@@ -26,7 +26,11 @@ char EMBED_INFO_PLIST[] __attribute__((used, section("__TEXT,__info_plist,regula
 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
 "<plist version=\"1.0\">"
 	"<dict>"
+		"<key>LSApplicationCategoryType</key>"
+		"<string>public.app-category.games</string>"
 		"<key>LSSupportsGameMode</key>"
+		"<true/>"
+		"<key>NSHighResolutionCapable</key>"
 		"<true/>"
 	"</dict>"
 "</plist>";
