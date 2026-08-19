@@ -37,8 +37,8 @@ override LIB += vulkan
 override FRAMEWORK += CoreFoundation
 endif
 
-override LIB_PATH += /usr/local/lib
-override INCL_PATH += ${SRC} ${SRC}/shared miniaudio /usr/local/include /usr/local/include/opus
+override LIB_PATH += /usr/local/lib /opt/homebrew/lib
+override INCL_PATH += ${SRC} ${SRC}/shared miniaudio /usr/local/include /usr/local/include/opus /opt/homebrew/include /opt/homebrew/include/opus
 
 LIB_FL := $(patsubst %,-l%,${LIB})
 FRAMEWORK_FL := $(patsubst %,-framework %, ${FRAMEWORK})
