@@ -265,8 +265,13 @@ static void rebuilddepth(id<MTLDevice> device, uint32_t w, uint32_t h) {
 						     width:w
 						    height:h
 						 mipmapped:false];
-		desc.storageMode = MTLStorageModePrivate;
 		desc.usage = MTLTextureUsageRenderTarget;
+
+		MTLStorageMode storage = MTLStorageModePrivate;
+		if ([device supportsFamily:MTLGPUFamilyApple2])
+			storage = MTLStorageModeMemoryless;
+
+		desc.storageMode = storage;
 
 		depthtex = [device newTextureWithDescriptor:desc];
 		depthtex.label = @"depth.texture";
