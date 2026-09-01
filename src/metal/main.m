@@ -113,7 +113,7 @@ static void *MTL_render(void *l) {
 		renderPassDescriptor];
 	MTLRenderPassColorAttachmentDescriptor *color = rpd.colorAttachments[0];
 	color.loadAction = MTLLoadActionDontCare;
-	color.storeAction = MTLStoreActionDontCare;
+	color.storeAction = MTLStoreActionStore;
 	MTLRenderPassDepthAttachmentDescriptor *depth = rpd.depthAttachment;
 	depth.loadAction = MTLLoadActionClear;
 	depth.storeAction = MTLStoreActionDontCare;
