@@ -429,7 +429,7 @@ static id<MTLTexture> tex2d_ex(const char *path, id<MTLDevice> device, int
 		desc.hazardTrackingMode = MTLHazardTrackingModeUntracked;
 
 	tex = [device newTextureWithDescriptor:desc];
-	tex.label = [NSString stringWithFormat:@"game.texture [%s]", path];
+	tex.label = [NSString stringWithFormat:@"texture.single [%s]", path];
 
 	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
 	[tex replaceRegion:replace
@@ -468,9 +468,11 @@ static id<MTLTexture> tex2d_array_ex(const char *path, unsigned short tx,
 	if (flags & TEX_FLAG_WRITE)
 		desc.usage = MTLTextureUsageShaderRead |
 			MTLTextureUsageShaderWrite;
+	else
+		desc.hazardTrackingMode = MTLHazardTrackingModeUntracked;
 
 	id<MTLTexture> tex = [device newTextureWithDescriptor:desc];
-	tex.label = [NSString stringWithFormat:@"%s", path];
+	tex.label = [NSString stringWithFormat:@"texture.array [%s]", path];
 
 	[enc optimizeContentsForGPUAccess:basetex];
 
