@@ -425,9 +425,11 @@ static id<MTLTexture> tex2d_ex(const char *path, id<MTLDevice> device, int
 	if (flags & TEX_FLAG_WRITE)
 		desc.usage = MTLTextureUsageShaderRead |
 			MTLTextureUsageShaderWrite;
+	else
+		desc.hazardTrackingMode = MTLHazardTrackingModeUntracked;
 
 	tex = [device newTextureWithDescriptor:desc];
-	tex.label = [NSString stringWithFormat:@"%s", path];
+	tex.label = [NSString stringWithFormat:@"game.texture [%s]", path];
 
 	MTLRegion replace = MTLRegionMake2D(0, 0, width, height);
 	[tex replaceRegion:replace
