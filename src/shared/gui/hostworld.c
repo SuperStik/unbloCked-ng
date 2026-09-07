@@ -2,6 +2,7 @@
 #include "hostworld.h"
 #include "screen.h"
 #include <sound/sound.h>
+#include <world/world.h>
 
 static void button_play(float x, float y);
 static void button_cancel(float x, float y);
@@ -67,6 +68,7 @@ void gui_hostworld_onhover(struct gui_hostworld *screen, gvec(float,2) pos,
 
 static void button_play(float x, float y) {
 	ma_sound_start(&sound.ui.click);
+	ublc_world_new(&world);
 }
 
 static void button_cancel(float x, float y) {

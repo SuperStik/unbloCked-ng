@@ -9,6 +9,8 @@ struct ublc_world {
 	struct ublc_worldinfo info;
 };
 
+extern struct ublc_world world;
+
 struct ublc_world *ublc_world_new(struct ublc_world *);
 
 void ublc_world_delete(struct ublc_world *);
