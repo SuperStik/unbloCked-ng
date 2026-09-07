@@ -24,6 +24,10 @@ void gui_drawscreen_release(struct gui_drawscreen *drawscreen) {
 		case GUI_SCREEN_HOSTWORLD:
 			gui_drawhostworld_release(
 					&drawscreen->screens.hostworld);
+			break;
+		case GUI_SCREEN_LOADING:
+			gui_drawloading_release(&drawscreen->screens.loading);
+			break;
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -53,6 +57,8 @@ void gui_drawscreen_draw_opaque(struct gui_drawscreen *screen, id
 					&screen->screens.hostworld,
 					render_encoder);
 			break;
+		case GUI_SCREEN_LOADING:
+			break;
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -68,6 +74,10 @@ void gui_drawscreen_draw_blended(struct gui_drawscreen *screen, id
 		case GUI_SCREEN_HOSTWORLD:
 			gui_drawhostworld_draw_blended(
 					&screen->screens.hostworld,
+					render_encoder);
+			break;
+		case GUI_SCREEN_LOADING:
+			gui_drawloading_draw_blended(&screen->screens.loading,
 					render_encoder);
 			break;
 		case GUI_SCREEN_MAX:
@@ -102,6 +112,14 @@ static void drawsubscreen_init(struct gui_drawscreen *drawscreen, id device,
 
 			gui_drawhostworld_init(&drawscreen->screens.hostworld,
 					&screen.screens.hostworld, device);
+			break;
+		case GUI_SCREEN_LOADING:
+			drawscreen->screens.loading.pipeline_text = shdr->text;
+			drawscreen->screens.loading.texture_font =
+				tex->font.font;
+
+			gui_drawloading_init(&drawscreen->screens.loading,
+					device);
 			break;
 		case GUI_SCREEN_MAX:
 			break;

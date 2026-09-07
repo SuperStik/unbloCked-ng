@@ -68,6 +68,7 @@ void gui_hostworld_onhover(struct gui_hostworld *screen, gvec(float,2) pos,
 
 static void button_play(float x, float y) {
 	ma_sound_start(&sound.ui.click);
+	gui_screen_switch(&screen, GUI_SCREEN_LOADING);
 	ublc_world_new(&world);
 }
 

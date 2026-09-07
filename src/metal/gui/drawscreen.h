@@ -5,6 +5,7 @@
 
 #include <gui/screen.h>
 #include <metal/gui/drawhostworld.h>
+#include <metal/gui/drawloading.h>
 #include <metal/gui/drawmainmenu.h>
 #include <metal/textures.h>
 #include <metal/shaders.h>
@@ -14,6 +15,7 @@ struct gui_drawscreen {
 	union {
 		struct gui_drawhostworld hostworld;
 		struct gui_drawmainmenu mainmenu;
+		struct gui_drawloading loading;
 	} screens;
 };
 

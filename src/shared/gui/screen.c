@@ -1,3 +1,4 @@
+#include <cursor.h>
 #include "screen.h"
 
 static void subscreen_init(struct gui_screen *, enum gui_screen_type type);
@@ -51,6 +52,8 @@ void gui_screen_onclick(struct gui_screen *screen, float x, float y) {
 		case GUI_SCREEN_HOSTWORLD:
 			gui_hostworld_onclick(&screen->screens.hostworld, x, y);
 			break;
+		case GUI_SCREEN_LOADING:
+			break;
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -68,6 +71,8 @@ void gui_screen_onhover(struct gui_screen *screen, float x, float y) {
 		case GUI_SCREEN_HOSTWORLD:
 			gui_hostworld_onhover(&screen->screens.hostworld, pos,
 					area);
+			break;
+		case GUI_SCREEN_LOADING:
 			break;
 		case GUI_SCREEN_MAX:
 			break;
@@ -91,6 +96,9 @@ static void subscreen_init(struct gui_screen *screen, enum gui_screen_type
 		case GUI_SCREEN_HOSTWORLD:
 			gui_hostworld_init(&screen->screens.hostworld);
 			break;
+		case GUI_SCREEN_LOADING:
+			cursor_set(SDL_SYSTEM_CURSOR_DEFAULT);
+			break;
 		case GUI_SCREEN_MAX:
 			break;
 	}
@@ -103,6 +111,8 @@ static void subscreen_destroy(struct gui_screen *screen) {
 			break;
 		case GUI_SCREEN_HOSTWORLD:
 			gui_hostworld_destroy(&screen->screens.hostworld);
+			break;
+		case GUI_SCREEN_LOADING:
 			break;
 		case GUI_SCREEN_MAX:
 			break;
