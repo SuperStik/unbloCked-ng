@@ -18,6 +18,8 @@ char done = 0;
 char occluded;
 pthread_mutex_t occlusionlock = PTHREAD_MUTEX_INITIALIZER;
 
+struct control controller = CONTROL_INITIALIZER;
+
 static void getresourcemanager(ma_resource_manager *);
 
 #ifdef SDL_PLATFORM_APPLE
@@ -56,8 +58,8 @@ int main(void) {
 
 	warnx("Loading sounds...");
 	sound_load(&engine);
-
 	warnx("Done!");
+
 	gl_main();
 
 	sound_unload();
@@ -100,6 +102,16 @@ void ev_loop(void) {
 					occluded = 1;
 					pthread_mutex_lock(&occlusionlock);
 				}
+
+				break;
+			case SDL_EVENT_KEY_DOWN:
+				if (!ev.key.repeat)
+					ctrl_keydown(&controller,
+							ev.key.scancode);
+
+				break;
+			case SDL_EVENT_KEY_UP:
+				ctrl_keyup(&controller, ev.key.scancode);
 
 				break;
 			case SDL_EVENT_MOUSE_MOTION:

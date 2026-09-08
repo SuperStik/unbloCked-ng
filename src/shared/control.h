@@ -1,0 +1,31 @@
+#ifndef CONTROL_H
+#define CONTROL_H 1
+
+#include <SDL3/SDL_events.h>
+
+#include <math/vector.h>
+#include <pthread.h>
+
+#define CONTROL_INITIALIZER { \
+	PTHREAD_MUTEX_INITIALIZER, \
+	{0.0f, 0.0f}, \
+	{0.0f, 0.0f} \
+}
+
+struct control {
+	pthread_rwlock_t lock;
+	gvec(float,2) move_nonorm;
+	gvec(float,2) move;
+};
+
+struct control *ctrl_create(struct control *);
+
+void ctrl_destroy(struct control *);
+
+gvec(float,2) ctrl_getmove(struct control *);
+
+void ctrl_keydown(struct control *, SDL_Scancode);
+
+void ctrl_keyup(struct control *, SDL_Scancode);
+
+#endif /* CONTROLLER_H */
