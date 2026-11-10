@@ -1,7 +1,7 @@
 export CC ?= cc
 export EXE := unbloCked
 
-export SRC := src
+export SRC_DIR := src
 
 export OUT_DIR := build
 export OUT := ${OUT_DIR}/${EXE}

@@ -8,20 +8,18 @@ else
 $(error Bad graphics library given, use 'vulkan' or 'metal')
 endif
 
-SRC_DIRS := $(shell find ${SRC}/ -type d)
-# TODO: figure out how to make this one command
-SRC_C := $(shell find ${SRC}/shared ${SRC}/${GL} -type f -name '*.c')
-SRC_M := $(shell find ${SRC}/shared ${SRC}/${GL} -type f -name '*.m')
+SRC_DIRS := $(shell find ${SRC_DIR}/ -type d)
+SRC := $(shell find ${SRC_DIR}/shared ${SRC_DIR}/${GL} -type f -name '*.[cm]')
 
 ifeq (${GL}, metal)
-SHDR_SRC := ${SRC}/${GL}/shaders
+SHDR_SRC := ${SRC_DIR}/${GL}/shaders
 SHDR_METAL := $(wildcard ${SHDR_SRC}/*.metal)
 endif
 
 OBJ_DIR := ${OUT_DIR}/objects
-OBJ_C := $(patsubst src/%.c,${OBJ_DIR}/%.c.o,${SRC_C})
-OBJ_M := $(patsubst src/%.m,${OBJ_DIR}/%.m.o,${SRC_M})
-OBJ_DIRS := $(patsubst ${SRC}/%,${OBJ_DIR}/%,${SRC_DIRS})
+OBJ := $(patsubst src/%.c,${OBJ_DIR}/%.c.o,${SRC})
+OBJ := $(patsubst src/%.m,${OBJ_DIR}/%.m.o,${OBJ})
+OBJ_DIRS := $(patsubst ${SRC_DIR}/%,${OBJ_DIR}/%,${SRC_DIRS})
 
 ifeq (${GL}, metal)
 	SHDR_AIR_OUT := $(patsubst ${SHDR_SRC}/%.metal,${OBJ_DIR}/%.air,${SHDR_METAL})
@@ -38,7 +36,7 @@ override FRAMEWORK += CoreFoundation
 endif
 
 override LIB_PATH += /usr/local/lib /opt/homebrew/lib
-override INCL_PATH += ${SRC} ${SRC}/shared miniaudio /usr/local/include /usr/local/include/opus /opt/homebrew/include /opt/homebrew/include/opus
+override INCL_PATH += ${SRC_DIR} ${SRC_DIR}/shared miniaudio /usr/local/include /usr/local/include/opus /opt/homebrew/include /opt/homebrew/include/opus
 
 LIB_FL := $(patsubst %,-l%,${LIB})
 FRAMEWORK_FL := $(patsubst %,-framework %, ${FRAMEWORK})
@@ -49,13 +47,11 @@ INCL_PATH_FL := $(patsubst %,-I%, ${INCL_PATH})
 
 all: ${OBJ_DIRS} ${OUT} ${SHDR_OUT}
 
-${OUT}: ${OBJ_C} ${OBJ_M}
+${OUT}: ${OBJ}
+	echo ${OBJ}
 	${CC} $^ -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS}
 
-${OBJ_DIR}/%.c.o: ${SRC}/%.c ${OBJ_DIRS}
-	${CC} $< -o $@ -c ${INCL_PATH_FL} ${CCFLAGS}
-
-${OBJ_DIR}/%.m.o: ${SRC}/%.m ${OBJ_DIRS}
+${OBJ_DIR}/%.o: ${SRC_DIR}/% ${OBJ_DIRS}
 	${CC} $< -o $@ -c ${INCL_PATH_FL} ${CCFLAGS}
 
 ${OBJ_DIR}/%.air: ${SHDR_SRC}/%.metal ${OBJ_DIR}
