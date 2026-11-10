@@ -16,9 +16,13 @@ SHDR_SRC := ${SRC_DIR}/${GL}/shaders
 SHDR_METAL := $(wildcard ${SHDR_SRC}/*.metal)
 endif
 
-SHDR_DIR := ${OUT_DIR}/objects
+OBJ_DIR := ${OUT_DIR}/objects
+OBJ := $(patsubst src/%.c,${OBJ_DIR}/%.c.o,${SRC})
+OBJ := $(patsubst src/%.m,${OBJ_DIR}/%.m.o,${OBJ})
+OBJ_DIRS := $(patsubst ${SRC_DIR}/%,${OBJ_DIR}/%,${SRC_DIRS})
 
 ifeq (${GL}, metal)
+	SHDR_AIR_OUT := $(patsubst ${SHDR_SRC}/%.metal,${OBJ_DIR}/%.air,${SHDR_METAL})
 	SHDR_OUT := ${OUT_DIR}/default.metallib
 endif
 
@@ -41,14 +45,23 @@ INCL_PATH_FL := $(patsubst %,-I%, ${INCL_PATH})
 
 .PHONY: all clean
 
-all: ${OUT} ${SHDR_OUT}
+all: ${OBJ_DIRS} ${OUT} ${SHDR_OUT}
 
-${OUT}: ${SRC}
-	${CC} $^ -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS} ${INCL_PATH_FL}
+${OUT}: ${OBJ}
+	echo ${OBJ}
+	${CC} $^ -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS}
 
+${OBJ_DIR}/%.o: ${SRC_DIR}/% ${OBJ_DIRS}
+	${CC} $< -o $@ -c ${INCL_PATH_FL} ${CCFLAGS}
 
-${SHDR_OUT}: ${SHDR_METAL} ${SHDR_DIR}
-	xcrun metal -o $@ ${SHDR_METAL}
+${OBJ_DIR}/%.air: ${SHDR_SRC}/%.metal ${OBJ_DIR}
+	xcrun metal -O$O -c -o $@ $<
+
+${SHDR_OUT}: ${SHDR_AIR_OUT} ${SHDR_DIR}
+	xcrun metal -o $@ ${SHDR_AIR_OUT}
+
+${OBJ_DIRS}:
+	mkdir -p $@
 
 ${SHDR_DIR}:
 	mkdir -p $@
