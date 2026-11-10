@@ -62,6 +62,3 @@ ${SHDR_OUT}: ${SHDR_AIR_OUT} ${SHDR_DIR}
 
 ${OBJ_DIRS}:
 	mkdir -p $@
-
-${SHDR_DIR}:
-	mkdir -p $@
