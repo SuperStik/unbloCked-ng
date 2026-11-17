@@ -19,7 +19,7 @@ ifneq (${CLANG_MATRIX},0)
 override CCFLAGS += -DCLANG_MATRIX -fenable-matrix
 endif
 
-override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibility=hidden -DMA_NO_RUNTIME_LINKING -O$O
+override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibility=hidden -DMA_NO_RUNTIME_LINKING -D_FORTIFY_SOURCE=2 -O$O
 
 .PHONY: all clean
 
