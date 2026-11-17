@@ -43,13 +43,18 @@ FRAMEWORK_FL := $(patsubst %,-framework %, ${FRAMEWORK})
 LIB_PATH_FL := $(patsubst %,-L%, ${LIB_PATH})
 INCL_PATH_FL := $(patsubst %,-I%, ${INCL_PATH})
 
+APPLE_INFO_PLIST := scripts/Darwin/Info.plist
+APPLE_ENTITLEMENTS_PLIST := scripts/Darwin/Entitlements.plist
+APPLE_SIGNING_IDENTITY ?= -
+
 .PHONY: all clean
 
 all: ${OBJ_DIRS} ${OUT} ${SHDR_OUT}
 
 ${OUT}: ${OBJ}
 	echo ${OBJ}
-	${CC} $^ -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS} -Wl,-sectcreate,__TEXT,__info_plist,scripts/Darwin/Info.plist
+	${CC} $^ -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS} -Wl,-sectcreate,__TEXT,__info_plist,${APPLE_INFO_PLIST}
+	codesign -fv -s ${APPLE_SIGNING_IDENTITY} -o runtime --entitlements ${APPLE_ENTITLEMENTS_PLIST} $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/% ${OBJ_DIRS}
 	${CC} $< -o $@ -c ${INCL_PATH_FL} ${CCFLAGS}
