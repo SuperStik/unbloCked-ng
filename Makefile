@@ -24,7 +24,7 @@ override CCFLAGS += -flto -funsafe-math-optimizations -fno-math-errno -fvisibili
 .PHONY: all clean
 
 all: ${RES_OUT}
-	$(MAKE) -f scripts/$(shell uname).make CCFLAGS="${CCFLAGS}"
+	$(MAKE) -f scripts/$(shell uname)/Makefile CCFLAGS="${CCFLAGS}"
 
 ${RES_DIR}/%: ${RES}/% ${RES_DIR}
 	@mkdir -p `dirname $@`
