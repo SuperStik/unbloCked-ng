@@ -22,22 +22,6 @@ struct control controller = CONTROL_INITIALIZER;
 
 static void getresourcemanager(ma_resource_manager *);
 
-#ifdef SDL_PLATFORM_APPLE
-/* allow game mode to be used, thank apple for this shit */
-char EMBED_INFO_PLIST[] __attribute__((used, section("__TEXT,__info_plist,regular,no_dead_strip"))) = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
-"<plist version=\"1.0\">"
-	"<dict>"
-		"<key>LSApplicationCategoryType</key>"
-		"<string>public.app-category.games</string>"
-		"<key>LSSupportsGameMode</key>"
-		"<true/>"
-		"<key>NSHighResolutionCapable</key>"
-		"<true/>"
-	"</dict>"
-"</plist>";
-#endif /* SDL_PLATFORM_APPLE */
-
 int main(void) {
 	warnx("Hello unbloCked!");
 	

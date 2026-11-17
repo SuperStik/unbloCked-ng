@@ -49,7 +49,7 @@ all: ${OBJ_DIRS} ${OUT} ${SHDR_OUT}
 
 ${OUT}: ${OBJ}
 	echo ${OBJ}
-	${CC} $^ -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS}
+	${CC} $^ -o $@ ${LIB_PATH_FL} ${LIB_FL} ${FRAMEWORK_FL} ${CCFLAGS} -Wl,-sectcreate,__TEXT,__info_plist,scripts/Darwin/Info.plist
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/% ${OBJ_DIRS}
 	${CC} $< -o $@ -c ${INCL_PATH_FL} ${CCFLAGS}
